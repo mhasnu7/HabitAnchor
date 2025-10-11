@@ -1,31 +1,59 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import HabitItem from '../components/HabitItem';
-import Header from '../components/Header';
-import BottomNavBar from '../components/BottomNavBar';
-
-const habits = [
-  { id: '1', name: 'Learn', description: 'Learning', color: '#e0ffe0' },
-  { id: '2', name: 'Workout', description: 'Gym', color: '#ffe0e0' },
-];
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
+import { useHabitStore } from '../store/habits';
+import HabitCard from '../components/HabitCard';
 
 const HomeScreen = () => {
+  const { habits } = useHabitStore();
+
   return (
     <View style={styles.container}>
-      <Header />
-      <FlatList
-        style={styles.list}
-        data={habits}
-        renderItem={({ item }) => (
-          <HabitItem
-            name={item.name}
-            description={item.description}
-            color={item.color}
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Icon name="settings" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Habit Anchor</Text>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.proBadge}>
+            <Text style={styles.proText}>PRO</Text>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Icon name="bar-chart-2" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Icon name="plus" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <ScrollView style={styles.scrollView}>
+        {habits.map(habit => (
+          <HabitCard
+            key={habit.id}
+            id={habit.id}
+            name={habit.name}
+            subtitle={habit.subtitle}
+            color={habit.color}
           />
-        )}
-        keyExtractor={item => item.id}
-      />
-      <BottomNavBar />
+        ))}
+      </ScrollView>
+      <View style={styles.navBar}>
+        <TouchableOpacity>
+          <Icon name="grid" size={24} color="#8a2be2" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Icon name="list" size={24} color="#888" />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Icon name="bar-chart" size={24} color="#888" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -33,11 +61,48 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000000',
   },
-  list: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
-  }
+    paddingTop: 48,
+    paddingBottom: 16,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  proBadge: {
+    backgroundColor: '#333',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  proText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  scrollView: {
+    paddingHorizontal: 16,
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    borderTopWidth: 1,
+    borderTopColor: '#222',
+    paddingVertical: 16,
+  },
 });
 
 export default HomeScreen;
