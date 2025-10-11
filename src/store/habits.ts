@@ -17,6 +17,7 @@ interface Habit {
 interface HabitState {
   habits: Habit[];
   toggleCompletion: (habitId: string, date: string) => void;
+  addHabit: (habit: Omit<Habit, 'id' | 'progress'>) => void;
 }
 
 export const useHabitStore = create<HabitState>((set) => ({
@@ -48,5 +49,16 @@ export const useHabitStore = create<HabitState>((set) => ({
             }
           : h
       ),
+    })),
+  addHabit: (habit) =>
+    set((state) => ({
+      habits: [
+        ...state.habits,
+        {
+          ...habit,
+          id: Math.random().toString(),
+          progress: generateLastNDays(90),
+        },
+      ],
     })),
 }));

@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { useHabitStore } from '../store/habits';
 import HabitCard from '../components/HabitCard';
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const { habits } = useHabitStore();
 
   return (
@@ -21,13 +21,10 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Habit Anchor</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.proBadge}>
-            <Text style={styles.proText}>PRO</Text>
-          </TouchableOpacity>
           <TouchableOpacity>
             <Icon name="bar-chart-2" size={24} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
             <Icon name="plus" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -80,16 +77,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-  },
-  proBadge: {
-    backgroundColor: '#333',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  proText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
   scrollView: {
     paddingHorizontal: 16,
