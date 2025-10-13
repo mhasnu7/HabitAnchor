@@ -10,8 +10,15 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import AddHabitScreen from './src/screens/AddHabitScreen';
+import HabitCalendarScreen from './src/screens/HabitCalendarScreen';
 
-const Stack = createNativeStackNavigator();
+export type RootStackParamList = {
+  Home: undefined;
+  AddHabit: undefined;
+  HabitCalendar: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   return (
@@ -22,6 +29,7 @@ function App() {
         }}>
         <Stack.Group>
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
         </Stack.Group>
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
           <Stack.Screen name="AddHabit" component={AddHabitScreen} />

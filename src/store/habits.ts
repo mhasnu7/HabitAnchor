@@ -11,6 +11,12 @@ interface Habit {
   name: string;
   subtitle: string;
   color: string;
+  icon: string;
+  streakGoal: string;
+  reminders: number;
+  categories: string[];
+  completionTracking: string;
+  completionsPerDay: number;
   progress: DayProgress[];
 }
 
@@ -27,6 +33,12 @@ export const useHabitStore = create<HabitState>((set) => ({
       name: 'Learn',
       subtitle: 'Learning',
       color: '#4ade80',
+      icon: 'book',
+      streakGoal: 'None',
+      reminders: 0,
+      categories: ['Study'],
+      completionTracking: 'Step by Step',
+      completionsPerDay: 1,
       progress: generateLastNDays(90),
     },
     {
@@ -34,6 +46,12 @@ export const useHabitStore = create<HabitState>((set) => ({
       name: 'Workout',
       subtitle: 'Gym',
       color: '#ef4444',
+      icon: 'fitness',
+      streakGoal: 'None',
+      reminders: 0,
+      categories: ['Fitness'],
+      completionTracking: 'Step by Step',
+      completionsPerDay: 1,
       progress: generateLastNDays(90),
     },
   ],

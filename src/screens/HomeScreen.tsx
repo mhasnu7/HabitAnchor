@@ -9,8 +9,17 @@ import {
 import Icon from 'react-native-vector-icons/Feather';
 import { useHabitStore } from '../store/habits';
 import HabitCard from '../components/HabitCard';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const HomeScreen = ({ navigation }) => {
+type RootStackParamList = {
+  Home: undefined;
+  AddHabit: undefined;
+  HabitCalendar: undefined;
+};
+
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const { habits } = useHabitStore();
 
   return (
@@ -40,16 +49,18 @@ const HomeScreen = ({ navigation }) => {
           />
         ))}
       </ScrollView>
-      <View style={styles.navBar}>
-        <TouchableOpacity>
-          <Icon name="grid" size={24} color="#8a2be2" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Icon name="list" size={24} color="#888" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Icon name="bar-chart" size={24} color="#888" />
-        </TouchableOpacity>
+      <View style={styles.bottomNavBarContainer}>
+        <View style={styles.bottomNavBar}>
+          <TouchableOpacity style={styles.navButton}>
+            <Icon name="grid" size={24} color="#8a2be2" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitCalendar')}>
+            <Icon name="check-square" size={24} color="#888" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navButton}>
+            <Icon name="align-justify" size={24} color="#8a2be2" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -81,14 +92,29 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+  bottomNavBarContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    backgroundColor: '#000000',
-    borderTopWidth: 1,
-    borderTopColor: '#222',
-    paddingVertical: 16,
+  },
+  bottomNavBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 50,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    justifyContent: 'space-around',
+    width: '80%',
+  },
+  navButton: {
+    padding: 8,
   },
 });
 
