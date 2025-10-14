@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   ScrollView,
   LayoutChangeEvent,
+  Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
-import Animated, {
+import {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
@@ -108,173 +111,182 @@ const AddHabitScreen = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="close" size={24} color="#fff" />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Icon name="close" size={24} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.title}>New Habit</Text>
+            <View style={{ width: 24 }} />
+          </View>
+
+          <ScrollView>
+            <View style={styles.section}>
+              <Text style={styles.label}>Icon</Text>
+              <View style={styles.selectedIconContainer}>
+                <Icon name={selectedIcon} size={48} color="#fff" />
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {icons.map(icon => (
+                  <TouchableOpacity key={icon} onPress={() => setSelectedIcon(icon)}>
+                    <Icon name={icon} size={32} color={selectedIcon === icon ? '#fff' : '#888'} style={styles.icon} />
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.label}>Name</Text>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="e.g. Read a book"
+                placeholderTextColor="#888"
+                autoCorrect={false}
+                spellCheck={false}
+              />
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.label}>Description</Text>
+              <TextInput
+                style={styles.input}
+                value={description}
+                onChangeText={setDescription}
+                placeholder="e.g. For 30 minutes"
+                placeholderTextColor="#888"
+                autoCorrect={false}
+                spellCheck={false}
+              />
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.label}>Color</Text>
+              <View style={styles.colorGrid}>
+                {colors.map(color => (
+                  <TouchableOpacity
+                    key={color}
+                    style={[
+                      styles.colorCell,
+                      { backgroundColor: color, borderColor: selectedColor === color ? '#fff' : color },
+                    ]}
+                    onPress={() => setSelectedColor(color)}
+                  />
+                ))}
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.advancedButton}
+              onPress={toggleAdvancedOptions}
+            >
+              <Text style={styles.advancedText}>Advanced Options</Text>
+              <Icon name={showAdvanced ? 'chevron-up' : 'chevron-down'} size={24} color="#fff" />
+            </TouchableOpacity>
+
+            <Animated.View
+              style={[styles.advancedContent, animatedAdvancedOptionsStyle]}
+              onLayout={onAdvancedContentLayout}
+            >
+              <View style={styles.advancedOptionItem}>
+                <Text style={styles.label}>Streak Goal</Text>
+                <TouchableOpacity style={styles.advancedOptionValueContainer}>
+                  <Text style={styles.advancedOptionValue}>{streakGoal}</Text>
+                  <Icon name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.advancedOptionItem}>
+                <Text style={styles.label}>Reminder</Text>
+                <TouchableOpacity style={styles.advancedOptionValueContainer}>
+                  <Text style={styles.advancedOptionValue}>{reminders} Active Reminders</Text>
+                  <Icon name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.advancedOptionItem}>
+                <Text style={styles.label}>Categories</Text>
+                <TouchableOpacity
+                  style={styles.advancedOptionValueContainer}
+                  onPress={() => setIsCategoryModalVisible(true)}
+                >
+                  <Text style={styles.advancedOptionValue}>{selectedCategories.length > 0 ? selectedCategories.join(', ') : 'None'}</Text>
+                  <Icon name="chevron-forward" size={20} color="#888" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.label}>How should completions be tracked?</Text>
+                <View style={styles.completionTrackingOptions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.completionTrackingButton,
+                      completionTracking === 'Step by Step' && styles.completionTrackingButtonActive,
+                    ]}
+                    onPress={() => setCompletionTracking('Step by Step')}
+                  >
+                    <Text style={styles.completionTrackingButtonText}>Step By Step</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.completionTrackingButton,
+                      completionTracking === 'Custom Value' && styles.completionTrackingButtonActive,
+                    ]}
+                    onPress={() => setCompletionTracking('Custom Value')}
+                  >
+                    <Text style={styles.completionTrackingButtonText}>Custom Value</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.completionTrackingDescription}>
+                  {completionTracking === 'Step by Step'
+                    ? 'Increment by 1 with each completion'
+                    : 'Enter a custom value for each completion'}
+                </Text>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.label}>Completions Per Day</Text>
+                <View style={styles.completionsPerDayContainer}>
+                  <TouchableOpacity
+                    style={styles.completionsPerDayButton}
+                    onPress={() => setCompletionsPerDay(Math.max(1, completionsPerDay - 1))}
+                  >
+                    <Text style={styles.completionsPerDayButtonText}>-</Text>
+                  </TouchableOpacity>
+                  <TextInput
+                    style={styles.completionsPerDayInput}
+                    value={String(completionsPerDay)}
+                    onChangeText={(text) => setCompletionsPerDay(Number(text) || 1)}
+                    keyboardType="numeric"
+                  />
+                  <Text style={styles.completionsPerDayUnit}>/ Day</Text>
+                  <TouchableOpacity
+                    style={styles.completionsPerDayButton}
+                    onPress={() => setCompletionsPerDay(completionsPerDay + 1)}
+                  >
+                    <Text style={styles.completionsPerDayButtonText}>+</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.completionsPerDayEditButton}>
+                    <Icon name="pencil" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.completionTrackingDescription}>
+                  The square will be filled completely when this number is met
+                </Text>
+              </View>
+            </Animated.View>
+          </ScrollView>
+
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>New Habit</Text>
-          <View style={{ width: 24 }} />
         </View>
-
-        <ScrollView>
-          <View style={styles.section}>
-            <Text style={styles.label}>Icon</Text>
-            <View style={styles.selectedIconContainer}>
-              <Icon name={selectedIcon} size={48} color="#fff" />
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {icons.map(icon => (
-                <TouchableOpacity key={icon} onPress={() => setSelectedIcon(icon)}>
-                  <Icon name={icon} size={32} color={selectedIcon === icon ? '#fff' : '#888'} style={styles.icon} />
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholder="e.g. Read a book"
-              placeholderTextColor="#888"
-            />
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              style={styles.input}
-              value={description}
-              onChangeText={setDescription}
-              placeholder="e.g. For 30 minutes"
-              placeholderTextColor="#888"
-            />
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>Color</Text>
-            <View style={styles.colorGrid}>
-              {colors.map(color => (
-                <TouchableOpacity
-                  key={color}
-                  style={[
-                    styles.colorCell,
-                    { backgroundColor: color, borderColor: selectedColor === color ? '#fff' : color },
-                  ]}
-                  onPress={() => setSelectedColor(color)}
-                />
-              ))}
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.advancedButton}
-            onPress={toggleAdvancedOptions}
-          >
-            <Text style={styles.advancedText}>Advanced Options</Text>
-            <Icon name={showAdvanced ? 'chevron-up' : 'chevron-down'} size={24} color="#fff" />
-          </TouchableOpacity>
-
-          <Animated.View
-            style={[styles.advancedContent, animatedAdvancedOptionsStyle]}
-            onLayout={onAdvancedContentLayout}
-          >
-            <View style={styles.advancedOptionItem}>
-              <Text style={styles.label}>Streak Goal</Text>
-              <TouchableOpacity style={styles.advancedOptionValueContainer}>
-                <Text style={styles.advancedOptionValue}>{streakGoal}</Text>
-                <Icon name="chevron-forward" size={20} color="#888" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.advancedOptionItem}>
-              <Text style={styles.label}>Reminder</Text>
-              <TouchableOpacity style={styles.advancedOptionValueContainer}>
-                <Text style={styles.advancedOptionValue}>{reminders} Active Reminders</Text>
-                <Icon name="chevron-forward" size={20} color="#888" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.advancedOptionItem}>
-              <Text style={styles.label}>Categories</Text>
-              <TouchableOpacity
-                style={styles.advancedOptionValueContainer}
-                onPress={() => setIsCategoryModalVisible(true)}
-              >
-                <Text style={styles.advancedOptionValue}>{selectedCategories.length > 0 ? selectedCategories.join(', ') : 'None'}</Text>
-                <Icon name="chevron-forward" size={20} color="#888" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.label}>How should completions be tracked?</Text>
-              <View style={styles.completionTrackingOptions}>
-                <TouchableOpacity
-                  style={[
-                    styles.completionTrackingButton,
-                    completionTracking === 'Step by Step' && styles.completionTrackingButtonActive,
-                  ]}
-                  onPress={() => setCompletionTracking('Step by Step')}
-                >
-                  <Text style={styles.completionTrackingButtonText}>Step By Step</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.completionTrackingButton,
-                    completionTracking === 'Custom Value' && styles.completionTrackingButtonActive,
-                  ]}
-                  onPress={() => setCompletionTracking('Custom Value')}
-                >
-                  <Text style={styles.completionTrackingButtonText}>Custom Value</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.completionTrackingDescription}>
-                {completionTracking === 'Step by Step'
-                  ? 'Increment by 1 with each completion'
-                  : 'Enter a custom value for each completion'}
-              </Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.label}>Completions Per Day</Text>
-              <View style={styles.completionsPerDayContainer}>
-                <TouchableOpacity
-                  style={styles.completionsPerDayButton}
-                  onPress={() => setCompletionsPerDay(Math.max(1, completionsPerDay - 1))}
-                >
-                  <Text style={styles.completionsPerDayButtonText}>-</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={styles.completionsPerDayInput}
-                  value={String(completionsPerDay)}
-                  onChangeText={(text) => setCompletionsPerDay(Number(text) || 1)}
-                  keyboardType="numeric"
-                />
-                <Text style={styles.completionsPerDayUnit}>/ Day</Text>
-                <TouchableOpacity
-                  style={styles.completionsPerDayButton}
-                  onPress={() => setCompletionsPerDay(completionsPerDay + 1)}
-                >
-                  <Text style={styles.completionsPerDayButtonText}>+</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.completionsPerDayEditButton}>
-                  <Icon name="pencil" size={20} color="#fff" />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.completionTrackingDescription}>
-                The square will be filled completely when this number is met
-              </Text>
-            </View>
-          </Animated.View>
-        </ScrollView>
-
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 };
@@ -347,8 +359,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#1a1a1a',
     borderRadius: 8,
     overflow: 'hidden',
-    position: 'absolute', // Position absolutely to not take up space when collapsed
-    zIndex: -1, // Ensure it's behind other content when collapsed
+    position: 'relative',
+    zIndex: 1,
   },
   advancedOptionItem: {
     flexDirection: 'row',
