@@ -18,37 +18,28 @@ import {
 import Animated from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
 import CategorySelectionModal from '../components/CategorySelectionModal';
-
-type RootStackParamList = {
-  Home: undefined;
-  AddHabit: undefined;
-};
-
+import { RootStackParamList } from '../../App'; // Import RootStackParamList
+ 
 type AddHabitScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddHabit'>;
-
+type AddHabitScreenRouteProp = RouteProp<RootStackParamList, 'AddHabit'>;
+ 
 const colors = [
   '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981',
   '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7',
   '#d946ef', '#ec4899', '#f43f5e',
 ];
-
-const icons = [
-  'american-football', 'basketball', 'beer', 'bicycle', 'book', 'build', 'cafe', 'camera',
-  'car-sport', 'cloudy', 'desktop', 'fast-food', 'fitness', 'football', 'game-controller',
-  'headset', 'heart', 'home', 'ice-cream', 'leaf', 'logo-bitcoin', 'musical-notes',
-  'paw', 'pencil', 'pizza', 'rainy', 'school', 'star', 'sunny', 'walk', 'water',
-];
-
+ 
 const AddHabitScreen = () => {
   const navigation = useNavigation<AddHabitScreenNavigationProp>();
+  const route = useRoute<AddHabitScreenRouteProp>();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(colors[0]);
-  const [selectedIcon, setSelectedIcon] = useState(icons[0]);
+  const [selectedIcon, setSelectedIcon] = useState('american-football'); // Default icon
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [streakGoal, setStreakGoal] = useState('None');
   const [reminders, setReminders] = useState(0);
@@ -57,6 +48,13 @@ const AddHabitScreen = () => {
   const [completionsPerDay, setCompletionsPerDay] = useState(1);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const addHabit = useHabitStore(state => state.addHabit);
+ 
+  // Effect to update selectedIcon if passed from IconPickerScreen
+  React.useEffect(() => {
+    if (route.params?.selectedIcon) {
+      setSelectedIcon(route.params.selectedIcon);
+    }
+  }, [route.params?.selectedIcon]);
 
   const advancedOptionsHeight = useSharedValue(0);
   const advancedOptionsOpacity = useSharedValue(0);
@@ -127,16 +125,16 @@ const AddHabitScreen = () => {
           <ScrollView>
             <View style={styles.section}>
               <Text style={styles.label}>Icon</Text>
-              <View style={styles.selectedIconContainer}>
+              <TouchableOpacity
+                style={styles.selectedIconContainer}
+                onPress={() => navigation.navigate('IconPicker', {
+                  onSelectIcon: (icon: string) => {
+                    navigation.setParams({ selectedIcon: icon });
+                  },
+                })}
+              >
                 <Icon name={selectedIcon} size={48} color="#fff" />
-              </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {icons.map(icon => (
-                  <TouchableOpacity key={icon} onPress={() => setSelectedIcon(icon)}>
-                    <Icon name={icon} size={32} color={selectedIcon === icon ? '#fff' : '#888'} style={styles.icon} />
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.section}>
