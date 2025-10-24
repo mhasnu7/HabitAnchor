@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/Ionicons';
 import MiniCalendarGrid from './MiniCalendarGrid';
 import { useHabitStore } from '../store/habits';
 
@@ -15,7 +15,7 @@ interface HabitCardProps {
 const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }) => {
   const { toggleCompletion, deleteHabit } = useHabitStore();
   const habit = useHabitStore(state => state.habits.find(h => h.id === id));
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
   const isCompletedToday = habit?.progress.find(d => d.date === today)?.completed ?? false;
 
   const handleCheck = () => {
@@ -36,13 +36,13 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }
           style={[styles.checkButton, {backgroundColor: isCompletedToday ? color : '#333'}]}
           onPress={handleCheck}
         >
-          <Icon name="check" size={20} color="#fff" />
+          <Icon name="checkmark" size={20} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.deleteButton}
+          style={[styles.deleteButton, { backgroundColor: color }]}
           onPress={() => deleteHabit(id)}
         >
-          <Icon name="trash-2" size={20} color="#fff" />
+          <Icon name="trash" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
       <MiniCalendarGrid habitId={id} color={color} />

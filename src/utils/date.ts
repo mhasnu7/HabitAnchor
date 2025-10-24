@@ -4,7 +4,7 @@ export const generateLastNDays = (n: number) => {
   for (let i = 0; i < n; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    days.unshift({ date: d.toISOString().split('T')[0], completed: false });
+    days.unshift({ date: d.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-'), completed: false });
   }
   return days;
 };
@@ -16,7 +16,7 @@ export function generateMonthWeeks(year: number, month: number) {
   for (let day = 1; day <= daysInMonth; day++) {
     const d = new Date(year, month, day);
     const weekday = d.getDay(); // 0 = Sun, 6 = Sat
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = d.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
     week[weekday] = { day, dateStr };
 
     if (weekday === 6) {
