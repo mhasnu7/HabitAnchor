@@ -13,7 +13,7 @@ interface HabitCardProps {
 }
 
 const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }) => {
-  const { toggleCompletion } = useHabitStore();
+  const { toggleCompletion, deleteHabit } = useHabitStore();
   const habit = useHabitStore(state => state.habits.find(h => h.id === id));
   const today = new Date().toISOString().split('T')[0];
   const isCompletedToday = habit?.progress.find(d => d.date === today)?.completed ?? false;
@@ -37,6 +37,12 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }
           onPress={handleCheck}
         >
           <Icon name="check" size={20} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => deleteHabit(id)}
+        >
+          <Icon name="trash-2" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
       <MiniCalendarGrid habitId={id} color={color} />
@@ -86,6 +92,15 @@ const styles = StyleSheet.create({
   },
   checkIcon: {
     color: '#fff',
+  },
+  deleteButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
 });
 

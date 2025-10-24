@@ -24,6 +24,7 @@ interface HabitState {
   habits: Habit[];
   toggleCompletion: (habitId: string, date: string) => void;
   addHabit: (habit: Omit<Habit, 'id' | 'progress'>) => void;
+  deleteHabit: (habitId: string) => void;
 }
 
 export const useHabitStore = create<HabitState>((set) => ({
@@ -51,5 +52,9 @@ export const useHabitStore = create<HabitState>((set) => ({
           progress: generateLastNDays(90),
         },
       ],
+    })),
+  deleteHabit: (habitId) =>
+    set((state) => ({
+      habits: state.habits.filter((h) => h.id !== habitId),
     })),
 }));
