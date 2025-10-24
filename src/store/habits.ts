@@ -27,34 +27,7 @@ interface HabitState {
 }
 
 export const useHabitStore = create<HabitState>((set) => ({
-  habits: [
-    {
-      id: '1',
-      name: 'Learn',
-      subtitle: 'Learning',
-      color: '#4ade80',
-      icon: 'book',
-      streakGoal: 'None',
-      reminders: 0,
-      categories: ['Study'],
-      completionTracking: 'Step by Step',
-      completionsPerDay: 1,
-      progress: generateLastNDays(90),
-    },
-    {
-      id: '2',
-      name: 'Workout',
-      subtitle: 'Gym',
-      color: '#ef4444',
-      icon: 'fitness',
-      streakGoal: 'None',
-      reminders: 0,
-      categories: ['Fitness'],
-      completionTracking: 'Step by Step',
-      completionsPerDay: 1,
-      progress: generateLastNDays(90),
-    },
-  ],
+  habits: [],
   toggleCompletion: (habitId, date) =>
     set((state) => ({
       habits: state.habits.map((h) =>

@@ -38,18 +38,24 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           </TouchableOpacity>
         </View>
       </View>
-      <ScrollView style={styles.scrollView}>
-        {habits.map(habit => (
-          <HabitCard
-            key={habit.id}
-            id={habit.id}
-            name={habit.name}
-            subtitle={habit.subtitle}
-            color={habit.color}
-            icon={habit.icon}
-          />
-        ))}
-      </ScrollView>
+      {habits.length === 0 ? (
+        <View style={styles.emptyStateContainer}>
+          <Text style={styles.emptyStateText}>Click + button to add habit</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.scrollView}>
+          {habits.map(habit => (
+            <HabitCard
+              key={habit.id}
+              id={habit.id}
+              name={habit.name}
+              subtitle={habit.subtitle}
+              color={habit.color}
+              icon={habit.icon}
+            />
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -79,6 +85,17 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     paddingHorizontal: 16,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyStateText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
   },
 });
 
