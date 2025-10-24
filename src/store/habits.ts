@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { generateLastNDays } from '../utils/date';
 
 interface DayProgress {
@@ -27,34 +29,42 @@ interface HabitState {
   deleteHabit: (habitId: string) => void;
 }
 
-export const useHabitStore = create<HabitState>((set) => ({
-  habits: [],
-  toggleCompletion: (habitId, date) =>
-    set((state) => ({
-      habits: state.habits.map((h) =>
-        h.id === habitId
-          ? {
-              ...h,
-              progress: h.progress.map((d) =>
-                d.date === date ? { ...d, completed: !d.completed } : d
-              ),
-            }
-          : h
-      ),
-    })),
-  addHabit: (habit) =>
-    set((state) => ({
-      habits: [
-        ...state.habits,
-        {
-          ...habit,
-          id: Math.random().toString(),
-          progress: generateLastNDays(90),
-        },
-      ],
-    })),
-  deleteHabit: (habitId) =>
-    set((state) => ({
-      habits: state.habits.filter((h) => h.id !== habitId),
-    })),
-}));
+export const useHabitStore = create<HabitState>()(
+  persist(
+    (set) => ({
+      habits: [],
+      toggleCompletion: (habitId, date) =>
+        set((state) => ({
+          habits: state.habits.map((h) =>
+            h.id === habitId
+              ? {
+                  ...h,
+                  progress: h.progress.map((d) =>
+                    d.date === date ? { ...d, completed: !d.completed } : d
+                  ),
+                }
+              : h
+          ),
+        })),
+      addHabit: (habit) =>
+        set((state) => ({
+          habits: [
+            ...state.habits,
+            {
+              ...habit,
+              id: Math.random().toString(),
+              progress: generateLastNDays(90),
+            },
+          ],
+        })),
+      deleteHabit: (habitId) =>
+        set((state) => ({
+          habits: state.habits.filter((h) => h.id !== habitId),
+        })),
+    }),
+    {
+      name: 'habit-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
