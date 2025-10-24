@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import ProgressGrid from './ProgressGrid';
+import MiniCalendarGrid from './MiniCalendarGrid';
 import { useHabitStore } from '../store/habits';
 
 interface HabitCardProps {
@@ -9,9 +9,10 @@ interface HabitCardProps {
   name: string;
   subtitle: string;
   color: string;
+  icon: string;
 }
 
-const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color }) => {
+const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }) => {
   const { toggleCompletion } = useHabitStore();
   const habit = useHabitStore(state => state.habits.find(h => h.id === id));
   const today = new Date().toISOString().split('T')[0];
@@ -25,7 +26,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: color }]}>
-          <Icon name="activity" size={24} color="#fff" />
+          <Icon name={icon} size={24} color="#fff" />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.name}>{name}</Text>
@@ -35,10 +36,10 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color }) => {
           style={[styles.checkButton, {backgroundColor: isCompletedToday ? color : '#333'}]}
           onPress={handleCheck}
         >
-          <Icon name="check" size={24} color="#fff" />
+          <Icon name="check" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
-      <ProgressGrid habitId={id} color={color} />
+      <MiniCalendarGrid habitId={id} color={color} />
     </View>
   );
 };
@@ -46,21 +47,19 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#1a1a1a',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderColor: '#222',
-    borderWidth: 1,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 12,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -78,12 +77,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   checkButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  checkIcon: {
+    color: '#fff',
   },
 });
 
