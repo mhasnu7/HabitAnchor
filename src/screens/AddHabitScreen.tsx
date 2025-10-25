@@ -11,17 +11,12 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from 'react-native-reanimated';
-import Animated from 'react-native-reanimated';
+} from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
-import CategorySelectionModal from '../components/CategorySelectionModal';
 import { RootStackParamList } from '../../App'; // Import RootStackParamList
  
 type AddHabitScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddHabit'>;
@@ -40,12 +35,6 @@ const AddHabitScreen = () => {
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [selectedIcon, setSelectedIcon] = useState('american-football'); // Default icon
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [streakGoal, setStreakGoal] = useState('None');
-  const [reminders, setReminders] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [completionTracking, setCompletionTracking] = useState('Step by Step');
-  const [completionsPerDay, setCompletionsPerDay] = useState(1);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const addHabit = useHabitStore(state => state.addHabit);
  
@@ -56,41 +45,6 @@ const AddHabitScreen = () => {
     }
   }, [route.params?.selectedIcon]);
 
-  const advancedOptionsHeight = useSharedValue(0);
-  const advancedOptionsOpacity = useSharedValue(0);
-  const advancedContentMaxHeight = useSharedValue(-1); // Initialize with -1 to indicate not measured yet
-
-  const onAdvancedContentLayout = useCallback((event: LayoutChangeEvent) => {
-    // Only set the max height once
-    if (advancedContentMaxHeight.value === -1) {
-      advancedContentMaxHeight.value = event.nativeEvent.layout.height;
-    }
-  }, [advancedContentMaxHeight]);
-
-  const animatedAdvancedOptionsStyle = useAnimatedStyle(() => {
-    return {
-      height: advancedOptionsHeight.value,
-      opacity: advancedOptionsOpacity.value,
-      // Ensure content is visible when expanded
-      display: advancedOptionsHeight.value === 0 ? 'none' : 'flex',
-    };
-  });
-
-  const toggleAdvancedOptions = () => {
-    setShowAdvanced((prev: boolean) => {
-      if (prev) {
-        advancedOptionsHeight.value = withTiming(0, { duration: 300 });
-        advancedOptionsOpacity.value = withTiming(0, { duration: 200 });
-      } else {
-        // If max height hasn't been measured, set a temporary large value
-        // and then adjust after layout. This is a common pattern for
-        // expand/collapse animations where content height is dynamic.
-        advancedOptionsHeight.value = withTiming(advancedContentMaxHeight.value === -1 ? 500 : advancedContentMaxHeight.value, { duration: 300 });
-        advancedOptionsOpacity.value = withTiming(1, { duration: 400 });
-      }
-      return !prev;
-    });
-  };
 
   const handleSave = () => {
     addHabit({
@@ -98,11 +52,11 @@ const AddHabitScreen = () => {
       subtitle: description,
       color: selectedColor,
       icon: selectedIcon,
-      streakGoal,
-      reminders,
-      categories: selectedCategories,
-      completionTracking,
-      completionsPerDay,
+      streakGoal: 'None', // Default value
+      reminders: 0, // Default value
+      categories: [], // Default value
+      completionTracking: 'Step by Step', // Default value
+      completionsPerDay: 1, // Default value
     });
     navigation.goBack();
   };
@@ -179,105 +133,6 @@ const AddHabitScreen = () => {
               </View>
             </View>
 
-            <TouchableOpacity
-              style={styles.advancedButton}
-              onPress={toggleAdvancedOptions}
-            >
-              <Text style={styles.advancedText}>Advanced Options</Text>
-              <Icon name={showAdvanced ? 'chevron-up' : 'chevron-down'} size={24} color="#fff" />
-            </TouchableOpacity>
-
-            <Animated.View
-              style={[styles.advancedContent, animatedAdvancedOptionsStyle]}
-              onLayout={onAdvancedContentLayout}
-            >
-              <View style={styles.advancedOptionItem}>
-                <Text style={styles.label}>Streak Goal</Text>
-                <TouchableOpacity style={styles.advancedOptionValueContainer}>
-                  <Text style={styles.advancedOptionValue}>{streakGoal}</Text>
-                  <Icon name="chevron-forward" size={20} color="#888" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.advancedOptionItem}>
-                <Text style={styles.label}>Reminder</Text>
-                <TouchableOpacity style={styles.advancedOptionValueContainer}>
-                  <Text style={styles.advancedOptionValue}>{reminders} Active Reminders</Text>
-                  <Icon name="chevron-forward" size={20} color="#888" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.advancedOptionItem}>
-                <Text style={styles.label}>Categories</Text>
-                <TouchableOpacity
-                  style={styles.advancedOptionValueContainer}
-                  onPress={() => setIsCategoryModalVisible(true)}
-                >
-                  <Text style={styles.advancedOptionValue}>{selectedCategories.length > 0 ? selectedCategories.join(', ') : 'None'}</Text>
-                  <Icon name="chevron-forward" size={20} color="#888" />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.section}>
-                <Text style={styles.label}>How should completions be tracked?</Text>
-                <View style={styles.completionTrackingOptions}>
-                  <TouchableOpacity
-                    style={[
-                      styles.completionTrackingButton,
-                      completionTracking === 'Step by Step' && styles.completionTrackingButtonActive,
-                    ]}
-                    onPress={() => setCompletionTracking('Step by Step')}
-                  >
-                    <Text style={styles.completionTrackingButtonText}>Step By Step</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.completionTrackingButton,
-                      completionTracking === 'Custom Value' && styles.completionTrackingButtonActive,
-                    ]}
-                    onPress={() => setCompletionTracking('Custom Value')}
-                  >
-                    <Text style={styles.completionTrackingButtonText}>Custom Value</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.completionTrackingDescription}>
-                  {completionTracking === 'Step by Step'
-                    ? 'Increment by 1 with each completion'
-                    : 'Enter a custom value for each completion'}
-                </Text>
-              </View>
-
-              <View style={styles.section}>
-                <Text style={styles.label}>Completions Per Day</Text>
-                <View style={styles.completionsPerDayContainer}>
-                  <TouchableOpacity
-                    style={styles.completionsPerDayButton}
-                    onPress={() => setCompletionsPerDay(Math.max(1, completionsPerDay - 1))}
-                  >
-                    <Text style={styles.completionsPerDayButtonText}>-</Text>
-                  </TouchableOpacity>
-                  <TextInput
-                    style={styles.completionsPerDayInput}
-                    value={String(completionsPerDay)}
-                    onChangeText={(text) => setCompletionsPerDay(Number(text) || 1)}
-                    keyboardType="numeric"
-                  />
-                  <Text style={styles.completionsPerDayUnit}>/ Day</Text>
-                  <TouchableOpacity
-                    style={styles.completionsPerDayButton}
-                    onPress={() => setCompletionsPerDay(completionsPerDay + 1)}
-                  >
-                    <Text style={styles.completionsPerDayButtonText}>+</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.completionsPerDayEditButton}>
-                    <Icon name="pencil" size={20} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.completionTrackingDescription}>
-                  The square will be filled completely when this number is met
-                </Text>
-              </View>
-            </Animated.View>
           </ScrollView>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -340,44 +195,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     marginBottom: 8,
-  },
-  advancedButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  advancedText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  advancedContent: {
-    marginTop: 16,
-    padding: 16,
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    overflow: 'hidden',
-    position: 'relative',
-    zIndex: 1,
-  },
-  advancedOptionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  advancedOptionValueContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#222',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  advancedOptionValue: {
-    color: '#fff',
-    fontSize: 16,
-    marginRight: 8,
   },
   completionTrackingOptions: {
     flexDirection: 'row',
