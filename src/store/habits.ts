@@ -20,6 +20,7 @@ interface Habit {
   completionTracking: string;
   completionsPerDay: number;
   progress: DayProgress[];
+  targetCompletionDate?: string; // Optional target completion date
 }
 
 interface HabitState {
@@ -35,16 +36,22 @@ export const useHabitStore = create<HabitState>()(
       habits: [],
       toggleCompletion: (habitId, date) =>
         set((state) => ({
-          habits: state.habits.map((h) =>
-            h.id === habitId
-              ? {
-                  ...h,
-                  progress: h.progress.map((d) =>
-                    d.date === date ? { ...d, completed: !d.completed } : d
-                  ),
-                }
-              : h
-          ),
+          habits: state.habits.map((h) => {
+            if (h.id === habitId) {
+              let updatedProgress = h.progress;
+              const dateExists = h.progress.some(d => d.date === date);
+
+              if (!dateExists) {
+                updatedProgress = [...h.progress, { date, completed: true }];
+              } else {
+                updatedProgress = h.progress.map((d) =>
+                  d.date === date ? { ...d, completed: !d.completed } : d
+                );
+              }
+              return { ...h, progress: updatedProgress };
+            }
+            return h;
+          }),
         })),
       addHabit: (habit) =>
         set((state) => ({

@@ -10,8 +10,8 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
-import {
-} from 'react-native';
+import DatePicker from 'react-native-date-picker';
+import { format } from 'date-fns';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -36,6 +36,8 @@ const AddHabitScreen = () => {
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [selectedIcon, setSelectedIcon] = useState('american-football'); // Default icon
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [targetCompletionDate, setTargetCompletionDate] = useState<Date | undefined>(undefined);
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const addHabit = useHabitStore(state => state.addHabit);
  
   // Effect to update selectedIcon if passed from IconPickerScreen
@@ -44,8 +46,8 @@ const AddHabitScreen = () => {
       setSelectedIcon(route.params.selectedIcon);
     }
   }, [route.params?.selectedIcon]);
-
-
+ 
+ 
   const handleSave = () => {
     addHabit({
       name,
@@ -57,10 +59,11 @@ const AddHabitScreen = () => {
       categories: [], // Default value
       completionTracking: 'Step by Step', // Default value
       completionsPerDay: 1, // Default value
+      targetCompletionDate: targetCompletionDate ? format(targetCompletionDate, 'yyyy-MM-dd') : undefined,
     });
     navigation.goBack();
   };
-
+ 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -133,6 +136,37 @@ const AddHabitScreen = () => {
               </View>
             </View>
 
+            <View style={styles.section}>
+              <Text style={styles.label}>Target Completion Date (Optional)</Text>
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setIsDatePickerVisible(true)}
+              >
+                <Text style={styles.datePickerButtonText}>
+                  {targetCompletionDate ? format(targetCompletionDate, 'PPP') : 'Select Date'}
+                </Text>
+                {targetCompletionDate && (
+                  <TouchableOpacity onPress={() => setTargetCompletionDate(undefined)} style={styles.clearDateButton}>
+                    <Icon name="close-circle" size={20} color="#888" />
+                  </TouchableOpacity>
+                )}
+              </TouchableOpacity>
+              <DatePicker
+                modal
+                open={isDatePickerVisible}
+                date={targetCompletionDate || new Date()}
+                mode="date"
+                minimumDate={new Date(new Date().setDate(new Date().getDate() + 1))} // Future dates only, excluding today
+                onConfirm={(date) => {
+                  setIsDatePickerVisible(false);
+                  setTargetCompletionDate(date);
+                }}
+                onCancel={() => {
+                  setIsDatePickerVisible(false);
+                }}
+              />
+            </View>
+
           </ScrollView>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -195,6 +229,21 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     marginBottom: 8,
+  },
+  datePickerButton: {
+    backgroundColor: '#222',
+    borderRadius: 8,
+    padding: 16,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  datePickerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  clearDateButton: {
+    padding: 5,
   },
   completionTrackingOptions: {
     flexDirection: 'row',
