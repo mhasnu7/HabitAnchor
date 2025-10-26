@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import AddHabitScreen from './src/screens/AddHabitScreen';
 import HabitCalendarScreen from './src/screens/HabitCalendarScreen';
+import HabitDetailScreen from './src/screens/HabitDetailScreen';
 import IconPickerScreen from './src/screens/IconPickerScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   AddHabit: { selectedIcon?: string } | undefined;
   IconPicker: { onSelectIcon: (icon: string) => void };
   HabitCalendar: undefined;
+  HabitDetails: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,6 +51,7 @@ function App() {
         <Stack.Group>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
+          <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
         </Stack.Group>
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
           <Stack.Screen name="AddHabit" component={AddHabitScreen} />
