@@ -16,6 +16,7 @@ type RootStackParamList = {
   AddHabit: undefined;
   HabitCalendar: undefined;
   HabitDetails: undefined;
+  Settings: undefined;
 };
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -26,7 +27,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
           <Icon name="settings" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.title}>Habit Anchor</Text>

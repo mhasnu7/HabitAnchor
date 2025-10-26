@@ -12,8 +12,31 @@ type RootStackParamList = {
 type HabitCalendarScreenProps = NativeStackScreenProps<RootStackParamList, 'HabitCalendar'>;
 
 const HabitCalendarScreen = ({ navigation }: HabitCalendarScreenProps) => {
-  const days = ['Th', 'Fr', 'Sa', 'Su', 'Mo'];
-  const dates = ['9', '10', '11', '12', '13'];
+  // Placeholder data and functions to match the new structure
+  const weekDays = [
+    { short: 'Th', date: '23', dateString: '2025-10-23' },
+    { short: 'Fr', date: '24', dateString: '2025-10-24' },
+    { short: 'Sa', date: '25', dateString: '2025-10-25' },
+    { short: 'Su', date: '26', dateString: '2025-10-26' },
+    { short: 'Mo', date: '27', dateString: '2025-10-27' },
+  ];
+
+  const habits = [
+    { id: '1', name: 'Happy', color: '#FF6347', completedDates: ['2025-10-26'] },
+    // Add more placeholder habits as needed
+  ];
+
+  const handlePrevWeek = () => {
+    console.log('Navigate to previous week');
+  };
+
+  const handleNextWeek = () => {
+    console.log('Navigate to next week');
+  };
+
+  const toggleHabit = (habitId: string, dateString: string) => {
+    console.log(`Toggle habit ${habitId} on ${dateString}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -36,14 +59,45 @@ const HabitCalendarScreen = ({ navigation }: HabitCalendarScreenProps) => {
           <Text style={styles.last5DaysButtonText}>Last 5 days</Text>
         </TouchableOpacity>
 
-        <View style={styles.habitRow}>
-          <View style={styles.habitIconContainer}>
-            <Icon name="activity" size={20} color="#fff" />
+        <View style={styles.calendarContainer}>
+          {/* Top navigation row with arrows */}
+          <View style={styles.navArrowsRow}>
+            <TouchableOpacity onPress={handlePrevWeek}>
+              <Icon name="chevron-left" size={22} color="#ccc" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleNextWeek}>
+              <Icon name="chevron-right" size={22} color="#ccc" />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.habitName}>Happy</Text>
-          <View style={styles.calendarBoxes}>
-            {days.map((day, index) => (
-              <View key={index} style={styles.calendarBox} />
+
+          {/* Calendar content: days and habit rows */}
+          <View style={styles.calendarContentGrid}>
+            {/* Header for week days + dates */}
+            <View style={styles.daysHeader}>
+              {weekDays.map((day, index) => (
+                <View key={index} style={styles.dayColumn}>
+                  <Text style={styles.weekdayText}>{day.short}</Text>
+                  <Text style={styles.dateText}>{day.date}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Habit rows */}
+            {habits.map((habit) => (
+              <View key={habit.id} style={styles.habitRow}>
+                {weekDays.map((day, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => toggleHabit(habit.id, day.dateString)}
+                    style={[
+                      styles.habitBox,
+                      habit.completedDates?.includes(day.dateString)
+                        ? { backgroundColor: habit.color }
+                        : styles.habitBoxEmpty,
+                    ]}
+                  />
+                ))}
+              </View>
             ))}
           </View>
         </View>
@@ -65,6 +119,8 @@ const HabitCalendarScreen = ({ navigation }: HabitCalendarScreenProps) => {
     </View>
   );
 };
+
+export default HabitCalendarScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -101,7 +157,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
     paddingTop: 20,
   },
   last5DaysButton: {
@@ -111,40 +166,63 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'flex-start',
     marginBottom: 20,
+    marginLeft: 10, // Align with calendarContainer padding
   },
   last5DaysButtonText: {
     color: '#fff',
     fontSize: 14,
   },
-  habitRow: {
+  calendarContainer: {
+    width: '100%',
+    // Removed paddingHorizontal here, will be applied to children
+  },
+  navArrowsRow: { // New style for just the arrows
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#333',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10, // Apply padding here
   },
-  habitIconContainer: {
-    backgroundColor: '#555',
-    borderRadius: 5,
-    padding: 5,
-    marginRight: 10,
+  calendarContentGrid: { // New style for the grid of days and habit boxes
+    paddingHorizontal: 10, // Apply padding here to align with arrows
   },
-  habitName: {
-    color: '#fff',
-    fontSize: 18,
-    flex: 1,
-  },
-  calendarBoxes: {
+  daysHeader: { // Renamed from headerWrapper
     flexDirection: 'row',
-    gap: 5,
+    justifyContent: 'space-between', // Distribute days evenly
+    alignItems: 'center',
+    // No fixed width here, let it flex within calendarContentGrid
+    // The dayColumn will define the width
   },
-  calendarBox: {
-    width: 30,
-    height: 30,
-    backgroundColor: '#555',
-    borderRadius: 5,
+  dayColumn: {
+    alignItems: 'center',
+    width: 28, // Adjusted width to match habitBox
+    marginHorizontal: 2, // Added margin to match habitBox
+  },
+  weekdayText: {
+    color: '#ccc',
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  dateText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  habitRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    // No paddingHorizontal here, as dayColumn and habitBox have marginHorizontal
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  habitBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    marginHorizontal: 2,
+  },
+  habitBoxEmpty: {
+    backgroundColor: '#333',
   },
   bottomNavBarContainer: {
     position: 'absolute',
@@ -171,5 +249,3 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 });
-
-export default HabitCalendarScreen;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -10,13 +10,31 @@ type RootStackParamList = {
   AddHabit: undefined;
   HabitCalendar: undefined;
   HabitDetails: undefined;
+  Settings: undefined;
 };
 
 type HabitDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'HabitDetails'>;
 
 const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
   const { habits } = useHabitStore();
-  const last5Days = generateLastNDays(5);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [lastNDays, setLastNDays] = useState(generateLastNDays(5, currentDate));
+
+  useEffect(() => {
+    setLastNDays(generateLastNDays(5, currentDate));
+  }, [currentDate]);
+
+  const goToPreviousDays = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() - 5);
+    setCurrentDate(newDate);
+  };
+
+  const goToNextDays = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + 5);
+    setCurrentDate(newDate);
+  };
 
   return (
     <View style={styles.container}>
@@ -35,17 +53,25 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         <TouchableOpacity style={styles.last5DaysButton}>
           <Text style={styles.last5DaysButtonText}>Last 5 days</Text>
         </TouchableOpacity>
-        <View style={styles.daysHeader}>
-          {last5Days.map((day, index) => (
-            <View key={index} style={styles.dayContainer}>
-              <Text style={styles.dayHeaderText}>
-                {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }).substring(0, 2)}
-              </Text>
-              <Text style={styles.dateHeaderText}>
-                {new Date(day.date).getDate()}
-              </Text>
-            </View>
-          ))}
+        <View style={styles.dateNavigationContainer}>
+          <TouchableOpacity onPress={goToPreviousDays} style={styles.arrowButton}>
+            <Icon name="chevron-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.daysHeader}>
+            {lastNDays.map((day, index) => (
+              <View key={index} style={styles.dayContainer}>
+                <Text style={styles.dayHeaderText}>
+                  {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }).substring(0, 2)}
+                </Text>
+                <Text style={styles.dateHeaderText}>
+                  {new Date(day.date).getDate()}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <TouchableOpacity onPress={goToNextDays} style={styles.arrowButton}>
+            <Icon name="chevron-forward" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
         <ScrollView style={styles.scrollView}>
           {habits.map(habit => (
@@ -55,7 +81,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
               </View>
               <Text style={styles.habitName}>{habit.name}</Text>
               <View style={styles.calendarBoxes}>
-                {last5Days.map((day, index) => {
+                {lastNDays.map((day, index) => {
                   const habitDayProgress = habit.progress.find(p => p.date === day.date);
                   const isCompleted = habitDayProgress ? habitDayProgress.completed : false;
                   return (
@@ -78,7 +104,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
             <Icon name="grid" size={24} color="#888" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
+          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
             <Icon name="settings-outline" size={24} color="#8a2be2" />
           </TouchableOpacity>
         </View>
@@ -130,10 +156,10 @@ const styles = StyleSheet.create({
   },
   daysHeader: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between', // Use space-between for internal distribution
     marginBottom: 10,
-    gap: 5,
-    paddingRight: 15,
+    width: 170, // Approximate width for 5 items (30*5 + 4*5)
+    marginRight: 5, // Push closer to the right arrow
   },
   dayContainer: {
     alignItems: 'center',
@@ -148,6 +174,17 @@ const styles = StyleSheet.create({
     color: '#aaa',
     fontSize: 12,
   },
+  dateNavigationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    paddingLeft: 15, // Revert to original paddingLeft
+    paddingRight: 15,
+  },
+  arrowButton: {
+    padding: 10,
+  },
   scrollView: {
     flex: 1,
   },
@@ -157,8 +194,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     borderRadius: 10,
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 15, // Revert to original paddingHorizontal
     marginBottom: 10,
+    justifyContent: 'space-between',
   },
   habitIconContainer: {
     borderRadius: 5,
@@ -172,7 +210,9 @@ const styles = StyleSheet.create({
   },
   calendarBoxes: {
     flexDirection: 'row',
-    gap: 5,
+    justifyContent: 'space-between', // Use space-between for internal distribution
+    width: 170, // Approximate width for 5 items (30*5 + 4*5)
+    marginRight: 5, // Push closer to the right arrow
   },
   calendarBox: {
     width: 30,
@@ -211,4 +251,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HabitDetailScreen;
+export default HabitDetailScreen; // Minor change to trigger TS re-evaluation

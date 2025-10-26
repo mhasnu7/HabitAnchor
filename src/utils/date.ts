@@ -1,13 +1,12 @@
-export const generateLastNDays = (n: number) => {
+export const generateLastNDays = (n: number, startDate: Date = new Date()) => {
   const days = [];
-  const today = new Date();
   for (let i = 0; i < n; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() - i);
     days.unshift({ date: d.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-'), completed: false });
   }
   return days;
-};
+}; // Added a comment to force re-compilation
 export function generateMonthWeeks(year: number, month: number) {
   const weeks: ({ day: number; dateStr: string } | null)[][] = [];
   let week: ({ day: number; dateStr: string } | null)[] = new Array(7).fill(null);
