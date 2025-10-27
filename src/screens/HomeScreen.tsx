@@ -17,7 +17,7 @@ type RootStackParamList = {
   Home: undefined;
   AddHabit: undefined;
   HabitCalendar: undefined;
-  HabitDetails: { habitId: string }; // Allow HabitDetails to accept habitId
+  HabitDetails: undefined;
   Settings: undefined;
 };
 
@@ -74,7 +74,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             <HabitCard
               key={habit.id}
               habit={habit}
-              onPress={() => navigation.navigate('HabitDetails', { habitId: habit.id })}
+              onPress={() => navigation.navigate('HabitDetails')}
               onDelete={handleDeleteHabit}
             />
           ))}
@@ -85,7 +85,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
             <Icon name="grid" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails', { habitId: habits[0]?.id || '' })}>
+          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
             <Icon name="align-justify" size={24} color={theme.subtleText} />
           </TouchableOpacity>
         </View>
