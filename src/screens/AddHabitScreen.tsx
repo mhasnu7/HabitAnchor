@@ -18,6 +18,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
 import { RootStackParamList } from '../../App'; // Import RootStackParamList
+import { useTheme } from '../context/ThemeContext';
  
 type AddHabitScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddHabit'>;
 type AddHabitScreenRouteProp = RouteProp<RootStackParamList, 'AddHabit'>;
@@ -31,6 +32,7 @@ const colors = [
 const AddHabitScreen = () => {
   const navigation = useNavigation<AddHabitScreenNavigationProp>();
   const route = useRoute<AddHabitScreenRouteProp>();
+  const { theme } = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(colors[0]);
@@ -70,65 +72,65 @@ const AddHabitScreen = () => {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon name="close" size={24} color="#fff" />
+              <Icon name="close" size={24} color={theme.text} />
             </TouchableOpacity>
-            <Text style={styles.title}>New Habit</Text>
+            <Text style={[styles.title, { color: theme.text }]}>New Habit</Text>
             <View style={{ width: 24 }} />
           </View>
 
           <ScrollView>
             <View style={styles.section}>
-              <Text style={styles.label}>Icon</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Icon</Text>
               <TouchableOpacity
-                style={styles.selectedIconContainer}
+                style={[styles.selectedIconContainer, { backgroundColor: theme.cardBackground }]}
                 onPress={() => navigation.navigate('IconPicker', {
                   onSelectIcon: (icon: string) => {
                     navigation.setParams({ selectedIcon: icon });
                   },
                 })}
               >
-                <Icon name={selectedIcon} size={48} color="#fff" />
+                <Icon name={selectedIcon} size={48} color={theme.text} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Name</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Name</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={name}
                 onChangeText={setName}
                 placeholder="e.g. Read a book"
-                placeholderTextColor="#888"
+                placeholderTextColor={theme.subtleText}
                 autoCorrect={false}
                 spellCheck={false}
               />
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Description</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Description</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={description}
                 onChangeText={setDescription}
                 placeholder="e.g. For 30 minutes"
-                placeholderTextColor="#888"
+                placeholderTextColor={theme.subtleText}
                 autoCorrect={false}
                 spellCheck={false}
               />
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Color</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Color</Text>
               <View style={styles.colorGrid}>
                 {colors.map(color => (
                   <TouchableOpacity
                     key={color}
                     style={[
                       styles.colorCell,
-                      { backgroundColor: color, borderColor: selectedColor === color ? '#fff' : color },
+                      { backgroundColor: color, borderColor: selectedColor === color ? theme.text : color },
                     ]}
                     onPress={() => setSelectedColor(color)}
                   />
@@ -137,17 +139,17 @@ const AddHabitScreen = () => {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.label}>Target Completion Date (Optional)</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Target Completion Date (Optional)</Text>
               <TouchableOpacity
-                style={styles.datePickerButton}
+                style={[styles.datePickerButton, { backgroundColor: theme.cardBackground }]}
                 onPress={() => setIsDatePickerVisible(true)}
               >
-                <Text style={styles.datePickerButtonText}>
+                <Text style={[styles.datePickerButtonText, { color: theme.text }]}>
                   {targetCompletionDate ? format(targetCompletionDate, 'PPP') : 'Select Date'}
                 </Text>
                 {targetCompletionDate && (
                   <TouchableOpacity onPress={() => setTargetCompletionDate(undefined)} style={styles.clearDateButton}>
-                    <Icon name="close-circle" size={20} color="#888" />
+                    <Icon name="close-circle" size={20} color={theme.subtleText} />
                   </TouchableOpacity>
                 )}
               </TouchableOpacity>
@@ -169,7 +171,7 @@ const AddHabitScreen = () => {
 
           </ScrollView>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: selectedColor }]} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>
@@ -181,7 +183,6 @@ const AddHabitScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111',
     padding: 16,
   },
   header: {
@@ -192,7 +193,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   title: {
-    color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
   },
@@ -200,13 +200,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   label: {
-    color: '#fff',
     fontSize: 16,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#222',
-    color: '#fff',
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
@@ -214,6 +211,8 @@ const styles = StyleSheet.create({
   selectedIconContainer: {
     alignItems: 'center',
     marginBottom: 16,
+    borderRadius: 8,
+    padding: 16,
   },
   icon: {
     marginHorizontal: 8,
@@ -231,7 +230,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   datePickerButton: {
-    backgroundColor: '#222',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -239,7 +237,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   datePickerButtonText: {
-    color: '#fff',
     fontSize: 16,
   },
   clearDateButton: {
@@ -254,7 +251,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    backgroundColor: '#222',
     alignItems: 'center',
     marginHorizontal: 4,
   },
@@ -262,12 +258,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#8a2be2',
   },
   completionTrackingButtonText: {
-    color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
   },
   completionTrackingDescription: {
-    color: '#888',
     fontSize: 12,
     marginTop: 4,
     textAlign: 'center',
@@ -276,7 +270,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#222',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -284,37 +277,30 @@ const styles = StyleSheet.create({
   completionsPerDayButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#333',
     borderRadius: 8,
   },
   completionsPerDayButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
   completionsPerDayInput: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
     marginHorizontal: 10,
     minWidth: 40,
     textAlign: 'center',
-    backgroundColor: '#222',
     borderRadius: 8,
     paddingVertical: 5,
   },
   completionsPerDayUnit: {
-    color: '#fff',
     fontSize: 16,
     marginRight: 10,
   },
   completionsPerDayEditButton: {
     padding: 8,
-    backgroundColor: '#333',
     borderRadius: 8,
   },
   saveButton: {
-    backgroundColor: '#8a2be2',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',

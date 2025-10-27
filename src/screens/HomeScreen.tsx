@@ -10,6 +10,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { useHabitStore } from '../store/habits';
 import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -22,27 +23,30 @@ type RootStackParamList = {
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
-  const { habits } = useHabitStore();
+  const { habits, showAnalytics } = useHabitStore();
+  const { theme } = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-          <Icon name="settings" size={24} color="#fff" />
+          <Icon name="settings" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Habit Anchor</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Habit Anchor</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity>
-            <Icon name="bar-chart-2" size={24} color="#fff" />
-          </TouchableOpacity>
+          {showAnalytics && (
+            <TouchableOpacity>
+              <Icon name="bar-chart-2" size={24} color={theme.text} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
-            <Icon name="plus" size={24} color="#fff" />
+            <Icon name="plus" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
       </View>
       {habits.length === 0 ? (
         <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyStateText}>Click + button to add habit</Text>
+          <Text style={[styles.emptyStateText, { color: theme.text }]}>Click + button to add habit</Text>
         </View>
       ) : (
         <ScrollView style={styles.scrollView}>
@@ -59,12 +63,12 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         </ScrollView>
       )}
       <View style={styles.bottomNavBarContainer}>
-        <View style={styles.bottomNavBar}>
+        <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <Icon name="grid" size={24} color="#8a2be2" />
+            <Icon name="grid" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
-            <Icon name="align-justify" size={24} color="#888" />
+            <Icon name="align-justify" size={24} color={theme.subtleText} />
           </TouchableOpacity>
         </View>
       </View>
@@ -75,7 +79,6 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -86,7 +89,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   title: {
-    color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
   },
@@ -105,7 +107,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   emptyStateText: {
-    color: '#fff',
     fontSize: 18,
     textAlign: 'center',
   },
@@ -118,17 +119,19 @@ const styles = StyleSheet.create({
   },
   bottomNavBar: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     borderRadius: 50,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
     justifyContent: 'space-around',
     width: '80%',
+    // For Android, elevation creates a shadow. For iOS, shadow properties are used.
+    // To remove the shadow, we can set elevation to 0 and shadowOpacity to 0.
+    // However, since we want a shadow that changes color with the theme,
+    // we'll adjust the shadowColor in the component itself.
   },
   navButton: {
     padding: 8,

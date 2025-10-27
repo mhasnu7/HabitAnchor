@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { useHabitStore } from '../store/habits';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay } from 'date-fns';
+import { useTheme } from '../context/ThemeContext';
 
 interface MiniCalendarGridProps {
   habitId: string;
@@ -10,7 +11,8 @@ interface MiniCalendarGridProps {
 }
 
 const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) => {
-  const { habits, toggleCompletion } = useHabitStore();
+  const { habits, toggleCompletion, weekStartsOnMonday, highlightCurrentDay } = useHabitStore();
+  const { theme } = useTheme();
   const habit = habits.find(h => h.id === habitId);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -43,9 +45,10 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
     // Populate the grid
     days.forEach(day => {
       const dayOfWeek = getDay(day);
+      const adjustedDayOfWeek = weekStartsOnMonday ? (dayOfWeek === 0 ? 6 : dayOfWeek - 1) : dayOfWeek;
       const weekOfMonth = Math.floor((day.getDate() + startOfMonth(day).getDay() - 1) / 7);
-      if (weekGrid[dayOfWeek]) {
-        weekGrid[dayOfWeek][weekOfMonth] = day;
+      if (weekGrid[adjustedDayOfWeek]) {
+        weekGrid[adjustedDayOfWeek][weekOfMonth] = day;
       }
     });
 
@@ -63,11 +66,11 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
                 style={[
                   styles.cell,
                   styles.dayCell,
-                  { backgroundColor: isCompleted ? color : '#2E2E2E' },
-                  isToday(day) && styles.todayCell,
+                  { backgroundColor: isCompleted ? color : theme.cardBackground },
+                  isToday(day) && highlightCurrentDay && { borderColor: theme.text, borderWidth: 1 },
                 ]}
               >
-                <Text style={styles.dayText}>{format(day, 'd')}</Text>
+                <Text style={[styles.dayText, { color: theme.text }]}>{format(day, 'd')}</Text>
               </View>
             </TouchableOpacity>
           );
@@ -84,23 +87,23 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handlePrevious}>
-          <Icon name="chevron-left" size={24} color="#888" />
+          <Icon name="chevron-left" size={24} color={theme.subtleText} />
         </TouchableOpacity>
         <View style={styles.monthNames}>
           {monthsToDisplay.map(m => (
-            <Text key={m.toString()} style={styles.monthName}>
+            <Text key={m.toString()} style={[styles.monthName, { color: theme.text }]}>
               {format(m, 'MMM')}
             </Text>
           ))}
         </View>
         <TouchableOpacity onPress={handleNext}>
-          <Icon name="chevron-right" size={24} color="#888" />
+          <Icon name="chevron-right" size={24} color={theme.subtleText} />
         </TouchableOpacity>
       </View>
       <View style={styles.calendarGrid}>
         <View style={styles.daysOfWeek}>
-          {['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'].map(day => (
-            <Text key={day} style={styles.dayName}>
+          {(weekStartsOnMonday ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] : ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']).map(day => (
+            <Text key={day} style={[styles.dayName, { color: theme.subtleText }]}>
               {day}
             </Text>
           ))}
@@ -177,11 +180,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   todayCell: {
-    borderColor: '#FFFFFF',
-    borderWidth: 1,
+    // borderColor: '#FFFFFF',
+    // borderWidth: 1,
   },
   dayText: {
-    color: '#FFFFFF',
     fontSize: 10,
   },
 });

@@ -14,8 +14,12 @@ import HabitCalendarScreen from './src/screens/HabitCalendarScreen';
 import HabitDetailScreen from './src/screens/HabitDetailScreen';
 import IconPickerScreen from './src/screens/IconPickerScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import GeneralSettingsScreen from './src/screens/GeneralSettingsScreen';
+import DailyCheckInReminderScreen from './src/screens/DailyCheckInReminderScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
+import { ThemeProvider } from './src/context/ThemeContext';
+import ThemeSelectionScreen from './src/screens/ThemeSelectionScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -24,6 +28,9 @@ export type RootStackParamList = {
   HabitCalendar: undefined;
   HabitDetails: undefined;
   Settings: undefined;
+  GeneralSettings: undefined;
+  DailyCheckInReminder: undefined;
+  ThemeSelection: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,23 +52,29 @@ function App() {
   }, [habits]);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Stack.Group>
-          <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
-          <Stack.Screen name="Settings" component={SettingsScreen} />
-        </Stack.Group>
-        <Stack.Group screenOptions={{ presentation: 'modal' }}>
-          <Stack.Screen name="AddHabit" component={AddHabitScreen} />
-          <Stack.Screen name="IconPicker" component={IconPickerScreen} />
-        </Stack.Group>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ThemeProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Stack.Group>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
+            <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="GeneralSettings" component={GeneralSettingsScreen} />
+            <Stack.Screen name="DailyCheckInReminder" component={DailyCheckInReminderScreen} />
+            <Stack.Screen name="ThemeSelection" component={ThemeSelectionScreen} />
+          </Stack.Group>
+          <Stack.Group screenOptions={{ presentation: 'modal' }}>
+            <Stack.Screen name="AddHabit" component={AddHabitScreen} />
+            <Stack.Screen name="IconPicker" component={IconPickerScreen} />
+          </Stack.Group>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 

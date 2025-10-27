@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MiniCalendarGrid from './MiniCalendarGrid';
 import { useHabitStore } from '../store/habits';
+import { useTheme } from '../context/ThemeContext';
 
 interface HabitCardProps {
   id: string;
@@ -14,6 +15,7 @@ interface HabitCardProps {
 
 const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }) => {
   const { toggleCompletion, deleteHabit } = useHabitStore();
+  const { theme } = useTheme();
   const habit = useHabitStore(state => state.habits.find(h => h.id === id));
   const today = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
   const isCompletedToday = habit?.progress.find(d => d.date === today)?.completed ?? false;
@@ -23,17 +25,17 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.cardBackground }]}>
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: color }]}>
           <Icon name={icon} size={24} color="#fff" />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text style={[styles.name, { color: theme.text }]}>{name}</Text>
+          <Text style={[styles.subtitle, { color: theme.subtleText }]}>{subtitle}</Text>
         </View>
         <TouchableOpacity
-          style={[styles.checkButton, {backgroundColor: isCompletedToday ? color : '#333'}]}
+          style={[styles.checkButton, { backgroundColor: isCompletedToday ? color : theme.subtleText }]}
           onPress={handleCheck}
         >
           <Icon name="checkmark" size={20} color="#fff" />
@@ -52,7 +54,6 @@ const HabitCard: React.FC<HabitCardProps> = ({ id, name, subtitle, color, icon }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1a1a1a',
     borderRadius: 12,
     padding: 10,
     marginBottom: 12,
@@ -74,19 +75,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
   subtitle: {
-    color: '#888',
     fontSize: 14,
   },
   checkButton: {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -97,7 +95,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,

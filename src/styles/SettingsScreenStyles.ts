@@ -3,14 +3,13 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
     paddingHorizontal: 16,
+    paddingTop: 24,
   },
   section: {
     marginBottom: 24,
   },
   sectionTitle: {
-    color: '#8e8e93',
     fontSize: 16,
     marginBottom: 8,
     marginLeft: 16,
@@ -18,7 +17,6 @@ export const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1c1c1e',
     borderRadius: 10,
     padding: 16,
     marginBottom: 8,
@@ -32,12 +30,10 @@ export const styles = StyleSheet.create({
     marginRight: 16,
   },
   itemTitle: {
-    color: '#fff',
     fontSize: 17,
     flex: 1,
   },
   itemArrow: {
-    color: '#8e8e93',
   },
   header: {
     flexDirection: 'row',
@@ -45,7 +41,6 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   headerTitle: {
-    color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 16,

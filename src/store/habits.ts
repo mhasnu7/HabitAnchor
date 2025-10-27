@@ -25,15 +25,24 @@ interface Habit {
 
 interface HabitState {
   habits: Habit[];
+  weekStartsOnMonday: boolean;
+  highlightCurrentDay: boolean;
+  showAnalytics: boolean;
   toggleCompletion: (habitId: string, date: string) => void;
   addHabit: (habit: Omit<Habit, 'id' | 'progress'>) => void;
   deleteHabit: (habitId: string) => void;
+  toggleWeekStartsOnMonday: () => void;
+  toggleHighlightCurrentDay: () => void;
+  toggleShowAnalytics: () => void;
 }
 
 export const useHabitStore = create<HabitState>()(
   persist(
     (set) => ({
       habits: [],
+      weekStartsOnMonday: false,
+      highlightCurrentDay: true,
+      showAnalytics: true,
       toggleCompletion: (habitId, date) =>
         set((state) => ({
           habits: state.habits.map((h) => {
@@ -68,6 +77,9 @@ export const useHabitStore = create<HabitState>()(
         set((state) => ({
           habits: state.habits.filter((h) => h.id !== habitId),
         })),
+      toggleWeekStartsOnMonday: () => set((state) => ({ weekStartsOnMonday: !state.weekStartsOnMonday })),
+      toggleHighlightCurrentDay: () => set((state) => ({ highlightCurrentDay: !state.highlightCurrentDay })),
+      toggleShowAnalytics: () => set((state) => ({ showAnalytics: !state.showAnalytics })),
     }),
     {
       name: 'habit-storage',
