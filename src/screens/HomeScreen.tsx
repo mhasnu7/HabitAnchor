@@ -11,20 +11,40 @@ import { useHabitStore } from '../store/habits';
 import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
+import { Alert } from 'react-native';
 
 type RootStackParamList = {
   Home: undefined;
   AddHabit: undefined;
   HabitCalendar: undefined;
-  HabitDetails: undefined;
+  HabitDetails: { habitId: string }; // Allow HabitDetails to accept habitId
   Settings: undefined;
 };
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
-  const { habits, showAnalytics } = useHabitStore();
+  const { habits, showAnalytics, archiveHabit } = useHabitStore();
   const { theme } = useTheme();
+
+  const handleDeleteHabit = (habitId: string) => {
+    Alert.alert(
+      'Archive Habit',
+      'Are you sure you want to archive this habit? You can restore it later from settings.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Archive',
+          onPress: () => archiveHabit(habitId),
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -53,11 +73,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           {habits.map(habit => (
             <HabitCard
               key={habit.id}
-              id={habit.id}
-              name={habit.name}
-              subtitle={habit.subtitle}
-              color={habit.color}
-              icon={habit.icon}
+              habit={habit}
+              onPress={() => navigation.navigate('HabitDetails', { habitId: habit.id })}
+              onDelete={handleDeleteHabit}
             />
           ))}
         </ScrollView>
@@ -67,7 +85,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
             <Icon name="grid" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
+          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails', { habitId: habits[0]?.id || '' })}>
             <Icon name="align-justify" size={24} color={theme.subtleText} />
           </TouchableOpacity>
         </View>

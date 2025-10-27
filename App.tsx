@@ -16,6 +16,7 @@ import IconPickerScreen from './src/screens/IconPickerScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import GeneralSettingsScreen from './src/screens/GeneralSettingsScreen';
 import DailyCheckInReminderScreen from './src/screens/DailyCheckInReminderScreen';
+import ArchivedHabitsScreen from './src/screens/ArchivedHabitsScreen'; // Import the new screen
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
 import { ThemeProvider } from './src/context/ThemeContext';
@@ -31,6 +32,7 @@ export type RootStackParamList = {
   GeneralSettings: undefined;
   DailyCheckInReminder: undefined;
   ThemeSelection: undefined;
+  ArchivedHabits: undefined; // Add new screen to RootStackParamList
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -67,6 +69,7 @@ function App() {
             <Stack.Screen name="GeneralSettings" component={GeneralSettingsScreen} />
             <Stack.Screen name="DailyCheckInReminder" component={DailyCheckInReminderScreen} />
             <Stack.Screen name="ThemeSelection" component={ThemeSelectionScreen} />
+            <Stack.Screen name="ArchivedHabits" component={ArchivedHabitsScreen} />
           </Stack.Group>
           <Stack.Group screenOptions={{ presentation: 'modal' }}>
             <Stack.Screen name="AddHabit" component={AddHabitScreen} />

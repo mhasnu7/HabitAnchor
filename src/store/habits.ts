@@ -8,7 +8,7 @@ interface DayProgress {
   completed: boolean;
 }
 
-interface Habit {
+export interface Habit {
   id: string;
   name: string;
   subtitle: string;
@@ -21,16 +21,20 @@ interface Habit {
   completionsPerDay: number;
   progress: DayProgress[];
   targetCompletionDate?: string; // Optional target completion date
+  archivedAt?: string; // Timestamp when the habit was archived
 }
 
 interface HabitState {
   habits: Habit[];
+  archivedHabits: Habit[]; // New state for archived habits
   weekStartsOnMonday: boolean;
   highlightCurrentDay: boolean;
   showAnalytics: boolean;
   toggleCompletion: (habitId: string, date: string) => void;
   addHabit: (habit: Omit<Habit, 'id' | 'progress'>) => void;
-  deleteHabit: (habitId: string) => void;
+  archiveHabit: (habitId: string) => void; // New function to archive a habit
+  restoreHabit: (habitId: string) => void; // New function to restore a habit
+  permanentlyDeleteHabit: (habitId: string) => void; // New function for permanent deletion
   toggleWeekStartsOnMonday: () => void;
   toggleHighlightCurrentDay: () => void;
   toggleShowAnalytics: () => void;
@@ -40,6 +44,7 @@ export const useHabitStore = create<HabitState>()(
   persist(
     (set) => ({
       habits: [],
+      archivedHabits: [], // Initialize archived habits
       weekStartsOnMonday: false,
       highlightCurrentDay: true,
       showAnalytics: true,
@@ -73,9 +78,32 @@ export const useHabitStore = create<HabitState>()(
             },
           ],
         })),
-      deleteHabit: (habitId) =>
+      archiveHabit: (habitId) =>
+        set((state) => {
+          const habitToArchive = state.habits.find((h) => h.id === habitId);
+          if (habitToArchive) {
+            return {
+              habits: state.habits.filter((h) => h.id !== habitId),
+              archivedHabits: [...state.archivedHabits, { ...habitToArchive, archivedAt: new Date().toISOString() }],
+            };
+          }
+          return state;
+        }),
+      restoreHabit: (habitId) =>
+        set((state) => {
+          const habitToRestore = state.archivedHabits.find((h) => h.id === habitId);
+          if (habitToRestore) {
+            const { archivedAt, ...rest } = habitToRestore; // Remove archivedAt
+            return {
+              habits: [...state.habits, rest],
+              archivedHabits: state.archivedHabits.filter((h) => h.id !== habitId),
+            };
+          }
+          return state;
+        }),
+      permanentlyDeleteHabit: (habitId) =>
         set((state) => ({
-          habits: state.habits.filter((h) => h.id !== habitId),
+          archivedHabits: state.archivedHabits.filter((h) => h.id !== habitId),
         })),
       toggleWeekStartsOnMonday: () => set((state) => ({ weekStartsOnMonday: !state.weekStartsOnMonday })),
       toggleHighlightCurrentDay: () => set((state) => ({ highlightCurrentDay: !state.highlightCurrentDay })),

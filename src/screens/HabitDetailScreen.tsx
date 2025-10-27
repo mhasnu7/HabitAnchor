@@ -10,17 +10,28 @@ type RootStackParamList = {
   Home: undefined;
   AddHabit: undefined;
   HabitCalendar: undefined;
-  HabitDetails: undefined;
+  HabitDetails: { habitId: string }; // Allow HabitDetails to accept habitId
   Settings: undefined;
 };
 
 type HabitDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'HabitDetails'>;
 
-const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
+const HabitDetailScreen = ({ navigation, route }: HabitDetailScreenProps) => {
+  const { habitId } = route.params;
   const { habits } = useHabitStore();
   const { theme } = useTheme();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lastNDays, setLastNDays] = useState(generateLastNDays(5, currentDate));
+
+  const habit = habits.find(h => h.id === habitId);
+
+  if (!habit) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <Text style={[styles.title, { color: theme.text }]}>Habit not found</Text>
+      </View>
+    );
+  }
 
   useEffect(() => {
     setLastNDays(generateLastNDays(5, currentDate));
@@ -76,29 +87,27 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
           </TouchableOpacity>
         </View>
         <ScrollView style={styles.scrollView}>
-          {habits.map(habit => (
-            <View key={habit.id} style={[styles.habitRow, { backgroundColor: theme.cardBackground }]}>
-              <View style={[styles.habitIconContainer, { backgroundColor: habit.color }]}>
-                <Icon name={habit.icon} size={20} color="#fff" />
-              </View>
-              <Text style={[styles.habitName, { color: theme.text }]}>{habit.name}</Text>
-              <View style={styles.calendarBoxes}>
-                {lastNDays.map((day, index) => {
-                  const habitDayProgress = habit.progress.find(p => p.date === day.date);
-                  const isCompleted = habitDayProgress ? habitDayProgress.completed : false;
-                  return (
-                    <View
-                      key={index}
-                      style={[
-                        styles.calendarBox,
-                        isCompleted ? { ...styles.calendarBoxCompleted, backgroundColor: habit.color } : { ...styles.calendarBoxIncomplete, backgroundColor: theme.subtleText },
-                      ]}
-                    />
-                  );
-                })}
-              </View>
+          <View key={habit.id} style={[styles.habitRow, { backgroundColor: theme.cardBackground }]}>
+            <View style={[styles.habitIconContainer, { backgroundColor: habit.color }]}>
+              <Icon name={habit.icon} size={20} color="#fff" />
             </View>
-          ))}
+            <Text style={[styles.habitName, { color: theme.text }]}>{habit.name}</Text>
+            <View style={styles.calendarBoxes}>
+              {lastNDays.map((day, index) => {
+                const habitDayProgress = habit.progress.find(p => p.date === day.date);
+                const isCompleted = habitDayProgress ? habitDayProgress.completed : false;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.calendarBox,
+                      isCompleted ? { ...styles.calendarBoxCompleted, backgroundColor: habit.color } : { ...styles.calendarBoxIncomplete, backgroundColor: theme.subtleText },
+                    ]}
+                  />
+                );
+              })}
+            </View>
+          </View>
         </ScrollView>
       </View>
       <View style={styles.bottomNavBarContainer}>
