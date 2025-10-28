@@ -22,7 +22,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onDelete, showRes
   const isCompletedToday = habit?.progress.find(d => d.date === today)?.completed ?? false;
 
   const handleCheck = () => {
-    toggleCompletion(id, today);
+    toggleCompletion(habit.id, today);
   };
 
   const handlePress = () => {

@@ -35,9 +35,6 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           <SettingItem icon="archive-outline" iconBackgroundColor="#5856D6" title="Archived Habits" onPress={() => navigation.navigate('ArchivedHabits')} />
         </View>
         <View style={styles.section}>
-          <SettingItem icon="reorder-two-outline" iconBackgroundColor="#34C759" title="Reorder Habits" onPress={() => {}} />
-        </View>
-        <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.subtleText }]}>About</Text>
           <SettingItem icon="lock-closed-outline" iconBackgroundColor="#FF2D55" title="Privacy Policy" onPress={() => {}} />
           <SettingItem icon="document-text-outline" iconBackgroundColor="#FF3B30" title="Terms of Use" onPress={() => {}} />

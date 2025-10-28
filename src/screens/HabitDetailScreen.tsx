@@ -20,21 +20,21 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
   const { habits } = useHabitStore();
   const { theme } = useTheme();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [lastNDays, setLastNDays] = useState(generateLastNDays(5, currentDate));
+  const [lastNDays, setLastNDays] = useState(generateLastNDays(7, currentDate));
 
   useEffect(() => {
-    setLastNDays(generateLastNDays(5, currentDate));
+    setLastNDays(generateLastNDays(7, currentDate));
   }, [currentDate]);
 
   const goToPreviousDays = () => {
     const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 5);
+    newDate.setDate(newDate.getDate() - 7);
     setCurrentDate(newDate);
   };
 
   const goToNextDays = () => {
     const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 5);
+    newDate.setDate(newDate.getDate() + 7);
     setCurrentDate(newDate);
   };
 
@@ -44,7 +44,10 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.text }]}>Habit Details</Text>
+        <Text style={styles.title}>
+          <Text style={{ color: '#2AB574' }}>Habit</Text>
+          <Text style={{ color: '#1A73E8' }}> Details</Text>
+        </Text>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
             <Icon name="add" size={24} color={theme.text} />
@@ -53,7 +56,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
       </View>
       <View style={styles.content}>
         <TouchableOpacity style={[styles.last5DaysButton, { backgroundColor: theme.cardBackground }]}>
-          <Text style={[styles.last5DaysButtonText, { color: theme.text }]}>Last 5 days</Text>
+          <Text style={[styles.last5DaysButtonText, { color: theme.text }]}>Last 7 days</Text>
         </TouchableOpacity>
         <View style={styles.dateNavigationContainer}>
           <TouchableOpacity onPress={goToPreviousDays} style={styles.arrowButton}>
@@ -81,7 +84,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
               <View style={[styles.habitIconContainer, { backgroundColor: habit.color }]}>
                 <Icon name={habit.icon} size={20} color="#fff" />
               </View>
-              <Text style={[styles.habitName, { color: theme.text }]}>{habit.name}</Text>
+              <Text style={[styles.habitName, { color: '#2AB574' }]}>{habit.name}</Text>
               <View style={styles.calendarBoxes}>
                 {lastNDays.map((day, index) => {
                   const habitDayProgress = habit.progress.find(p => p.date === day.date);
@@ -155,8 +158,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between', // Use space-between for internal distribution
     marginBottom: 10,
-    width: 170, // Approximate width for 5 items (30*5 + 4*5)
+    width: 238, // Approximate width for 7 items (30*7 + 4*7)
     marginRight: 5, // Push closer to the right arrow
+    marginLeft: 65,
   },
   dayContainer: {
     alignItems: 'center',
@@ -174,8 +178,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
-    paddingLeft: 15, // Revert to original paddingLeft
-    paddingRight: 15,
+    paddingLeft: 0,
+    paddingRight: 0,
   },
   arrowButton: {
     padding: 10,
@@ -204,7 +208,7 @@ const styles = StyleSheet.create({
   calendarBoxes: {
     flexDirection: 'row',
     justifyContent: 'space-between', // Use space-between for internal distribution
-    width: 170, // Approximate width for 5 items (30*5 + 4*5)
+    width: 238, // Approximate width for 7 items (30*7 + 4*7)
     marginRight: 5, // Push closer to the right arrow
   },
   calendarBox: {
