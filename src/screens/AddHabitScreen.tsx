@@ -14,6 +14,7 @@ import DatePicker from 'react-native-date-picker';
 import { format } from 'date-fns';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
@@ -75,7 +76,7 @@ const AddHabitScreen = () => {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Icon name="close" size={24} color={theme.text} />
+              <FontAwesome5 name="times-circle" size={24} color={theme.text} solid />
             </TouchableOpacity>
             <View style={{ flexDirection: 'row' }}>
               <Text style={[styles.title, { color: '#22c55e' }]}>New </Text>

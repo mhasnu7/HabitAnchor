@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useTheme } from '../context/ThemeContext';
 
 interface SettingItemProps {
@@ -15,7 +16,11 @@ const SettingItem: React.FC<SettingItemProps> = ({ icon, iconBackgroundColor, ti
   return (
     <TouchableOpacity onPress={onPress} style={[styles.itemContainer, { backgroundColor: theme.cardBackground }]}>
       <View style={[styles.itemIconContainer, { backgroundColor: iconBackgroundColor }]}>
-        <Icon name={icon} size={20} color="#fff" />
+        {icon === 'wrench' ? (
+          <FontAwesome5 name="wrench" size={20} color="#fff" />
+        ) : (
+          <Icon name={icon} size={20} color="#fff" />
+        )}
       </View>
       <Text style={[styles.itemTitle, { color: theme.text }]}>{title}</Text>
       <Icon name="chevron-forward" size={20} color={theme.arrow} />

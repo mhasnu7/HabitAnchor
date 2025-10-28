@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
 import { generateLastNDays } from '../utils/date';
@@ -42,7 +44,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.background }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color={theme.text} />
+          <Text style={{ fontSize: 36, color: theme.text, fontWeight: 'bold' }}>↩︎</Text>
         </TouchableOpacity>
         <Text style={styles.title}>
           <Text style={{ color: '#2AB574' }}>Habit</Text>
@@ -50,7 +52,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         </Text>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
-            <Icon name="add" size={24} color={theme.text} />
+            <FontAwesome5 name="plus-circle" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -107,10 +109,10 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
       <View style={styles.bottomNavBarContainer}>
         <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <Icon name="grid" size={24} color={theme.subtleText} />
+            <FontAwesome5 name="home" size={24} color={theme.subtleText} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
-            <Icon name="settings-outline" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+            <FontAwesome5 name="tools" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
         </View>
       </View>

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useHabitStore } from '../store/habits';
 import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -50,7 +51,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-          <Icon name="settings" size={24} color={theme.text} />
+          <FontAwesome5 name="tools" size={24} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: theme.text }]}>Habit Anchor</Text>
         <View style={styles.headerRight}>
@@ -60,7 +61,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
-            <Icon name="plus" size={24} color={theme.text} />
+            <FontAwesome5 name="plus-circle" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -83,7 +84,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       <View style={styles.bottomNavBarContainer}>
         <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <Icon name="grid" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+            <FontAwesome5 name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
             <Icon name="align-justify" size={24} color={theme.subtleText} />
