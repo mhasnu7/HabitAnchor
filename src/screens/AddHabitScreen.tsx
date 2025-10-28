@@ -77,13 +77,19 @@ const AddHabitScreen = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Icon name="close" size={24} color={theme.text} />
             </TouchableOpacity>
-            <Text style={[styles.title, { color: theme.text }]}>New Habit</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={[styles.title, { color: '#22c55e' }]}>New </Text>
+              <Text style={[styles.title, { color: '#3b82f6' }]}>Habit</Text>
+            </View>
             <View style={{ width: 24 }} />
           </View>
 
           <ScrollView>
             <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Icon</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Text style={[styles.label, { color: theme.text }]}>Icon</Text>
+                <Text style={{ color: theme.subtleText, fontSize: 12 }}>Click Icon to select from list</Text>
+              </View>
               <TouchableOpacity
                 style={[styles.selectedIconContainer, { backgroundColor: theme.cardBackground }]}
                 onPress={() => navigation.navigate('IconPicker', {
@@ -97,7 +103,7 @@ const AddHabitScreen = () => {
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Name</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Habit Name</Text>
               <TextInput
                 style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={name}
@@ -110,7 +116,7 @@ const AddHabitScreen = () => {
             </View>
 
             <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Description</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Habit Description</Text>
               <TextInput
                 style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={description}
@@ -145,7 +151,7 @@ const AddHabitScreen = () => {
                 onPress={() => setIsDatePickerVisible(true)}
               >
                 <Text style={[styles.datePickerButtonText, { color: theme.text }]}>
-                  {targetCompletionDate ? format(targetCompletionDate, 'PPP') : 'Select Date'}
+                  {targetCompletionDate ? format(targetCompletionDate, 'PPP') : 'Click to Select date'}
                 </Text>
                 {targetCompletionDate && (
                   <TouchableOpacity onPress={() => setTargetCompletionDate(undefined)} style={styles.clearDateButton}>
@@ -171,7 +177,7 @@ const AddHabitScreen = () => {
 
           </ScrollView>
 
-          <TouchableOpacity style={[styles.saveButton, { backgroundColor: selectedColor }]} onPress={handleSave}>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: '#3b82f6' }]} onPress={handleSave}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>
