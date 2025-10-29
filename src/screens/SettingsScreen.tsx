@@ -30,10 +30,10 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
       </View>
       <ScrollView>
         <View style={styles.section}>
-          <SettingItem icon="wrench" iconBackgroundColor="#8e8e93" title="General" onPress={() => navigation.navigate('GeneralSettings')} />
-          <SettingItem icon="notifications-outline" iconBackgroundColor="#FF9500" title="Daily Check-In Reminders" onPress={() => navigation.navigate('DailyCheckInReminder')} />
           <SettingItem icon="color-palette-outline" iconBackgroundColor="#007AFF" title="Theme" onPress={() => navigation.navigate('ThemeSelection')} />
+          <SettingItem icon="wrench" iconBackgroundColor="#8e8e93" title="General" onPress={() => navigation.navigate('GeneralSettings')} />
           <SettingItem icon="archive-outline" iconBackgroundColor="#5856D6" title="Archived Habits" onPress={() => navigation.navigate('ArchivedHabits')} />
+          <SettingItem icon="notifications-outline" iconBackgroundColor="#FF9500" title="Reminders" onPress={() => navigation.navigate('DailyCheckInReminder')} />
         </View>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.subtleText }]}>About</Text>

@@ -36,10 +36,6 @@ const GeneralSettingsScreen = ({ navigation }: GeneralSettingsScreenProps) => {
       </View>
       <ScrollView>
         <View style={styles.section}>
-          <TouchableOpacity style={[styles.itemContainer, { backgroundColor: theme.cardBackground }]} onPress={() => navigation.navigate('DailyCheckInReminder')}>
-            <Text style={[styles.itemTitle, { color: theme.text }]}>Daily Check-in Reminder</Text>
-            <Icon name="chevron-forward" size={20} color={theme.arrow} />
-          </TouchableOpacity>
           <TouchableOpacity style={[styles.itemContainer, { backgroundColor: theme.cardBackground }]} onPress={toggleWeekStartsOnMonday}>
             <Text style={[styles.itemTitle, { color: theme.text }]}>Week Starts On Monday</Text>
             <Icon name="chevron-forward" size={20} color={theme.arrow} />

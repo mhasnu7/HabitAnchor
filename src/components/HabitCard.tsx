@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     marginBottom: 12,
+    width: '100.50%', // Increased width to accommodate more text
   },
   header: {
     flexDirection: 'row',
