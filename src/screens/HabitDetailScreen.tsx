@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    paddingRight: 10,
   },
   content: {
     flex: 1,
@@ -158,33 +159,30 @@ const styles = StyleSheet.create({
   },
   daysHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Use space-between for internal distribution
+    justifyContent: 'space-around',
+    flex: 1,
     marginBottom: 10,
-    width: 238, // Approximate width for 7 items (30*7 + 4*7)
-    marginRight: 5, // Push closer to the right arrow
-    marginLeft: 65,
   },
   dayContainer: {
     alignItems: 'center',
+    width: 25,
   },
   dayHeaderText: {
-    fontSize: 14,
-    width: 30,
+    fontSize: 12,
     textAlign: 'center',
   },
   dateHeaderText: {
-    fontSize: 12,
+    fontSize: 10,
+    textAlign: 'center',
   },
   dateNavigationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
-    paddingLeft: 0,
-    paddingRight: 0,
   },
   arrowButton: {
-    padding: 10,
+    padding: 2,
   },
   scrollView: {
     flex: 1,
@@ -194,29 +192,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     paddingVertical: 10,
-    paddingHorizontal: 15, // Revert to original paddingHorizontal
-    marginBottom: 10,
-    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    marginBottom: 8,
   },
   habitIconContainer: {
     borderRadius: 5,
-    padding: 5,
-    marginRight: 10,
+    padding: 4,
+    marginRight: 8,
   },
   habitName: {
-    fontSize: 18,
-    flex: 1,
+    fontSize: 15,
+    marginRight: 8,
   },
   calendarBoxes: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Use space-between for internal distribution
-    width: 238, // Approximate width for 7 items (30*7 + 4*7)
-    marginRight: 5, // Push closer to the right arrow
+    flex: 1,
+    justifyContent: 'space-around',
   },
   calendarBox: {
-    width: 30,
-    height: 30,
-    borderRadius: 5,
+    width: 25,
+    height: 25,
+    borderRadius: 4,
   },
   calendarBoxCompleted: {
     // backgroundColor: '#8a2be2', // Example color for completed

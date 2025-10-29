@@ -141,17 +141,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   calendarGrid: {
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   daysOfWeek: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginRight: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
   dayName: {
     color: '#888',
     fontSize: 10,
-    height: 22, // Cell height + margin
+    height: 20,
+    width: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
   },
@@ -162,12 +162,11 @@ const styles = StyleSheet.create({
   },
   monthContainer: {
     flex: 1,
-    flexDirection: 'column', // Changed to column for vertical weeks
+    flexDirection: 'column',
   },
   weekRow: {
-    flexDirection: 'row', // Each row is now a day of the week
+    flexDirection: 'row',
     justifyContent: 'flex-start',
-    height: 22, // Cell height + margin
   },
   cell: {
     width: 18,
