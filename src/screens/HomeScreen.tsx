@@ -1,10 +1,10 @@
-import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -13,6 +13,7 @@ import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
 import { Alert } from 'react-native';
+import React from 'react';
 
 type RootStackParamList = {
   Home: undefined;
@@ -53,16 +54,13 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
           <FontAwesome5 name="tools" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.text }]}>Habit Anchor</Text>
+        <Image source={require('../../assets/logo/ChatGPT_Image_Oct_29__2025__03_16_35_AM-removebg-preview.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
         <View style={styles.headerRight}>
           {showAnalytics && (
             <TouchableOpacity>
               <Icon name="bar-chart-2" size={24} color={theme.text} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
-            <FontAwesome5 name="plus-circle" size={24} color={theme.text} />
-          </TouchableOpacity>
         </View>
       </View>
       {habits.length === 0 ? (
@@ -86,6 +84,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
             <FontAwesome5 name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
+          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AddHabit')}>
+            <FontAwesome5 name="plus-circle" size={24} color={'green'} />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
             <Icon name="align-justify" size={24} color={theme.subtleText} />
           </TouchableOpacity>
@@ -104,8 +105,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 16,
+    paddingTop: -80,
+    paddingBottom: -50,
   },
   title: {
     fontSize: 24,
@@ -155,6 +156,11 @@ const styles = StyleSheet.create({
   },
   navButton: {
     padding: 8,
+  },
+  logo: {
+    width: 200,
+    height: 120,
+    resizeMode: 'contain',
   },
 });
 

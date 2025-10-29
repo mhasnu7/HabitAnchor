@@ -80,9 +80,9 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onDelete, showRes
 const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
-    padding: 10,
-    marginBottom: 12,
-    width: '100.50%', // Increased width to accommodate more text
+    padding: 5,
+    marginBottom: 5,
+    width: '100%', // Increased width to accommodate more text
   },
   header: {
     flexDirection: 'row',

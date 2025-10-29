@@ -57,7 +57,6 @@ function App() {
     <ThemeProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Home"
           screenOptions={{
             headerShown: false,
           }}>
