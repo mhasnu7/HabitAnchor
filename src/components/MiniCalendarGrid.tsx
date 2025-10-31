@@ -52,8 +52,16 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
       }
     });
 
+    const dayNames = weekStartsOnMonday ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] : ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+
     return weekGrid.map((row, rowIndex) => (
       <View key={rowIndex} style={styles.weekRow}>
+        {/* Day Name Label - only display for the first month in the three-month view */}
+        {monthsToDisplay.findIndex(m => m.getTime() === month.getTime()) === 0 && (
+          <Text style={[styles.dayName, { color: theme.subtleText }]}>
+            {dayNames[rowIndex]}
+          </Text>
+        )}
         {row.map((day, dayIndex) => {
           if (!day) {
             return <View key={`empty-${rowIndex}-${dayIndex}`} style={styles.cell} />;
@@ -101,13 +109,6 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
         </TouchableOpacity>
       </View>
       <View style={styles.calendarGrid}>
-        <View style={styles.daysOfWeek}>
-          {(weekStartsOnMonday ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] : ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']).map(day => (
-            <Text key={day} style={[styles.dayName, { color: theme.subtleText }]}>
-              {day}
-            </Text>
-          ))}
-        </View>
         <View style={styles.monthsGrid}>
           {monthsToDisplay.map(month => (
             <View key={month.toString()} style={styles.monthContainer}>
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
   },
   monthNames: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     flex: 1,
   },
   monthName: {
@@ -143,17 +144,14 @@ const styles = StyleSheet.create({
   calendarGrid: {
     flexDirection: 'column',
   },
-  daysOfWeek: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
   dayName: {
     color: '#888',
     fontSize: 10,
-    height: 20,
+    height: 16,
     width: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
+    marginRight: 2, // Reduced spacing to fix overflow
   },
   monthsGrid: {
     flexDirection: 'row',
@@ -169,9 +167,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   cell: {
-    width: 18,
-    height: 18,
-    margin: 1,
+    width: 16,
+    height: 16,
+    margin: 0.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -183,7 +181,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
   },
   dayText: {
-    fontSize: 10,
+    fontSize: 9,
   },
 });
 
