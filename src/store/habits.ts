@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { generateLastNDays } from '../utils/date';
 
-interface DayProgress {
+export interface DayProgress {
   date: string;
   completed: boolean;
 }

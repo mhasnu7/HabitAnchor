@@ -21,6 +21,7 @@ type RootStackParamList = {
   HabitCalendar: undefined;
   HabitDetails: undefined;
   Settings: undefined;
+  HabitInsights: undefined; // Added for navigation to the new screen
 };
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -57,7 +58,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         <Image source={require('../../assets/logo/ChatGPT_Image_Oct_29__2025__03_16_35_AM-removebg-preview.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
         <View style={styles.headerRight}>
           {showAnalytics && (
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('HabitInsights')}>
               <Icon name="bar-chart-2" size={24} color={theme.text} />
             </TouchableOpacity>
           )}

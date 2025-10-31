@@ -109,7 +109,7 @@ const AddHabitScreen = () => {
                 style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={name}
                 onChangeText={setName}
-                placeholder="e.g. Read a book"
+                placeholder="Enter Habit Name"
                 placeholderTextColor={theme.subtleText}
                 autoCorrect={false}
                 spellCheck={false}
@@ -122,7 +122,7 @@ const AddHabitScreen = () => {
                 style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={description}
                 onChangeText={setDescription}
-                placeholder="e.g. For 30 minutes"
+                placeholder="Enter Habit Detail"
                 placeholderTextColor={theme.subtleText}
                 autoCorrect={false}
                 spellCheck={false}
