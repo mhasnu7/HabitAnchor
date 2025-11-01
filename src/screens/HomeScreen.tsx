@@ -13,7 +13,8 @@ import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
 import { Alert } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
+import ThanosSnapAnimation from '../components/ThanosSnapAnimation';
 
 type RootStackParamList = {
   Home: undefined;
@@ -29,6 +30,8 @@ type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const { habits, showAnalytics, archiveHabit } = useHabitStore();
   const { theme } = useTheme();
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
 
   const handleDeleteHabit = (habitId: string) => {
     Alert.alert(
@@ -41,7 +44,10 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         },
         {
           text: 'Archive',
-          onPress: () => archiveHabit(habitId),
+          onPress: () => {
+            setHabitToDelete(habitId);
+            setIsAnimating(true);
+          },
           style: 'destructive',
         },
       ],
@@ -51,48 +57,70 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-          <FontAwesome5 name="tools" size={24} color={theme.text} />
-        </TouchableOpacity>
-        <Image source={require('../../assets/logo/ChatGPT_Image_Oct_29__2025__03_16_35_AM-removebg-preview.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
-        <View style={styles.headerRight}>
-          {showAnalytics && (
-            <TouchableOpacity onPress={() => navigation.navigate('HabitInsights')}>
-              <Icon name="bar-chart-2" size={24} color={theme.text} />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-      {habits.length === 0 ? (
-        <View style={styles.emptyStateContainer}>
-          <Text style={[styles.emptyStateText, { color: theme.text }]}>Click + button to add habit</Text>
-        </View>
+      {isAnimating && habitToDelete ? (
+        <ThanosSnapAnimation
+          isVisible={isAnimating}
+          onAnimationEnd={() => {
+            if (habitToDelete) {
+              archiveHabit(habitToDelete);
+              setIsAnimating(false);
+              setHabitToDelete(null);
+            }
+          }}
+        >
+          <HabitCard
+            habit={habits.find(h => h.id === habitToDelete)!}
+            onPress={() => {}}
+            onDelete={() => {}}
+            showRestoreButton={false}
+          />
+        </ThanosSnapAnimation>
       ) : (
-        <ScrollView style={styles.scrollView}>
-          {habits.map(habit => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              onPress={() => navigation.navigate('HabitDetails')}
-              onDelete={handleDeleteHabit}
-            />
-          ))}
-        </ScrollView>
+        <>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+              <FontAwesome5 name="tools" size={24} color={theme.text} />
+            </TouchableOpacity>
+            <Image source={require('../../assets/logo/ChatGPT_Image_Oct_29__2025__03_16_35_AM-removebg-preview.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
+            <View style={styles.headerRight}>
+              {showAnalytics && (
+                <TouchableOpacity onPress={() => navigation.navigate('HabitInsights')}>
+                  <Icon name="bar-chart-2" size={24} color={theme.text} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          {habits.length === 0 ? (
+            <View style={styles.emptyStateContainer}>
+              <Text style={[styles.emptyStateText, { color: theme.text }]}>Click + button to add habit</Text>
+            </View>
+          ) : (
+            <ScrollView style={styles.scrollView}>
+              {habits.map(habit => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  onPress={() => navigation.navigate('HabitDetails')}
+                  onDelete={handleDeleteHabit}
+                />
+              ))}
+            </ScrollView>
+          )}
+          <View style={styles.bottomNavBarContainer}>
+            <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
+              <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+                <FontAwesome5 name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AddHabit')}>
+                <FontAwesome5 name="plus-circle" size={24} color={'green'} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
+                <Icon name="align-justify" size={24} color={theme.subtleText} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </>
       )}
-      <View style={styles.bottomNavBarContainer}>
-        <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <FontAwesome5 name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AddHabit')}>
-            <FontAwesome5 name="plus-circle" size={24} color={'green'} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
-            <Icon name="align-justify" size={24} color={theme.subtleText} />
-          </TouchableOpacity>
-        </View>
-      </View>
     </View>
   );
 };
