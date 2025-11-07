@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Changed to MaterialCommunityIcons
 import MiniCalendarGrid from './MiniCalendarGrid';
 import { useHabitStore } from '../store/habits';
 import { useTheme } from '../context/ThemeContext';
+import { SIZES, FONTS } from '../theme/constants';
 
 import { Habit } from '../store/habits'; // Import Habit interface
 
@@ -43,18 +44,18 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onDelete, showRes
     <TouchableOpacity onPress={handlePress} style={[styles.container, { backgroundColor: theme.cardBackground }]}>
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: habit.color }]}>
-          <Icon name={habit.icon} size={24} color="#fff" />
+          <Icon name={habit.icon} size={SIZES.icon} color="#fff" />
         </View>
         <View style={styles.textContainer}>
-          <Text style={[styles.name, { color: theme.text }]}>{habit.name}</Text>
-          <Text style={[styles.subtitle, { color: theme.subtleText }]}>{habit.subtitle}</Text>
+          <Text style={[styles.name, { color: theme.text, fontFamily: FONTS.heading }]}>{habit.name}</Text>
+          <Text style={[styles.subtitle, { color: theme.subtleText, fontFamily: FONTS.body }]}>{habit.subtitle}</Text>
         </View>
         {!showRestoreButton && (
           <TouchableOpacity
             style={[styles.checkButton, { backgroundColor: isCompletedToday ? habit.color : theme.subtleText }]}
             onPress={handleCheck}
           >
-            <Icon name="checkmark" size={20} color="#fff" />
+            <Icon name="check" size={SIZES.icon - 4} color="#fff" />
           </TouchableOpacity>
         )}
         {showRestoreButton && onRestore && (
@@ -62,14 +63,14 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onDelete, showRes
             style={[styles.restoreButton, { backgroundColor: habit.color }]}
             onPress={handleRestore}
           >
-            <Icon name="refresh-circle-outline" size={20} color="#fff" />
+            <Icon name="restore" size={SIZES.icon - 4} color="#fff" />
           </TouchableOpacity>
         )}
         <TouchableOpacity
           style={[styles.deleteButton, { backgroundColor: habit.color }]}
           onPress={handleDelete}
         >
-          <Icon name="trash" size={20} color="#fff" />
+          <Icon name="delete" size={SIZES.icon - 4} color="#fff" />
         </TouchableOpacity>
       </View>
       <MiniCalendarGrid habitId={habit.id} color={habit.color} />
@@ -80,7 +81,8 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onDelete, showRes
 const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
-    padding: 5,
+    paddingVertical: 2,
+    paddingHorizontal: 5,
     marginBottom: 5,
     width: '100%', // Increased width to accommodate more text
   },
@@ -90,9 +92,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: SIZES.circularBox,
+    height: SIZES.circularBox,
+    borderRadius: SIZES.circularBox / 2,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -102,15 +104,16 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: FONTS.heading,
   },
   subtitle: {
     fontSize: 14,
+    fontFamily: FONTS.body,
   },
   checkButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: SIZES.icon + 12,
+    height: SIZES.icon + 12,
+    borderRadius: (SIZES.icon + 12) / 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -118,17 +121,17 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   deleteButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: SIZES.icon + 12,
+    height: SIZES.icon + 12,
+    borderRadius: (SIZES.icon + 12) / 2,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
   },
   restoreButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: SIZES.icon + 12,
+    height: SIZES.icon + 12,
+    borderRadius: (SIZES.icon + 12) / 2,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,

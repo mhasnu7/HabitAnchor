@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { styles } from '../styles/GeneralSettingsScreenStyles';
 import ToggleSwitch from '../components/ToggleSwitch';
@@ -30,7 +30,7 @@ const GeneralSettingsScreen = ({ navigation }: GeneralSettingsScreenProps) => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color={theme.text} />
+          <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.text }]}>General</Text>
       </View>
@@ -38,7 +38,7 @@ const GeneralSettingsScreen = ({ navigation }: GeneralSettingsScreenProps) => {
         <View style={styles.section}>
           <TouchableOpacity style={[styles.itemContainer, { backgroundColor: theme.cardBackground }]} onPress={toggleWeekStartsOnMonday}>
             <Text style={[styles.itemTitle, { color: theme.text }]}>Week Starts On Monday</Text>
-            <Icon name="chevron-forward" size={20} color={theme.arrow} />
+            <Icon name="arrow-right" size={20} color={theme.text} />
           </TouchableOpacity>
           <View style={[styles.itemContainer, { backgroundColor: theme.cardBackground }]}>
             <Text style={[styles.itemTitle, { color: theme.text }]}>Highlight current day</Text>

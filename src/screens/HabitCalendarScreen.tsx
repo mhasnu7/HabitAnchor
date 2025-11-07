@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
@@ -42,14 +42,14 @@ const HabitCalendarScreen = ({ navigation }: HabitCalendarScreenProps) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="settings" size={24} color="#fff" />
+          <Icon name="cog" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>HabitKit</Text>
+        <Text style={styles.title}>Anchor Habits</Text>
         <View style={styles.headerRight}>
           <Text style={styles.proBadge}>PRO</Text>
-          <Icon name="bar-chart-2" size={24} color="#fff" />
+          <Icon name="chart-bar" size={24} color="#fff" />
           <TouchableOpacity>
-            <Icon name="plus" size={24} color="#fff" />
+            <Icon name="plus-circle" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -63,10 +63,10 @@ const HabitCalendarScreen = ({ navigation }: HabitCalendarScreenProps) => {
           {/* Top navigation row with arrows */}
           <View style={styles.navArrowsRow}>
             <TouchableOpacity onPress={handlePrevWeek}>
-              <Icon name="chevron-left" size={22} color="#ccc" />
+              <Icon name="arrow-left" size={22} color="#ccc" />
             </TouchableOpacity>
             <TouchableOpacity onPress={handleNextWeek}>
-              <Icon name="chevron-right" size={22} color="#ccc" />
+              <Icon name="arrow-right" size={22} color="#ccc" />
             </TouchableOpacity>
           </View>
 
@@ -106,13 +106,13 @@ const HabitCalendarScreen = ({ navigation }: HabitCalendarScreenProps) => {
       <View style={styles.bottomNavBarContainer}>
         <View style={styles.bottomNavBar}>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <Icon name="grid" size={24} color="#888" />
+            <Icon name="home" size={24} color="#888" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navButton}>
-            <Icon name="check-square" size={24} color="#8a2be2" />
+            <Icon name="calendar-check" size={24} color="#8a2be2" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navButton}>
-            <Icon name="align-justify" size={24} color="#888" />
+            <Icon name="format-list-bulleted" size={24} color="#888" />
           </TouchableOpacity>
         </View>
       </View>

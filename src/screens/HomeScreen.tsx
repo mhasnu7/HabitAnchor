@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useHabitStore } from '../store/habits';
 import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -79,13 +78,13 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         <>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-              <FontAwesome5 name="tools" size={24} color={theme.text} />
+              <Icon name="cog" size={24} color={theme.text} />
             </TouchableOpacity>
             <Image source={require('../../assets/logo/ChatGPT_Image_Oct_29__2025__03_16_35_AM-removebg-preview.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
             <View style={styles.headerRight}>
               {showAnalytics && (
                 <TouchableOpacity onPress={() => navigation.navigate('HabitInsights')}>
-                  <Icon name="bar-chart-2" size={24} color={theme.text} />
+                  <Icon name="chart-bar" size={24} color={theme.text} />
                 </TouchableOpacity>
               )}
             </View>
@@ -109,13 +108,13 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           <View style={styles.bottomNavBarContainer}>
             <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-                <FontAwesome5 name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+                <Icon name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AddHabit')}>
-                <FontAwesome5 name="plus-circle" size={24} color={'green'} />
+                <Icon name="plus-circle" size={24} color={'green'} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitDetails')}>
-                <Icon name="align-justify" size={24} color={theme.subtleText} />
+                <Icon name="format-list-bulleted" size={24} color={theme.subtleText} />
               </TouchableOpacity>
             </View>
           </View>

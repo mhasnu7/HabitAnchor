@@ -10,7 +10,7 @@ import {
   SectionList,
   SafeAreaView,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -35,126 +35,66 @@ const allIcons: IconCategory[] = [
     title: 'Activities',
     icons: [
       'briefcase', 'headset', 'book', 'code', 'desktop', 'game-controller',
-      'leaf', 'walk', 'water', 'bicycle', 'hammer', 'cloudy', 'sunny',
-      'rainy', 'moon', 'earth', 'flame', 'fast-food', 'pizza', 'beer',
-      'cafe', 'ice-cream', 'football', 'basketball', 'american-football',
-      'car-sport', 'build', 'school', 'heart', 'star', 'paw', 'pencil',
-      'musical-notes', 'camera', 'image', 'film', 'happy', 'sad', 'alarm',
-      'time', 'mail', 'document', 'folder', 'trash', 'checkmark', 'close',
-      'search', 'settings', 'information', 'help', 'warning', 'alert',
-      'add', 'remove', 'arrow-up', 'arrow-down', 'arrow-back', 'arrow-forward',
+      'leaf', 'walk', 'water', 'bicycle', 'hammer', 'cloudy', 'weather-sunny',
+      'weather-rainy', 'moon-waning-crescent', 'earth', 'fire', 'food-fork-drink', 'pizza', 'beer',
+      'coffee', 'ice-cream', 'football', 'basketball', 'american-football',
+      'car-sport', 'tools', 'school', 'heart', 'star', 'paw', 'pencil',
+      'music', 'camera', 'image', 'movie', 'emoticon-happy', 'emoticon-sad', 'alarm',
+      'clock', 'email', 'file-document', 'folder', 'trash-can', 'check', 'close',
+      'magnify', 'cog', 'information', 'help-circle', 'alert', 'alert-circle',
+      'plus', 'minus', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
       'home', 'bed', 'cart', 'boat', 'airplane', 'bus', 'train', 'subway',
-      'walk', 'car', 'bicycle', 'fitness', 'barbell', 'tennisball', 'golf',
-      'baseball', 'basketball', 'football', 'american-football', 'trophy',
-      'medal', 'ribbon', 'sparkles', 'gift', 'wallet', 'cash', 'card',
-      'pricetag', 'bookmark', 'flag', 'pin', 'location', 'map', 'navigate',
-      'compass', 'globe', 'planet', 'cloud', 'thunderstorm', 'snow', 'partly-sunny',
-      'contrast', 'color-palette', 'brush', 'cut', 'copy', 'attach', 'link',
-      'share', 'send', 'chatbubbles', 'chatbox', 'call', 'videocam', 'mic',
-      'volume-high', 'volume-low', 'volume-mute', 'notifications', 'notifications-off',
-      'key', 'lock-closed', 'lock-open', 'eye', 'eye-off', 'person', 'people',
-      'person-add', 'person-remove', 'body', 'accessibility', 'hand-right', 'hand-left',
-      'finger-print', 'id-card', 'at', 'calendar', 'today', 'timer', 'stopwatch',
-      'hourglass', 'watch', 'battery-full', 'battery-half', 'battery-dead', 'power',
-      'reload', 'refresh', 'sync', 'cloud-upload', 'cloud-download', 'save', 'print',
-      'qr-code', 'barcode', 'scan', 'wifi', 'bluetooth', 'data', 'cellular', 'globe',
-      'language', 'translate', 'options', 'funnel', 'filter', 'funnel-outline', 'filter-outline',
-      'grid', 'list', 'reorder-four', 'reorder-three', 'reorder-two', 'menu', 'ellipsis-horizontal',
-      'ellipsis-vertical', 'add-circle', 'remove-circle', 'close-circle', 'checkmark-circle',
-      'alert-circle', 'information-circle', 'help-circle', 'warning-circle', 'star-half',
-      'heart-half', 'bookmark-outline', 'flag-outline', 'pin-outline', 'location-outline',
-      'map-outline', 'navigate-outline', 'compass-outline', 'globe-outline', 'planet-outline',
-      'cloud-outline', 'thunderstorm-outline', 'snow-outline', 'partly-sunny-outline',
-      'contrast-outline', 'color-palette-outline', 'brush-outline', 'cut-outline', 'copy-outline',
-      'attach-outline', 'link-outline', 'share-outline', 'send-outline', 'chatbubbles-outline',
-      'chatbox-outline', 'call-outline', 'videocam-outline', 'mic-outline', 'volume-high-outline',
-      'volume-low-outline', 'volume-mute-outline', 'notifications-outline', 'notifications-off-outline',
-      'key-outline', 'lock-closed-outline', 'lock-open-outline', 'eye-outline', 'eye-off-outline',
-      'person-outline', 'people-outline', 'person-add-outline', 'person-remove-outline', 'body-outline',
-      'accessibility-outline', 'hand-right-outline', 'hand-left-outline', 'finger-print-outline',
-      'id-card-outline', 'at-outline', 'calendar-outline', 'today-outline', 'timer-outline',
-      'stopwatch-outline', 'hourglass-outline', 'watch-outline', 'battery-full-outline',
-      'battery-half-outline', 'battery-dead-outline', 'power-outline', 'reload-outline',
-      'refresh-outline', 'sync-outline', 'cloud-upload-outline', 'cloud-download-outline',
-      'save-outline', 'print-outline', 'qr-code-outline', 'barcode-outline', 'scan-outline',
-      'wifi-outline', 'bluetooth-outline', 'data-outline', 'cellular-outline', 'globe-outline',
-      'language-outline', 'translate-outline', 'options-outline', 'funnel-outline', 'filter-outline',
-      'grid-outline', 'list-outline', 'reorder-four-outline', 'reorder-three-outline',
-      'reorder-two-outline', 'menu-outline', 'ellipsis-horizontal-outline', 'ellipsis-vertical-outline',
-      'add-circle-outline', 'remove-circle-outline', 'close-circle-outline', 'checkmark-circle-outline',
-      'alert-circle-outline', 'information-circle-outline', 'help-circle-outline', 'warning-circle-outline',
-      'star-half-outline', 'heart-half-outline',
     ],
   },
   {
     title: 'Sports',
     icons: [
-      'american-football', 'basketball', 'baseball', 'tennisball', 'golf', 'football',
-      'barbell', 'bicycle', 'walk', 'run', 'swim', 'boat', 'fitness', 'heart',
+      'american-football', 'basketball', 'baseball', 'tennis', 'golf', 'soccer',
+      'dumbbell', 'bike', 'walk', 'run', 'swim', 'rowing', 'fitness-center', 'heart-pulse',
       'medal', 'trophy', 'ribbon', 'sparkles',
     ],
   },
   {
     title: 'Food and Beverages',
     icons: [
-      'fast-food', 'pizza', 'beer', 'cafe', 'ice-cream', 'nutrition', 'restaurant',
-      'wine', 'water', 'egg', 'fish', 'meat', 'bread', 'pizza', 'cookie', 'cake',
-      'cup', 'cafe', 'nutrition', 'restaurant', 'wine', 'water', 'egg', 'fish',
-      'meat', 'bread', 'pizza', 'cookie', 'cake', 'cup', 'cafe',
+      'fast-food', 'pizza', 'beer', 'coffee', 'ice-cream', 'nutrition', 'restaurant',
+      'wine', 'water', 'egg', 'fish', 'meat', 'bread-slice', 'cookie', 'cake',
+      'cup',
     ],
   },
   {
     title: 'Art',
     icons: [
-      'brush', 'color-palette', 'image', 'film', 'musical-notes', 'pencil', 'camera',
-      'easel', 'mic', 'headset', 'volume-high', 'volume-low', 'volume-mute',
+      'brush', 'palette', 'image', 'movie', 'music', 'pencil', 'camera',
+      'easel', 'microphone', 'headphones', 'volume-high', 'volume-low', 'volume-mute',
     ],
   },
   {
     title: 'Financial',
     icons: [
-      'wallet', 'cash', 'card', 'pricetag', 'logo-bitcoin', 'logo-usd', 'logo-euro',
-      'logo-yen', 'logo-pound', 'calculator', 'receipt', 'bar-chart', 'pie-chart',
-      'trending-up', 'trending-down', 'analytics',
+      'wallet', 'cash', 'credit-card', 'tag', 'bitcoin', 'currency-usd', 'currency-eur',
+      'currency-jpy', 'currency-gbp', 'calculator', 'receipt', 'chart-bar', 'chart-pie',
+      'trending-up', 'trending-down', 'chart-areaspline',
     ],
   },
   {
     title: 'Miscellaneous',
     icons: [
-      'bug', 'build', 'cloud', 'desktop', 'globe', 'hammer', 'home', 'information',
-      'key', 'leaf', 'lock-closed', 'lock-open', 'mail', 'map', 'moon', 'notifications',
-      'paw', 'pencil', 'person', 'planet', 'power', 'print', 'qr-code', 'rainy',
-      'refresh', 'reload', 'search', 'send', 'settings', 'share', 'star', 'sunny',
-      'sync', 'time', 'timer', 'today', 'trash', 'walk', 'warning', 'water', 'wifi',
-      'add', 'remove', 'close', 'checkmark', 'alert', 'help', 'arrow-up', 'arrow-down',
-      'arrow-back', 'arrow-forward', 'ellipsis-horizontal', 'ellipsis-vertical',
-      'add-circle', 'remove-circle', 'close-circle', 'checkmark-circle', 'alert-circle',
-      'information-circle', 'help-circle', 'warning-circle', 'star-half', 'heart-half',
-      'bookmark-outline', 'flag-outline', 'pin-outline', 'location-outline', 'map-outline',
-      'navigate-outline', 'compass-outline', 'globe-outline', 'planet-outline', 'cloud-outline',
-      'thunderstorm-outline', 'snow-outline', 'partly-sunny-outline', 'contrast-outline',
-      'color-palette-outline', 'brush-outline', 'cut-outline', 'copy-outline', 'attach-outline',
-      'link-outline', 'share-outline', 'send-outline', 'chatbubbles-outline', 'chatbox-outline',
-      'call-outline', 'videocam-outline', 'mic-outline', 'volume-high-outline', 'volume-low-outline',
-      'volume-mute-outline', 'notifications-outline', 'notifications-off-outline', 'key-outline',
-      'lock-closed-outline', 'lock-open-outline', 'eye-outline', 'eye-off-outline', 'person-outline',
-      'people-outline', 'person-add-outline', 'person-remove-outline', 'body-outline',
-      'accessibility-outline', 'hand-right-outline', 'hand-left-outline', 'finger-print-outline',
-      'id-card-outline', 'at-outline', 'calendar-outline', 'today-outline', 'timer-outline',
-      'stopwatch-outline', 'hourglass-outline', 'watch-outline', 'battery-full-outline',
-      'battery-half-outline', 'battery-dead-outline', 'power-outline', 'reload-outline',
-      'refresh-outline', 'sync-outline', 'cloud-upload-outline', 'cloud-download-outline',
-      'save-outline', 'print-outline', 'qr-code-outline', 'barcode-outline', 'scan-outline',
-      'wifi-outline', 'bluetooth-outline', 'data-outline', 'cellular-outline', 'globe-outline',
-      'language-outline', 'translate-outline', 'options-outline', 'funnel-outline', 'filter-outline',
-      'grid-outline', 'list-outline', 'reorder-four-outline', 'reorder-three-outline',
-      'reorder-two-outline', 'menu-outline', 'ellipsis-horizontal-outline', 'ellipsis-vertical-outline',
-      'add-circle-outline', 'remove-circle-outline', 'close-circle-outline', 'checkmark-circle-outline',
-      'alert-circle-outline', 'information-circle-outline', 'help-circle-outline', 'warning-circle-outline',
-      'star-half-outline', 'heart-half-outline',
+      'bug', 'tools', 'cloud', 'desktop-mac', 'globe-model', 'hammer', 'home', 'information',
+      'key', 'leaf', 'lock', 'lock-open', 'email', 'map', 'moon-waning-crescent', 'bell',
+      'paw', 'pencil', 'account', 'planet', 'power', 'printer', 'qrcode', 'weather-rainy',
+      'refresh', 'reload', 'magnify', 'send', 'cog', 'share-variant', 'star', 'weather-sunny',
+      'sync', 'clock', 'timer', 'calendar-today', 'trash-can', 'walk', 'alert', 'water', 'wifi',
+      'plus-circle', 'minus-circle', 'close-circle', 'check-circle', 'alert-circle',
+      'information-circle', 'help-circle', 'warning-circle', 'star-half-full', 'heart-half-full',
     ],
   },
 ];
+
+// Filter out duplicate icons within each category and across categories
+allIcons.forEach(category => {
+  category.icons = category.icons.filter((value, index, self) => self.indexOf(value) === index);
+});
 
 
 const IconPickerScreen = () => {
@@ -221,7 +161,7 @@ const IconPickerScreen = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="chevron-back" size={24} color="#fff" />
+            <Icon name="arrow-left" size={24} color="#fff" />
           </TouchableOpacity>
           <View style={{ width: 24 }} />
         </View>
@@ -232,21 +172,16 @@ const IconPickerScreen = () => {
               title: category.title,
               data: category.icons,
             }))}
-            renderItem={({ item, section, index }) => {
-              if (index === 0) {
-                return (
-                  <FlatList
-                    data={section.data}
-                    renderItem={renderIconItem}
-                    keyExtractor={(iconItem) => iconItem}
-                    numColumns={6}
-                    columnWrapperStyle={styles.row}
-                    scrollEnabled={false}
-                  />
-                );
-              }
-              return null;
-            }}
+            renderItem={({ section }) => (
+              <FlatList
+                data={section.data}
+                renderItem={renderIconItem}
+                keyExtractor={(iconItem) => iconItem}
+                numColumns={6}
+                columnWrapperStyle={styles.row}
+                scrollEnabled={false}
+              />
+            )}
             renderSectionHeader={({ section: { title } }) => (
               <Text style={styles.categoryTitle}>{title}</Text>
             )}
@@ -280,7 +215,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 16, // Adjusted for SafeAreaView
+    paddingTop: 48, // Increased for better spacing
     paddingBottom: 16,
   },
   searchInput: {
@@ -289,6 +224,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    marginTop: 16, // Added margin to bring it down
     marginBottom: 16,
   },
   listContentContainer: {

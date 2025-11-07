@@ -1,4 +1,4 @@
-package com.habitanchor
+package com.anchorhabits
 
 import android.app.Application
 import com.facebook.react.PackageList

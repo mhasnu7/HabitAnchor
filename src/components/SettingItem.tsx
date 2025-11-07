@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../context/ThemeContext';
 
 interface SettingItemProps {
@@ -16,14 +15,14 @@ const SettingItem: React.FC<SettingItemProps> = ({ icon, iconBackgroundColor, ti
   return (
     <TouchableOpacity onPress={onPress} style={[styles.itemContainer, { backgroundColor: theme.cardBackground }]}>
       <View style={[styles.itemIconContainer, { backgroundColor: iconBackgroundColor }]}>
-        {icon === 'wrench' ? (
-          <FontAwesome5 name="wrench" size={20} color="#fff" />
+        {icon === 'wrench' ? ( // This condition is no longer needed as 'cog' is a MaterialCommunityIcons icon
+          <Icon name="cog" size={20} color="#fff" />
         ) : (
           <Icon name={icon} size={20} color="#fff" />
         )}
       </View>
       <Text style={[styles.itemTitle, { color: theme.text }]}>{title}</Text>
-      <Icon name="chevron-forward" size={20} color={theme.arrow} />
+      <Icon name="arrow-right" size={20} color={theme.text} />
     </TouchableOpacity>
   );
 };

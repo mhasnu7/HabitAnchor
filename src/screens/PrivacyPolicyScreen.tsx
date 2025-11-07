@@ -1,0 +1,96 @@
+import React from 'react';
+import { ScrollView, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { FONTS } from '../theme/constants';
+
+const PrivacyPolicyScreen = () => {
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container}>
+        <Text style={styles.title}>Anchor Habits Privacy Policy</Text>
+        <Text style={styles.effectiveDate}>Effective Date: November 6, 2025</Text>
+
+        <Text style={styles.paragraph}>
+          This Privacy Policy describes how Anchor Habits ("the App"), developed by Mohammed Hasnuddin, collects, uses, and protects information when you use our mobile application.
+        </Text>
+
+        <Text style={styles.heading}>1. Information We Do Not Collect</Text>
+        <Text style={styles.paragraph}>
+          Anchor Habits is designed with your privacy in mind. We do not collect any personal data from our users. This includes, but is not limited to:
+        </Text>
+        <Text style={styles.listItem}>* Names</Text>
+        <Text style={styles.listItem}>* Email addresses</Text>
+        <Text style={styles.listItem}>* Location data</Text>
+        <Text style={styles.listItem}>* Device identifiers</Text>
+        <Text style={styles.listItem}>* Usage analytics tied to individual users</Text>
+
+        <Text style={styles.heading}>2. Local Data Storage</Text>
+        <Text style={styles.paragraph}>
+          All data you input into the Anchor Habits app, including your habits, progress, and any other related information, is stored exclusively on your local device. This means:
+        </Text>
+        <Text style={styles.listItem}>* Your data is not transmitted to our servers or any third-party servers.</Text>
+        <Text style={styles.listItem}>* We do not have access to your habit data or any other information you store in the App.</Text>
+        <Text style={styles.listItem}>* You are solely responsible for backing up your device data. If your device is lost, stolen, or damaged, your data may be unrecoverable unless you have your own backup solution.</Text>
+
+        <Text style={styles.heading}>3. No Third-Party Sharing</Text>
+        <Text style={styles.paragraph}>
+          Since we do not collect any personal data, there is no personal data to share with third parties.
+        </Text>
+
+        <Text style={styles.heading}>4. Children's Privacy</Text>
+        <Text style={styles.paragraph}>
+          Anchor Habits does not knowingly collect any personal information from children under the age of 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us so that we can take the necessary actions.
+        </Text>
+
+        <Text style={styles.heading}>5. Changes to This Privacy Policy</Text>
+        <Text style={styles.paragraph}>
+          We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy within the App or on our website. You are advised to review this Privacy Policy periodically for any changes.
+        </Text>
+
+        <Text style={styles.heading}>6. Contact Us</Text>
+        <Text style={styles.paragraph}>
+          If you have any questions about this Privacy Policy, please contact us at mdhasnu21@gmail.com.
+        </Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF', // Or your app's background color
+  },
+  container: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: FONTS.heading,
+    marginBottom: 10,
+  },
+  effectiveDate: {
+    fontSize: 14,
+    color: '#666',
+    fontFamily: FONTS.body,
+    marginBottom: 20,
+  },
+  heading: {
+    fontSize: 18,
+    fontFamily: FONTS.heading,
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  paragraph: {
+    fontFamily: FONTS.body,
+    marginBottom: 10,
+    lineHeight: 24,
+  },
+  listItem: {
+    fontFamily: FONTS.body,
+    marginLeft: 10,
+    marginBottom: 5,
+    lineHeight: 24,
+  },
+});
+
+export default PrivacyPolicyScreen;

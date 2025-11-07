@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
-import { darkTheme, lightTheme } from '../styles/themes';
+import { DARK_THEME, LIGHT_THEME, FONTS } from '../theme/constants';
 
 const ThemeSelectionScreen = () => {
   const navigation = useNavigation();
@@ -17,9 +17,9 @@ const ThemeSelectionScreen = () => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color={theme.text} />
+          <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]}>Theme</Text>
+        <Text style={[styles.headerTitle, { color: theme.text, fontFamily: FONTS.heading }]}>Theme</Text>
       </View>
 
       <View style={styles.themeOptionContainer}>
@@ -27,13 +27,13 @@ const ThemeSelectionScreen = () => {
           style={[
             styles.themeOption,
             { backgroundColor: theme.cardBackground },
-            theme === darkTheme && styles.selectedTheme,
+            theme === DARK_THEME && styles.selectedTheme,
           ]}
           onPress={() => handleThemeChange('dark')}
         >
-          <Text style={[styles.themeOptionText, { color: theme.text }]}>Dark Theme</Text>
-          {theme === darkTheme && (
-            <Icon name="checkmark-circle" size={24} color="#007AFF" />
+          <Text style={[styles.themeOptionText, { color: theme.text, fontFamily: FONTS.body }]}>Dark Theme</Text>
+          {theme === DARK_THEME && (
+            <Icon name="check-circle" size={24} color={DARK_THEME.primary} />
           )}
         </TouchableOpacity>
 
@@ -41,13 +41,13 @@ const ThemeSelectionScreen = () => {
           style={[
             styles.themeOption,
             { backgroundColor: theme.cardBackground },
-            theme === lightTheme && styles.selectedTheme,
+            theme === LIGHT_THEME && styles.selectedTheme,
           ]}
           onPress={() => handleThemeChange('light')}
         >
-          <Text style={[styles.themeOptionText, { color: theme.text }]}>Light Theme</Text>
-          {theme === lightTheme && (
-            <Icon name="checkmark-circle" size={24} color="#007AFF" />
+          <Text style={[styles.themeOptionText, { color: theme.text, fontFamily: FONTS.body }]}>Light Theme</Text>
+          {theme === LIGHT_THEME && (
+            <Icon name="check-circle" size={24} color={LIGHT_THEME.primary} />
           )}
         </TouchableOpacity>
       </View>
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: FONTS.heading,
     marginLeft: 16,
   },
   themeOptionContainer: {
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
   },
   themeOptionText: {
     fontSize: 17,
+    fontFamily: FONTS.body,
   },
   selectedTheme: {
     borderWidth: 2,

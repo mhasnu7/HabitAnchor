@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { darkTheme, lightTheme, Theme } from '../styles/themes';
+import { DARK_THEME, LIGHT_THEME, Theme } from '../theme/constants';
 
 interface ThemeContextType {
   theme: Theme;
@@ -14,14 +14,14 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(darkTheme);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(DARK_THEME);
 
   const toggleTheme = () => {
-    setCurrentTheme((prevTheme) => (prevTheme === darkTheme ? lightTheme : darkTheme));
+    setCurrentTheme((prevTheme) => (prevTheme === DARK_THEME ? LIGHT_THEME : DARK_THEME));
   };
 
   const setTheme = (themeName: 'dark' | 'light') => {
-    setCurrentTheme(themeName === 'dark' ? darkTheme : lightTheme);
+    setCurrentTheme(themeName === 'dark' ? DARK_THEME : LIGHT_THEME);
   };
 
   return (

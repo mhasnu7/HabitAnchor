@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,6 +9,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useTheme } from '../context/ThemeContext'; // Import useTheme
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SNAP_POINTS = [0, SCREEN_HEIGHT * 0.8]; // Collapsed, ~80% of screen height
@@ -16,16 +17,16 @@ const SNAP_POINTS = [0, SCREEN_HEIGHT * 0.8]; // Collapsed, ~80% of screen heigh
 const categories = [
   { name: 'Art', icon: 'brush' },
   { name: 'Finances', icon: 'wallet' },
-  { name: 'Fitness', icon: 'fitness' },
+  { name: 'Fitness', icon: 'dumbbell' },
   { name: 'Health', icon: 'heart' },
-  { name: 'Nutrition', icon: 'nutrition' },
-  { name: 'Social', icon: 'people' },
+  { name: 'Nutrition', icon: 'food-apple' },
+  { name: 'Social', icon: 'account-group' },
   { name: 'Study', icon: 'book' },
   { name: 'Work', icon: 'briefcase' },
-  { name: 'Other', icon: 'ellipsis-horizontal' },
-  { name: 'Morning', icon: 'sunny' },
-  { name: 'Day', icon: 'cloudy' },
-  { name: 'Evening', icon: 'moon' },
+  { name: 'Other', icon: 'dots-horizontal' },
+  { name: 'Morning', icon: 'weather-sunny' },
+  { name: 'Day', icon: 'weather-cloudy' },
+  { name: 'Evening', icon: 'weather-night' },
 ];
 
 interface CategorySelectionModalProps {
@@ -41,6 +42,7 @@ const CategorySelectionModal: React.FC<CategorySelectionModalProps> = ({
   onSave,
   initialSelectedCategories,
 }) => {
+  const { theme } = useTheme(); // Use theme context
   const [selectedCategories, setSelectedCategories] = useState<string[]>(initialSelectedCategories);
   const translateY = useSharedValue(0);
   const context = useSharedValue({ y: 0 });
@@ -98,10 +100,10 @@ const CategorySelectionModal: React.FC<CategorySelectionModalProps> = ({
   return (
     <View style={styles.overlay}>
       <GestureDetector gesture={gesture}>
-        <Animated.View style={[styles.modalContainer, animatedStyle]}>
-          <View style={styles.handleBar} />
-          <Text style={styles.modalTitle}>Categories</Text>
-          <Text style={styles.modalSubtitle}>Pick one or multiple categories that your habit fits in</Text>
+        <Animated.View style={[styles.modalContainer, { backgroundColor: theme.cardBackground }, animatedStyle]}>
+          <View style={[styles.handleBar, { backgroundColor: theme.subtleText }]} />
+          <Text style={[styles.modalTitle, { color: theme.text }]}>Categories</Text>
+          <Text style={[styles.modalSubtitle, { color: theme.subtleText }]}>Pick one or multiple categories that your habit fits in</Text>
 
           <ScrollView contentContainerStyle={styles.chipsContainer}>
             {categories.map((category) => (
@@ -109,24 +111,25 @@ const CategorySelectionModal: React.FC<CategorySelectionModalProps> = ({
                 key={category.name}
                 style={[
                   styles.chip,
-                  selectedCategories.includes(category.name) && styles.selectedChip,
+                  { backgroundColor: theme.cardBackground },
+                  selectedCategories.includes(category.name) && { backgroundColor: theme.primary },
                 ]}
                 onPress={() => toggleCategory(category.name)}
               >
-                {category.icon && <Icon name={category.icon} size={16} color={selectedCategories.includes(category.name) ? '#111' : '#fff'} style={styles.chipIcon} />}
-                <Text style={[styles.chipText, selectedCategories.includes(category.name) && styles.selectedChipText]}>
+                {category.icon && <Icon name={category.icon} size={16} color={selectedCategories.includes(category.name) ? theme.background : theme.text} style={styles.chipIcon} />}
+                <Text style={[styles.chipText, { color: theme.text }, selectedCategories.includes(category.name) && { color: theme.background }]}>
                   {category.name}
                 </Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.createOwnChip}>
-              <Icon name="add" size={16} color="#fff" style={styles.chipIcon} />
-              <Text style={styles.chipText}>Create your own</Text>
+            <TouchableOpacity style={[styles.createOwnChip, { backgroundColor: theme.cardBackground, borderColor: theme.subtleText }]}>
+              <Icon name="plus" size={16} color={theme.text} style={styles.chipIcon} />
+              <Text style={[styles.chipText, { color: theme.text }]}>Create your own</Text>
             </TouchableOpacity>
           </ScrollView>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Save</Text>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleSave}>
+            <Text style={[styles.saveButtonText, { color: theme.background }]}>Save</Text>
           </TouchableOpacity>
         </Animated.View>
       </GestureDetector>
@@ -141,7 +144,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#1a1a1a',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -159,19 +161,16 @@ const styles = StyleSheet.create({
   handleBar: {
     width: 40,
     height: 5,
-    backgroundColor: '#444',
     borderRadius: 2.5,
     alignSelf: 'center',
     marginBottom: 15,
   },
   modalTitle: {
-    color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 5,
   },
   modalSubtitle: {
-    color: '#888',
     fontSize: 14,
     marginBottom: 20,
   },
@@ -184,7 +183,6 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#222',
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 15,
@@ -192,39 +190,32 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   selectedChip: {
-    backgroundColor: '#8a2be2',
   },
   chipIcon: {
     marginRight: 5,
   },
   chipText: {
-    color: '#fff',
     fontSize: 14,
   },
   selectedChipText: {
-    color: '#111',
   },
   createOwnChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#333',
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 15,
     marginRight: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#555',
   },
   saveButton: {
-    backgroundColor: '#8a2be2',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 'auto', // Pushes the button to the bottom
   },
   saveButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },

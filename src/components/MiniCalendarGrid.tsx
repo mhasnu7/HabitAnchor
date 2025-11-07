@@ -1,9 +1,11 @@
+import { FONTS } from '../theme/constants';
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Changed to MaterialCommunityIcons
 import { useHabitStore } from '../store/habits';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isSameDay } from 'date-fns';
 import { useTheme } from '../context/ThemeContext';
+import { SIZES, COLORS } from '../theme/constants';
 
 interface MiniCalendarGridProps {
   habitId: string;
@@ -15,6 +17,9 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
   const { theme } = useTheme();
   const habit = habits.find(h => h.id === habitId);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [rippleAnimation] = useState(new Animated.Value(0));
+  const [rippleScale] = useState(new Animated.Value(0));
+  const [rippleOpacity] = useState(new Animated.Value(1));
 
   const monthsToDisplay = useMemo(() => {
     return [subMonths(currentDate, 1), currentDate, addMonths(currentDate, 1)];
@@ -31,6 +36,30 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
   const handleDayPress = (date: Date) => {
     if (habit) {
       toggleCompletion(habit.id, format(date, 'yyyy-MM-dd'));
+      // Start ripple animation
+      rippleAnimation.setValue(0);
+      rippleScale.setValue(0);
+      rippleOpacity.setValue(1);
+      Animated.parallel([
+        Animated.timing(rippleAnimation, {
+          toValue: 1,
+          duration: 400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(rippleScale, {
+          toValue: 1,
+          duration: 400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(rippleOpacity, {
+          toValue: 0,
+          duration: 400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   };
 
@@ -69,7 +98,7 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
           const dateString = format(day, 'yyyy-MM-dd');
           const isCompleted = habit?.progress.some(p => p.date === dateString && p.completed);
           return (
-            <TouchableOpacity key={dateString} onPress={() => handleDayPress(day)}>
+            <TouchableOpacity key={dateString} onPress={() => handleDayPress(day)} activeOpacity={1}>
               <View
                 style={[
                   styles.cell,
@@ -79,6 +108,18 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
                 ]}
               >
                 <Text style={[styles.dayText, { color: theme.text }]}>{format(day, 'd')}</Text>
+                {isCompleted && isSameDay(day, new Date()) && ( // Only show ripple for today's completed habit
+                  <Animated.View
+                    style={[
+                      styles.ripple,
+                      {
+                        backgroundColor: color,
+                        opacity: rippleOpacity,
+                        transform: [{ scale: rippleScale }],
+                      },
+                    ]}
+                  />
+                )}
               </View>
             </TouchableOpacity>
           );
@@ -94,8 +135,8 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handlePrevious}>
-          <Icon name="chevron-left" size={24} color={theme.subtleText} />
+        <TouchableOpacity onPress={handlePrevious} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Icon name="chevron-left" size={SIZES.icon} color={theme.subtleText} />
         </TouchableOpacity>
         <View style={styles.monthNames}>
           {monthsToDisplay.map(m => (
@@ -104,8 +145,8 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
             </Text>
           ))}
         </View>
-        <TouchableOpacity onPress={handleNext}>
-          <Icon name="chevron-right" size={24} color={theme.subtleText} />
+        <TouchableOpacity onPress={handleNext} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <Icon name="chevron-right" size={SIZES.icon} color={theme.subtleText} />
         </TouchableOpacity>
       </View>
       <View style={styles.calendarGrid}>
@@ -137,7 +178,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   monthName: {
-    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -145,7 +185,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   dayName: {
-    color: '#888',
     fontSize: 10,
     height: 16,
     width: 20,
@@ -161,27 +200,36 @@ const styles = StyleSheet.create({
   monthContainer: {
     flex: 1,
     flexDirection: 'column',
+    marginHorizontal: 5,
   },
   weekRow: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
   },
   cell: {
-    width: 16,
-    height: 16,
-    margin: 0.5,
+    width: SIZES.circularBox / 2.5, // Adjusted for circular boxes
+    height: SIZES.circularBox / 2.5, // Adjusted for circular boxes
+    margin: 2,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden', // Clip ripple animation
   },
   dayCell: {
-    borderRadius: 4,
+    borderRadius: SIZES.circularBox / 2.5 / 2, // Make it circular
   },
   todayCell: {
     // borderColor: '#FFFFFF',
     // borderWidth: 1,
   },
   dayText: {
-    fontSize: 9,
+    fontSize: 10,
+    fontFamily: FONTS.body,
+  },
+  ripple: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: SIZES.circularBox / 2.5 / 2,
   },
 });
 

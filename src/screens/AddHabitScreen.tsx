@@ -13,8 +13,7 @@ import {
 import DatePicker from 'react-native-date-picker';
 import { format } from 'date-fns';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
@@ -36,8 +35,8 @@ const AddHabitScreen = () => {
   const { theme } = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
-  const [selectedIcon, setSelectedIcon] = useState('american-football'); // Default icon
+  const [selectedColor, setSelectedColor] = useState('#ef4444'); // Default color
+  const [selectedIcon, setSelectedIcon] = useState('help-circle-outline'); // Default icon
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [targetCompletionDate, setTargetCompletionDate] = useState<Date | undefined>(undefined);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -49,22 +48,30 @@ const AddHabitScreen = () => {
       setSelectedIcon(route.params.selectedIcon);
     }
   }, [route.params?.selectedIcon]);
+
+  React.useEffect(() => {
+    if (route.params?.selectedColor) {
+      setSelectedColor(route.params.selectedColor);
+    }
+  }, [route.params?.selectedColor]);
  
  
   const handleSave = () => {
-    addHabit({
-      name,
-      subtitle: description,
-      color: selectedColor,
-      icon: selectedIcon,
-      streakGoal: 'None', // Default value
-      reminders: 0, // Default value
-      categories: [], // Default value
-      completionTracking: 'Step by Step', // Default value
-      completionsPerDay: 1, // Default value
-      targetCompletionDate: targetCompletionDate ? format(targetCompletionDate, 'yyyy-MM-dd') : undefined,
-    });
-    navigation.goBack();
+    if (name.trim() !== '') {
+      addHabit({
+        name,
+        subtitle: description,
+        color: selectedColor,
+        icon: selectedIcon,
+        streakGoal: 'None', // Default value
+        reminders: 0, // Default value
+        categories: [], // Default value
+        completionTracking: 'Step by Step', // Default value
+        completionsPerDay: 1, // Default value
+        targetCompletionDate: targetCompletionDate ? format(targetCompletionDate, 'yyyy-MM-dd') : undefined,
+      });
+      navigation.goBack();
+    }
   };
  
   return (
@@ -76,10 +83,10 @@ const AddHabitScreen = () => {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <FontAwesome5 name="times-circle" size={24} color={theme.text} solid />
+              <Icon name="arrow-left" size={24} color={theme.text} />
             </TouchableOpacity>
             <View style={{ flexDirection: 'row' }}>
-              <Text style={[styles.title, { color: '#22c55e' }]}>New </Text>
+              <Text style={[styles.title, { color: '#22c55e' }]}>Add </Text>
               <Text style={[styles.title, { color: '#3b82f6' }]}>Habit</Text>
             </View>
             <View style={{ width: 24 }} />
@@ -87,30 +94,13 @@ const AddHabitScreen = () => {
 
           <ScrollView>
             <View style={styles.section}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={[styles.label, { color: theme.text }]}>Icon</Text>
-                <Text style={{ color: theme.subtleText, fontSize: 12 }}>Click Icon to select from list</Text>
-              </View>
-              <TouchableOpacity
-                style={[styles.selectedIconContainer, { backgroundColor: theme.cardBackground }]}
-                onPress={() => navigation.navigate('IconPicker', {
-                  onSelectIcon: (icon: string) => {
-                    navigation.setParams({ selectedIcon: icon });
-                  },
-                })}
-              >
-                <Icon name={selectedIcon} size={48} color={theme.text} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Habit Name</Text>
+              <Text style={[styles.label, { color: theme.text }]}>Habit Name *</Text>
               <TextInput
                 style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter Habit Name"
-                placeholderTextColor={theme.subtleText}
+                placeholderTextColor={theme.text}
                 autoCorrect={false}
                 spellCheck={false}
               />
@@ -123,26 +113,10 @@ const AddHabitScreen = () => {
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Enter Habit Detail"
-                placeholderTextColor={theme.subtleText}
+                placeholderTextColor={theme.text}
                 autoCorrect={false}
                 spellCheck={false}
               />
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Color</Text>
-              <View style={styles.colorGrid}>
-                {colors.map(color => (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      styles.colorCell,
-                      { backgroundColor: color, borderColor: selectedColor === color ? theme.text : color },
-                    ]}
-                    onPress={() => setSelectedColor(color)}
-                  />
-                ))}
-              </View>
             </View>
 
             <View style={styles.section}>
@@ -176,9 +150,43 @@ const AddHabitScreen = () => {
               />
             </View>
 
+            <View style={styles.section}>
+              <Text style={[styles.label, { color: theme.text }]}>Color</Text>
+              <TouchableOpacity
+                style={[styles.colorPickerButton, { backgroundColor: selectedColor }]}
+                onPress={() => navigation.navigate('ColorPicker', {
+                  onSelectColor: (color: string) => {
+                    navigation.setParams({ selectedColor: color });
+                  },
+                })}
+              >
+                <Text style={styles.colorPickerButtonText}>Click here to select color</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.iconSelectionContainer}>
+                <Text style={[styles.label, styles.iconSelectionText, { color: theme.text }]}>Click on the icon to select different icons from the list</Text>
+                <TouchableOpacity
+                  style={[styles.selectedIconContainer, { backgroundColor: theme.cardBackground }]}
+                  onPress={() => navigation.navigate('IconPicker', {
+                    onSelectIcon: (icon: string) => {
+                      navigation.setParams({ selectedIcon: icon });
+                    },
+                  })}
+                >
+                  <Icon name={selectedIcon} size={48} color={theme.text} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
           </ScrollView>
 
-          <TouchableOpacity style={[styles.saveButton, { backgroundColor: '#3b82f6' }]} onPress={handleSave}>
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: name.trim() === '' ? theme.subtleText : '#3b82f6' }]}
+            onPress={handleSave}
+            disabled={name.trim() === ''}
+          >
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>
@@ -209,32 +217,40 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
+    textAlign: 'center', // Center align the label
   },
   input: {
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
   },
-  selectedIconContainer: {
+  iconSelectionContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
+  },
+  iconSelectionText: {
+    fontSize: 14, // Increased font size
+    flex: 1, // Allow text to take up available space
+    marginRight: 10, // Add some space between text and icon
+  },
+  selectedIconContainer: {
     borderRadius: 8,
     padding: 16,
   },
   icon: {
     marginHorizontal: 8,
   },
-  colorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  colorCell: {
-    width: 40,
-    height: 40,
+  colorPickerButton: {
     borderRadius: 8,
-    borderWidth: 2,
-    marginBottom: 8,
+    padding: 16,
+    alignItems: 'center',
+  },
+  colorPickerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   datePickerButton: {
     borderRadius: 8,
@@ -311,7 +327,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 2,
   },
   saveButtonText: {
     color: '#fff',

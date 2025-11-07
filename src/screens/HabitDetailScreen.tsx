@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
 import { generateLastNDays } from '../utils/date';
@@ -44,7 +43,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.header, { backgroundColor: theme.background }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={{ fontSize: 36, color: theme.text, fontWeight: 'bold' }}>↩︎</Text>
+          <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
         <Text style={styles.title}>
           <Text style={{ color: '#2AB574' }}>Habit</Text>
@@ -52,7 +51,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         </Text>
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
-            <FontAwesome5 name="plus-circle" size={24} color={theme.text} />
+            <Icon name="plus-circle" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -62,7 +61,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         </TouchableOpacity>
         <View style={styles.dateNavigationContainer}>
           <TouchableOpacity onPress={goToPreviousDays} style={styles.arrowButton}>
-            <Icon name="chevron-back" size={24} color={theme.text} />
+            <Icon name="arrow-left" size={24} color={theme.text} />
           </TouchableOpacity>
           <View style={styles.daysHeader}>
             {lastNDays.map((day, index) => (
@@ -77,7 +76,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
             ))}
           </View>
           <TouchableOpacity onPress={goToNextDays} style={styles.arrowButton}>
-            <Icon name="chevron-forward" size={24} color={theme.text} />
+            <Icon name="arrow-right" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
         <ScrollView style={styles.scrollView}>
@@ -109,10 +108,10 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
       <View style={styles.bottomNavBarContainer}>
         <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <FontAwesome5 name="home" size={24} color={theme.subtleText} />
+            <Icon name="home" size={24} color={theme.subtleText} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
-            <FontAwesome5 name="tools" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+            <Icon name="cog" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
           </TouchableOpacity>
         </View>
       </View>
