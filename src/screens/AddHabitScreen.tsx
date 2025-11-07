@@ -36,7 +36,7 @@ const AddHabitScreen = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState('#ef4444'); // Default color
-  const [selectedIcon, setSelectedIcon] = useState('help-circle-outline'); // Default icon
+  const [selectedIcon, setSelectedIcon] = useState('bike'); // Default icon (Cycling)
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [targetCompletionDate, setTargetCompletionDate] = useState<Date | undefined>(undefined);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);

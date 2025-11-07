@@ -32,69 +32,23 @@ interface IconCategory {
 
 const allIcons: IconCategory[] = [
   {
-    title: 'Activities',
+    title: 'Habits',
     icons: [
-      'briefcase', 'headset', 'book', 'code', 'desktop', 'game-controller',
-      'leaf', 'walk', 'water', 'bicycle', 'hammer', 'cloudy', 'weather-sunny',
-      'weather-rainy', 'moon-waning-crescent', 'earth', 'fire', 'food-fork-drink', 'pizza', 'beer',
-      'coffee', 'ice-cream', 'football', 'basketball', 'american-football',
-      'car-sport', 'tools', 'school', 'heart', 'star', 'paw', 'pencil',
-      'music', 'camera', 'image', 'movie', 'emoticon-happy', 'emoticon-sad', 'alarm',
-      'clock', 'email', 'file-document', 'folder', 'trash-can', 'check', 'close',
-      'magnify', 'cog', 'information', 'help-circle', 'alert', 'alert-circle',
-      'plus', 'minus', 'arrow-up', 'arrow-down', 'arrow-left', 'arrow-right',
-      'home', 'bed', 'cart', 'boat', 'airplane', 'bus', 'train', 'subway',
-    ],
-  },
-  {
-    title: 'Sports',
-    icons: [
-      'american-football', 'basketball', 'baseball', 'tennis', 'golf', 'soccer',
-      'dumbbell', 'bike', 'walk', 'run', 'swim', 'rowing', 'fitness-center', 'heart-pulse',
-      'medal', 'trophy', 'ribbon', 'sparkles',
-    ],
-  },
-  {
-    title: 'Food and Beverages',
-    icons: [
-      'fast-food', 'pizza', 'beer', 'coffee', 'ice-cream', 'nutrition', 'restaurant',
-      'wine', 'water', 'egg', 'fish', 'meat', 'bread-slice', 'cookie', 'cake',
-      'cup',
-    ],
-  },
-  {
-    title: 'Art',
-    icons: [
-      'brush', 'palette', 'image', 'movie', 'music', 'pencil', 'camera',
-      'easel', 'microphone', 'headphones', 'volume-high', 'volume-low', 'volume-mute',
-    ],
-  },
-  {
-    title: 'Financial',
-    icons: [
-      'wallet', 'cash', 'credit-card', 'tag', 'bitcoin', 'currency-usd', 'currency-eur',
-      'currency-jpy', 'currency-gbp', 'calculator', 'receipt', 'chart-bar', 'chart-pie',
-      'trending-up', 'trending-down', 'chart-areaspline',
-    ],
-  },
-  {
-    title: 'Miscellaneous',
-    icons: [
-      'bug', 'tools', 'cloud', 'desktop-mac', 'globe-model', 'hammer', 'home', 'information',
-      'key', 'leaf', 'lock', 'lock-open', 'email', 'map', 'moon-waning-crescent', 'bell',
-      'paw', 'pencil', 'account', 'planet', 'power', 'printer', 'qrcode', 'weather-rainy',
-      'refresh', 'reload', 'magnify', 'send', 'cog', 'share-variant', 'star', 'weather-sunny',
-      'sync', 'clock', 'timer', 'calendar-today', 'trash-can', 'walk', 'alert', 'water', 'wifi',
-      'plus-circle', 'minus-circle', 'close-circle', 'check-circle', 'alert-circle',
-      'information-circle', 'help-circle', 'warning-circle', 'star-half-full', 'heart-half-full',
+      // Fitness/Movement
+      'run', 'walk', 'dumbbell', 'bike', 'yoga', 'swim', 'meditation',
+      // Food/Drink
+      'coffee', 'tea', 'food-apple', 'water', 'cup', 'glass-cocktail',
+      // Hobbies/Creative
+      'brush', 'palette', 'music', 'book', 'pencil', 'camera', 'movie', 'pottery', 'gamepad-variant',
+      // Daily/Misc
+      'car-side', 'briefcase', 'home', 'sleep', 'weather-sunny', 'weather-night', 'tools', 'leaf', 'heart',
+      // Adventure/Sports
+      'hiking', 'tent', 'football', 'basketball', 'tennis',
     ],
   },
 ];
 
-// Filter out duplicate icons within each category and across categories
-allIcons.forEach(category => {
-  category.icons = category.icons.filter((value, index, self) => self.indexOf(value) === index);
-});
+// No need for duplicate filtering as the list is manually curated
 
 
 const IconPickerScreen = () => {
@@ -103,8 +57,6 @@ const IconPickerScreen = () => {
   const { onSelectIcon } = route.params;
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
- 
   const filteredIcons = allIcons
     .map(category => ({
       ...category,
@@ -112,8 +64,7 @@ const IconPickerScreen = () => {
         iconName.toLowerCase().includes(searchQuery.toLowerCase())
       ),
     }))
-    .filter(category => category.icons.length > 0)
-    .filter(category => selectedCategory === 'All' || category.title === selectedCategory);
+    .filter(category => category.icons.length > 0);
 
   const renderListHeader = () => (
     <View>
@@ -124,23 +75,6 @@ const IconPickerScreen = () => {
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryFilterContainer}>
-        <TouchableOpacity
-          style={[styles.categoryButton, selectedCategory === 'All' && styles.activeCategoryButton]}
-          onPress={() => setSelectedCategory('All')}
-        >
-          <Text style={styles.categoryButtonText}>All</Text>
-        </TouchableOpacity>
-        {allIcons.map(category => (
-          <TouchableOpacity
-            key={category.title}
-            style={[styles.categoryButton, selectedCategory === category.title && styles.activeCategoryButton]}
-            onPress={() => setSelectedCategory(category.title)}
-          >
-            <Text style={styles.categoryButtonText}>{category.title}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
     </View>
   );
 
@@ -193,7 +127,7 @@ const IconPickerScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             {renderListHeader()}
-            <Text style={styles.noResultsText}>No icons found for "{searchQuery}" in "{selectedCategory}" category.</Text>
+            <Text style={styles.noResultsText}>No icons found for "{searchQuery}".</Text>
           </View>
         )}
       </View>
@@ -256,24 +190,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     borderRadius: 8,
   },
-  categoryFilterContainer: {
-    marginBottom: 16,
-    // No horizontal padding here, as it's handled by the main container
-  },
-  categoryButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#222',
-    marginRight: 8,
-  },
-  activeCategoryButton: {
-    backgroundColor: '#8a2be2',
-  },
-  categoryButtonText: {
-    color: '#fff',
-    fontSize: 14,
-  },
+  // Removed category filter styles
   noResultsText: {
     color: '#888',
     textAlign: 'center',
