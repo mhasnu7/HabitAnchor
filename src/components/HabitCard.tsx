@@ -83,13 +83,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 2,
     paddingHorizontal: 5,
-    marginBottom: 5,
+    marginBottom: 4,
     width: '100%', // Increased width to accommodate more text
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   iconContainer: {
     width: SIZES.circularBox,

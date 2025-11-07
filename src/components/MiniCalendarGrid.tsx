@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Changed to MaterialCommunityIcons
 import { useHabitStore } from '../store/habits';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isSameDay } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isSameDay, isFuture } from 'date-fns';
 import { useTheme } from '../context/ThemeContext';
 import { SIZES, COLORS } from '../theme/constants';
 
@@ -34,6 +34,11 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
   };
 
   const handleDayPress = (date: Date) => {
+    if (isFuture(date)) {
+      // Prevent marking future dates as complete
+      return;
+    }
+
     if (habit) {
       toggleCompletion(habit.id, format(date, 'yyyy-MM-dd'));
       // Start ripple animation
@@ -164,25 +169,30 @@ const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) =
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
+    paddingVertical: 2,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 4,
   },
   monthNames: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     flex: 1,
+    marginHorizontal: 10,
+    paddingHorizontal: 20,
   },
   monthName: {
     fontWeight: 'bold',
     fontSize: 14,
+    textAlign: 'center',
+    flex: 1,
   },
   calendarGrid: {
     flexDirection: 'column',
+    paddingVertical: 2,
   },
   dayName: {
     fontSize: 10,
@@ -195,12 +205,11 @@ const styles = StyleSheet.create({
   monthsGrid: {
     flexDirection: 'row',
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   monthContainer: {
     flex: 1,
     flexDirection: 'column',
-    marginHorizontal: 5,
   },
   weekRow: {
     flexDirection: 'row',

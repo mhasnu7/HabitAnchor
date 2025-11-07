@@ -19,7 +19,7 @@ export const SIZES = {
   large: 24,
   icon: 24,
   borderRadius: 10,
-  circularBox: 48, // For habit grid items
+  circularBox: 40, // For habit grid items
 };
 
 export const DARK_THEME = {
