@@ -20,6 +20,7 @@ type RootStackParamList = {
   AddHabit: undefined;
   HabitCalendar: undefined;
   HabitDetails: undefined;
+  Menu: undefined; // Added for navigation to the new Menu screen
   Settings: undefined;
   HabitInsights: undefined; // Added for navigation to the new screen
 };
@@ -77,16 +78,11 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       ) : (
         <>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-              <Icon name="cog" size={24} color={theme.text} />
+            <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
+              <Icon name="menu" size={24} color={theme.text} />
             </TouchableOpacity>
-            <Image source={require('../../assets/logo/ChatGPT_Image_Oct_29__2025__03_16_35_AM-removebg-preview.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
+            <Image source={require('../../assets/logo/Newlogo1.png')} style={[styles.logo, { backgroundColor: 'transparent' }]} />
             <View style={styles.headerRight}>
-              {showAnalytics && (
-                <TouchableOpacity onPress={() => navigation.navigate('HabitInsights')}>
-                  <Icon name="chart-bar" size={24} color={theme.text} />
-                </TouchableOpacity>
-              )}
             </View>
           </View>
           {habits.length === 0 ? (
@@ -107,9 +103,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           )}
           <View style={styles.bottomNavBarContainer}>
             <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
-              <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-                <Icon name="home" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
-              </TouchableOpacity>
+             <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('HabitInsights')}>
+               <Icon name="chart-bar" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+             </TouchableOpacity>
               <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('AddHabit')}>
                 <Icon name="plus-circle" size={24} color={'green'} />
               </TouchableOpacity>
@@ -133,8 +129,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: -80,
-    paddingBottom: -50,
+    marginTop: -20,
+    marginBottom: -70,
+    paddingTop: 0,
+    paddingBottom: 0
   },
   title: {
     fontSize: 24,
@@ -186,8 +184,8 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   logo: {
-    width: 200,
-    height: 120,
+    width: 250,
+    height: 220,
     resizeMode: 'contain',
   },
 });

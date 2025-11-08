@@ -82,24 +82,34 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         <ScrollView style={styles.scrollView}>
           {habits.map((habit) => (
             <View key={habit.id} style={[styles.habitRow, { backgroundColor: theme.cardBackground }]}>
-              <View style={[styles.habitIconContainer, { backgroundColor: habit.color }]}>
-                <Icon name={habit.icon} size={20} color="#fff" />
+              <View style={styles.habitTopRow}>
+                <View style={[styles.habitIconContainer, { backgroundColor: habit.color }]}>
+                  <Icon name={habit.icon} size={20} color="#fff" />
+                </View>
+                <View style={styles.calendarBoxes}>
+                  {lastNDays.map((day, index) => {
+                    const habitDayProgress = habit.progress.find(p => p.date === day.date);
+                    const isCompleted = habitDayProgress ? habitDayProgress.completed : false;
+                    return (
+                      <View key={index} style={styles.calendarBoxWrapper}>
+                        <View
+                          style={[
+                            styles.calendarBox,
+                            isCompleted ? { ...styles.calendarBoxCompleted, backgroundColor: habit.color } : { ...styles.calendarBoxIncomplete, backgroundColor: theme.subtleText },
+                          ]}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
               </View>
-              <Text style={[styles.habitName, { color: '#2AB574' }]}>{habit.name}</Text>
-              <View style={styles.calendarBoxes}>
-                {lastNDays.map((day, index) => {
-                  const habitDayProgress = habit.progress.find(p => p.date === day.date);
-                  const isCompleted = habitDayProgress ? habitDayProgress.completed : false;
-                  return (
-                    <View
-                      key={index}
-                      style={[
-                        styles.calendarBox,
-                        isCompleted ? { ...styles.calendarBoxCompleted, backgroundColor: habit.color } : { ...styles.calendarBoxIncomplete, backgroundColor: theme.subtleText },
-                      ]}
-                    />
-                  );
-                })}
+              <View style={styles.habitBottomRow}>
+                <Text style={[styles.habitName, { color: '#2AB574' }]}>{habit.name}</Text>
+                <Text style={[styles.targetDateText, { color: theme.subtleText }]}>
+                  {habit.targetCompletionDate
+                    ? `Target Date: ${new Date(habit.targetCompletionDate).toLocaleDateString()}`
+                    : 'No target date selected'}
+                </Text>
               </View>
             </View>
           ))}
@@ -158,13 +168,14 @@ const styles = StyleSheet.create({
   },
   daysHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     flex: 1,
+    marginLeft: 32,
+    marginRight: 12,
     marginBottom: 10,
   },
   dayContainer: {
     alignItems: 'center',
-    width: 25,
+    flex: 1,
   },
   dayHeaderText: {
     fontSize: 12,
@@ -181,37 +192,52 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   arrowButton: {
-    padding: 2,
+    paddingHorizontal: 0,
+    paddingVertical: 2,
   },
   scrollView: {
     flex: 1,
   },
   habitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     borderRadius: 10,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     marginBottom: 8,
   },
+  habitTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  habitBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+  },
   habitIconContainer: {
-    borderRadius: 5,
+    borderRadius: 14,
     padding: 4,
     marginRight: 8,
   },
   habitName: {
     fontSize: 15,
-    marginRight: 8,
+  },
+  targetDateText: {
+    fontSize: 12,
   },
   calendarBoxes: {
     flexDirection: 'row',
     flex: 1,
-    justifyContent: 'space-around',
+  },
+  calendarBoxWrapper: {
+    flex: 1,
+    alignItems: 'center',
   },
   calendarBox: {
-    width: 25,
-    height: 25,
-    borderRadius: 4,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
   },
   calendarBoxCompleted: {
     // backgroundColor: '#8a2be2', // Example color for completed

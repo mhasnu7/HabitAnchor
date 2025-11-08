@@ -4,10 +4,11 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 48,
   },
   section: {
     marginBottom: 24,
+    marginTop: 16,
   },
   sectionTitle: {
     fontSize: 16,
@@ -43,6 +44,7 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginLeft: 16,
+    flex: 1,
+    textAlign: 'center',
   },
 });

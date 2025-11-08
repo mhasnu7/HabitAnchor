@@ -16,11 +16,14 @@ import IconPickerScreen from './src/screens/IconPickerScreen';
 import ColorPickerScreen from './src/screens/ColorPickerScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import GeneralSettingsScreen from './src/screens/GeneralSettingsScreen';
+import MenuScreen from './src/screens/MenuScreen';
 import DailyCheckInReminderScreen from './src/screens/DailyCheckInReminderScreen';
 import ArchivedHabitsScreen from './src/screens/ArchivedHabitsScreen'; // Import the new screen
 import HabitInsightsScreen from './src/screens/HabitInsightsScreen'; // Import the new screen
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
+import EditHabitsListScreen from './src/screens/EditHabitsListScreen';
+import EditHabitDetailScreen from './src/screens/EditHabitDetailScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
 import { ThemeProvider } from './src/context/ThemeContext';
@@ -33,6 +36,7 @@ export type RootStackParamList = {
   IconPicker: { onSelectIcon: (icon: string) => void };
   HabitCalendar: undefined;
   HabitDetails: undefined;
+  Menu: undefined; // Add Menu screen
   Settings: undefined;
   GeneralSettings: undefined;
   DailyCheckInReminder: undefined;
@@ -41,6 +45,8 @@ export type RootStackParamList = {
   HabitInsights: undefined; // Add new screen for analysis
   PrivacyPolicy: undefined; // Add Privacy Policy screen
   TermsOfUse: undefined; // Add Terms of Use screen
+  EditHabitsList: undefined; // Screen to list habits for editing
+  EditHabitDetail: { habitId: string }; // Screen to edit a specific habit
   ColorPicker: { onSelectColor: (color: string) => void }; // Add ColorPicker screen
 };
 
@@ -86,6 +92,7 @@ function App() {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
             <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
+            <Stack.Screen name="Menu" component={MenuScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="GeneralSettings" component={GeneralSettingsScreen} />
             <Stack.Screen name="DailyCheckInReminder" component={DailyCheckInReminderScreen} />
@@ -94,6 +101,8 @@ function App() {
             <Stack.Screen name="HabitInsights" component={HabitInsightsScreen} />
             <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
             <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
+            <Stack.Screen name="EditHabitsList" component={EditHabitsListScreen} />
+            <Stack.Screen name="EditHabitDetail" component={EditHabitDetailScreen} />
           </Stack.Group>
           <Stack.Group screenOptions={{ presentation: 'modal' }}>
             <Stack.Screen name="AddHabit" component={AddHabitScreen} />

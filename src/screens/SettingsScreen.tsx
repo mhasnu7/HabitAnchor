@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import SettingItem from '../components/SettingItem';
+import HomeButton from '../components/HomeButton';
 import { styles } from '../styles/SettingsScreenStyles';
 import { useTheme } from '../context/ThemeContext';
 
@@ -36,12 +37,7 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           <SettingItem icon="cog" iconBackgroundColor="#8e8e93" title="General" onPress={() => navigation.navigate('GeneralSettings')} />
           <SettingItem icon="archive" iconBackgroundColor="#5856D6" title="Archived Habits" onPress={() => navigation.navigate('ArchivedHabits')} />
           <SettingItem icon="bell" iconBackgroundColor="#FF9500" title="Reminders" onPress={() => navigation.navigate('DailyCheckInReminder')} />
-        </View>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.subtleText }]}>About</Text>
-          <SettingItem icon="shield-lock" iconBackgroundColor="#FF2D55" title="Privacy Policy" onPress={() => navigation.navigate('PrivacyPolicy')} />
-          <SettingItem icon="file-document" iconBackgroundColor="#FF3B30" title="Terms of Use" onPress={() => navigation.navigate('TermsOfUse')} />
-          <SettingItem icon="star" iconBackgroundColor="#FFD60A" title="Rate the app" onPress={() => {}} />
+          <SettingItem icon="home" iconBackgroundColor="#007AFF" title="Home" onPress={() => navigation.navigate('Home')} />
         </View>
       </ScrollView>
     </View>

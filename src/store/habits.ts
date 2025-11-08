@@ -32,6 +32,7 @@ interface HabitState {
   showAnalytics: boolean;
   toggleCompletion: (habitId: string, date: string) => void;
   addHabit: (habit: Omit<Habit, 'id' | 'progress'>) => void;
+  editHabit: (habitId: string, updatedFields: Partial<Habit>) => void;
   archiveHabit: (habitId: string) => void; // New function to archive a habit
   restoreHabit: (habitId: string) => void; // New function to restore a habit
   permanentlyDeleteHabit: (habitId: string) => void; // New function for permanent deletion
@@ -77,6 +78,12 @@ export const useHabitStore = create<HabitState>()(
               progress: generateLastNDays(90),
             },
           ],
+        })),
+      editHabit: (habitId, updatedFields) =>
+        set((state) => ({
+          habits: state.habits.map((h) =>
+            h.id === habitId ? { ...h, ...updatedFields } : h
+          ),
         })),
       archiveHabit: (habitId) =>
         set((state) => {
