@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { DARK_THEME, LIGHT_THEME, Theme } from '../theme/constants';
+import { DARK_THEME, LIGHT_THEME, CREAM_THEME, Theme } from '../theme/constants';
 
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
-  setTheme: (themeName: 'dark' | 'light') => void;
+  setTheme: (themeName: 'dark' | 'light' | 'cream') => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -17,11 +17,21 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [currentTheme, setCurrentTheme] = useState<Theme>(DARK_THEME);
 
   const toggleTheme = () => {
-    setCurrentTheme((prevTheme) => (prevTheme === DARK_THEME ? LIGHT_THEME : DARK_THEME));
+    setCurrentTheme((prevTheme) => {
+      if (prevTheme === DARK_THEME) return LIGHT_THEME;
+      if (prevTheme === LIGHT_THEME) return CREAM_THEME;
+      return DARK_THEME;
+    });
   };
 
-  const setTheme = (themeName: 'dark' | 'light') => {
-    setCurrentTheme(themeName === 'dark' ? DARK_THEME : LIGHT_THEME);
+  const setTheme = (themeName: 'dark' | 'light' | 'cream') => {
+    if (themeName === 'dark') {
+      setCurrentTheme(DARK_THEME);
+    } else if (themeName === 'light') {
+      setCurrentTheme(LIGHT_THEME);
+    } else {
+      setCurrentTheme(CREAM_THEME);
+    }
   };
 
   return (

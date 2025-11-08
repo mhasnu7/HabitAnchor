@@ -6,6 +6,7 @@ export const COLORS = {
   skyCyan: '#00E0FF',
   white: '#FFFFFF',
   white90: 'rgba(255, 255, 255, 0.9)',
+  cream: '#F5F5DC',
 };
 
 export const FONTS = {
@@ -42,6 +43,17 @@ export const LIGHT_THEME = {
   text: COLORS.deepNavy,
   subtleText: 'rgba(11, 12, 16, 0.7)', // Deep navy with 70% opacity for subtle text in light mode
   cardBackground: '#F2F2F7', // A slightly darker light for cards
+};
+
+export const CREAM_THEME = {
+  background: COLORS.cream,
+  primary: COLORS.electricBlue,
+  secondary: COLORS.coralRed,
+  accentGreen: COLORS.limeGreen,
+  accentCyan: COLORS.skyCyan,
+  text: COLORS.deepNavy,
+  subtleText: 'rgba(11, 12, 16, 0.7)',
+  cardBackground: '#FFFFFF',
 };
 
 export type Theme = typeof DARK_THEME;

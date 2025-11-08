@@ -3,13 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
-import { DARK_THEME, LIGHT_THEME, FONTS } from '../theme/constants';
+import { DARK_THEME, LIGHT_THEME, CREAM_THEME, FONTS } from '../theme/constants';
 
 const ThemeSelectionScreen = () => {
   const navigation = useNavigation();
   const { theme, setTheme } = useTheme();
 
-  const handleThemeChange = (selectedTheme: 'dark' | 'light') => {
+  const handleThemeChange = (selectedTheme: 'dark' | 'light' | 'cream') => {
     setTheme(selectedTheme);
   };
 
@@ -48,6 +48,20 @@ const ThemeSelectionScreen = () => {
           <Text style={[styles.themeOptionText, { color: theme.text, fontFamily: FONTS.body }]}>Light Theme</Text>
           {theme === LIGHT_THEME && (
             <Icon name="check-circle" size={24} color={LIGHT_THEME.primary} />
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.themeOption,
+            { backgroundColor: theme.cardBackground },
+            theme === CREAM_THEME && styles.selectedTheme,
+          ]}
+          onPress={() => handleThemeChange('cream')}
+        >
+          <Text style={[styles.themeOptionText, { color: theme.text, fontFamily: FONTS.body }]}>Cream Theme</Text>
+          {theme === CREAM_THEME && (
+            <Icon name="check-circle" size={24} color={CREAM_THEME.primary} />
           )}
         </TouchableOpacity>
       </View>
