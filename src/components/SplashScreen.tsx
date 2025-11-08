@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Animated, Easing, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { COLORS } from '../theme/constants';
@@ -34,11 +34,14 @@ const SplashScreen = ({ onAnimationFinish }: SplashScreenProps) => {
     <Animated.View style={[styles.container, { backgroundColor: theme.background, opacity: fadeAnim }]}>
       <LottieView
         ref={lottieRef}
-        source={require('../../assets/lottie/anchor_splash.json')}
+        source={require('../../assets/lottie/Uselogo.json')}
         autoPlay
         loop={false}
         style={styles.lottieAnimation}
       />
+      <Text style={[styles.welcomeText, { color: theme.text }]}>
+        Welcome to <Text style={styles.greenText}>A</Text>nchor <Text style={styles.blueText}>H</Text>abits
+      </Text>
     </Animated.View>
   );
 };
@@ -52,6 +55,18 @@ const styles = StyleSheet.create({
   lottieAnimation: {
     width: 200,
     height: 200,
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  greenText: {
+    color: '#2E8B57', // A shade of green
+  },
+  blueText: {
+    color: '#4682B4', // A shade of blue
   },
 });
 

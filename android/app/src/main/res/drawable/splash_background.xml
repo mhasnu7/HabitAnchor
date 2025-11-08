@@ -3,10 +3,5 @@
     <!-- Background color -->
     <item android:drawable="@android:color/white" />
 
-    <!-- Logo centered and scaled to fill the screen -->
-    <item>
-        <bitmap
-            android:gravity="fill"
-            android:src="@drawable/splash_logo" />
-    </item>
+    <!-- Logo removed -->
 </layer-list>
