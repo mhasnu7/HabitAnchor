@@ -34,7 +34,7 @@ const SplashScreen = ({ onAnimationFinish }: SplashScreenProps) => {
     <Animated.View style={[styles.container, { backgroundColor: theme.background, opacity: fadeAnim }]}>
       <LottieView
         ref={lottieRef}
-        source={require('../../assets/lottie/Uselogo.json')}
+        source={require('../../assets/lottie/AnimationForAnchor.json')}
         autoPlay
         loop={false}
         style={styles.lottieAnimation}

@@ -56,9 +56,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         </View>
       </View>
       <View style={styles.content}>
-        <TouchableOpacity style={[styles.last5DaysButton, { backgroundColor: theme.cardBackground }]}>
-          <Text style={[styles.last5DaysButtonText, { color: theme.text }]}>Last 7 days</Text>
-        </TouchableOpacity>
+        <Text style={[styles.last7DaysDataText, { color: theme.text }]}>Last 7 Days Data</Text>
         <View style={styles.dateNavigationContainer}>
           <TouchableOpacity onPress={goToPreviousDays} style={styles.arrowButton}>
             <Icon name="arrow-left" size={24} color={theme.text} />
@@ -156,15 +154,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 20,
   },
-  last5DaysButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
+  last7DaysDataText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 20,
-  },
-  last5DaysButtonText: {
-    fontSize: 14,
   },
   daysHeader: {
     flexDirection: 'row',
