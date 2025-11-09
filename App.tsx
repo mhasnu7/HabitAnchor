@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import mobileAds from 'react-native-google-mobile-ads';
 import HomeScreen from './src/screens/HomeScreen';
 import AddHabitScreen from './src/screens/AddHabitScreen';
 import HabitCalendarScreen from './src/screens/HabitCalendarScreen';
@@ -24,6 +25,7 @@ import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
 import EditHabitsListScreen from './src/screens/EditHabitsListScreen';
 import EditHabitDetailScreen from './src/screens/EditHabitDetailScreen';
+import { AdsProvider, useAdsContext } from './src/context/AdsContext'; // Import Ads Context
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
 import { ThemeProvider } from './src/context/ThemeContext';
@@ -52,11 +54,24 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function App() {
+function MainAppContent() {
   const { habits } = useHabitStore();
+  const { loadingAdsStatus, refreshAdsStatus } = useAdsContext();
   const [isSplashVisible, setIsSplashVisible] = useState(true);
 
   useEffect(() => {
+    // Initialize Google Mobile Ads
+    mobileAds()
+      .initialize()
+      .then(adapterStatuses => {
+        console.log('AdMob initialized:', adapterStatuses);
+      })
+      .catch(error => {
+        console.error('AdMob initialization failed:', error);
+      });
+
+    // RevenueCat initialization and listener setup are disabled/removed.
+    
     const loadAndLogHabits = async () => {
       try {
         const storedData = await AsyncStorage.getItem('habit-storage');
@@ -73,7 +88,8 @@ function App() {
     setIsSplashVisible(false);
   };
 
-  if (isSplashVisible) {
+  // Wait for both splash screen and ads status to load before showing main content
+  if (isSplashVisible || loadingAdsStatus) {
     return (
       <ThemeProvider>
         <SplashScreen onAnimationFinish={handleSplashAnimationFinish} />
@@ -112,6 +128,14 @@ function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <AdsProvider>
+      <MainAppContent />
+    </AdsProvider>
   );
 }
 

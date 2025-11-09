@@ -1,5 +1,13 @@
 {
   "name": "Anchor Habits",
   "displayName": "Anchor Habits",
-  "version": "0.0.2"
+  "version": "0.0.2",
+  "expo": {
+    "splash": {
+      "image": "./assets/logo/Newlogo1.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff",
+      "duration": 3000
+    }
+  }
 }

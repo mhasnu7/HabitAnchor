@@ -67,6 +67,10 @@ const DailyCheckInReminderScreen = ({
 
       <Button title="Set Reminder Time" onPress={() => setIsDatePickerOpen(true)} />
 
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={styles.infoText}>*Full Feature coming soon*</Text>
+      </View>
+
       {reminderTime && (
         <Text style={styles.selectedTime}>
           Reminder set for: {reminderTime.toLocaleTimeString()}

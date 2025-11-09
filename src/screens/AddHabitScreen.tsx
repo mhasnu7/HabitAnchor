@@ -35,7 +35,7 @@ const AddHabitScreen = () => {
   const { theme } = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedColor, setSelectedColor] = useState('#ef4444'); // Default color
+  const [selectedColor, setSelectedColor] = useState('#a01e5a'); // Default color matching image
   const [selectedIcon, setSelectedIcon] = useState('bike'); // Default icon (Cycling)
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [targetCompletionDate, setTargetCompletionDate] = useState<Date | undefined>(undefined);
@@ -96,11 +96,11 @@ const AddHabitScreen = () => {
             <View style={styles.section}>
               <Text style={[styles.label, { color: theme.text }]}>Habit Name *</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
+                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text, fontWeight: '400', fontStyle: 'italic' }]}
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter Habit Name"
-                placeholderTextColor={theme.text}
+                placeholderTextColor={'#aaaaaa'}
                 autoCorrect={false}
                 spellCheck={false}
               />
@@ -109,11 +109,11 @@ const AddHabitScreen = () => {
             <View style={styles.section}>
               <Text style={[styles.label, { color: theme.text }]}>Habit Description</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text }]}
+                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text, fontWeight: '400', fontStyle: 'italic' }]}
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Enter Habit Detail"
-                placeholderTextColor={theme.text}
+                placeholderTextColor={'#aaaaaa'}
                 autoCorrect={false}
                 spellCheck={false}
               />
@@ -166,7 +166,7 @@ const AddHabitScreen = () => {
 
             <View style={styles.section}>
               <View style={styles.iconSelectionContainer}>
-                <Text style={[styles.label, styles.iconSelectionText, { color: theme.text }]}>Click on the icon to select different icons from the list</Text>
+                <Text style={[styles.label, styles.iconSelectionText, { color: theme.text }]}>Click on the Icon to select from the list</Text>
                 <TouchableOpacity
                   style={[styles.selectedIconContainer, { backgroundColor: theme.cardBackground }]}
                   onPress={() => navigation.navigate('IconPicker', {

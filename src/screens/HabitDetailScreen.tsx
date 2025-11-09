@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
@@ -22,22 +21,56 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
   const { theme } = useTheme();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lastNDays, setLastNDays] = useState(generateLastNDays(7, currentDate));
-
+  const [isNavBarVisible, setIsNavBarVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollTimeoutRef = useRef<number | null>(null);
+  
   useEffect(() => {
     setLastNDays(generateLastNDays(7, currentDate));
   }, [currentDate]);
-
+  
   const goToPreviousDays = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() - 7);
     setCurrentDate(newDate);
   };
-
+  
   const goToNextDays = () => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() + 7);
     setCurrentDate(newDate);
   };
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    const scrollDirection = currentScrollY > lastScrollY.current ? 'down' : 'up';
+    const scrollSpeedThreshold = 10; // Minimum scroll distance to register change
+    const scrollStopTimeout = 500; // ms to wait before showing nav bar if scrolling stops
+
+    if (currentScrollY > 0) { // Only apply logic if not at the very top
+      if (scrollDirection === 'down' && currentScrollY > lastScrollY.current + scrollSpeedThreshold && isNavBarVisible) {
+        setIsNavBarVisible(false);
+      } else if (scrollDirection === 'up' && currentScrollY < lastScrollY.current - scrollSpeedThreshold && !isNavBarVisible) {
+        setIsNavBarVisible(true);
+      }
+    } else {
+      // If scrolling up to the top, ensure it's visible
+      if (!isNavBarVisible) {
+        setIsNavBarVisible(true);
+      }
+    }
+
+    // Reset timeout to show nav bar if scrolling stops
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      // If scrolling stops, show nav bar after timeout
+      setIsNavBarVisible(true);
+    }, scrollStopTimeout);
+
+    lastScrollY.current = currentScrollY;
+  }, [isNavBarVisible]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -77,7 +110,11 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
             <Icon name="arrow-right" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
-        <ScrollView style={styles.scrollView}>
+        <ScrollView
+          style={styles.scrollView}
+          onScroll={handleScroll}
+          scrollEventThrottle={16} // Important for frequent updates
+        >
           {habits.map((habit) => (
             <View key={habit.id} style={[styles.habitRow, { backgroundColor: theme.cardBackground }]}>
               <View style={styles.habitTopRow}>
@@ -113,16 +150,18 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
           ))}
         </ScrollView>
       </View>
-      <View style={styles.bottomNavBarContainer}>
-        <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
-            <Icon name="home" size={24} color={theme.subtleText} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
-            <Icon name="cog" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
-          </TouchableOpacity>
+      {isNavBarVisible && (
+        <View style={styles.bottomNavBarContainer}>
+          <View style={[styles.bottomNavBar, { backgroundColor: theme.cardBackground, shadowColor: theme.background }]}>
+            <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+              <Icon name="home" size={24} color={theme.subtleText} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Settings')}>
+              <Icon name="cog" size={24} color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 };
@@ -263,4 +302,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HabitDetailScreen; // Minor change to trigger TS re-evaluation
+export default HabitDetailScreen;

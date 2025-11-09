@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import SettingItem from '../components/SettingItem';
 import HomeButton from '../components/HomeButton';
 import { styles } from '../styles/SettingsScreenStyles';
 import { useTheme } from '../context/ThemeContext';
+import { useAdsContext } from '../context/AdsContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -22,6 +23,8 @@ type SettingsScreenProps = NativeStackScreenProps<RootStackParamList, 'Settings'
 
 const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
   const { theme } = useTheme();
+  const { adsRemoved } = useAdsContext();
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -37,6 +40,7 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           <SettingItem icon="cog" iconBackgroundColor="#8e8e93" title="General" onPress={() => navigation.navigate('GeneralSettings')} />
           <SettingItem icon="archive" iconBackgroundColor="#5856D6" title="Archived Habits" onPress={() => navigation.navigate('ArchivedHabits')} />
           <SettingItem icon="bell" iconBackgroundColor="#FF9500" title="Reminders" onPress={() => navigation.navigate('DailyCheckInReminder')} />
+          
           <SettingItem icon="home" iconBackgroundColor="#007AFF" title="Home" onPress={() => navigation.navigate('Home')} />
         </View>
       </ScrollView>

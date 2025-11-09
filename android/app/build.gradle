@@ -84,6 +84,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        missingDimensionStrategy 'store', 'play'
     }
     signingConfigs {
         debug {
@@ -118,5 +119,10 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    
+    // Required for RevenueCat Android integration
+    implementation 'com.android.billingclient:billing:6.0.1' // Use a compatible version
+    // Ensure Kotlin standard library is available for RevenueCat
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 

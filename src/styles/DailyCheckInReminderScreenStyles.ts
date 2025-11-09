@@ -23,6 +23,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: 'center',
   },
+  infoText: {
+    color: '#8a2be2', // Purple color
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });
 
 export default styles;

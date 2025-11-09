@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
+import { useAdsContext } from '../context/AdsContext';
 import { styles } from '../styles/MenuScreenStyles';
 import SettingItem from '../components/SettingItem';
 
@@ -20,12 +21,21 @@ type MenuScreenProps = NativeStackScreenProps<RootStackParamList, 'Menu'>;
 
 const MenuScreen = ({ navigation }: MenuScreenProps) => {
   const { theme } = useTheme();
+  const { adsRemoved, refreshAdsStatus } = useAdsContext();
+  
+  const handlePurchase = useCallback(() => {
+    Alert.alert('Coming Soon', 'In-app purchases are temporarily disabled.');
+  }, []);
+  
+  const handleRestore = useCallback(() => {
+    Alert.alert('Coming Soon', 'Purchase restoration is temporarily disabled.');
+  }, []);
   
   // Placeholder action for Rate this app
-  const handleRateApp = () => {
+  const handleRateApp = useCallback(() => {
     console.log('Rate this app pressed');
     // Implementation for rating app
-  };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -49,6 +59,21 @@ const MenuScreen = ({ navigation }: MenuScreenProps) => {
           iconBackgroundColor="#FF9500"
           title="Edit Habits"
           onPress={() => navigation.navigate('EditHabitsList')}
+        />
+
+        {/* RevenueCat Integration: Remove Ads Button */}
+        <SettingItem
+          icon="crown" // Using 'crown' as the logo for premium/remove ads
+          iconBackgroundColor="#FFD60A" // Gold/Yellow color
+          title="Remove Ads"
+          onPress={handlePurchase}
+        />
+        
+        <SettingItem
+          icon="restore"
+          iconBackgroundColor="#007AFF"
+          title="Restore Purchases"
+          onPress={handleRestore}
         />
         
         {/* About Section */}
