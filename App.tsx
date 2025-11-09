@@ -19,8 +19,9 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import GeneralSettingsScreen from './src/screens/GeneralSettingsScreen';
 import MenuScreen from './src/screens/MenuScreen';
 import DailyCheckInReminderScreen from './src/screens/DailyCheckInReminderScreen';
-import ArchivedHabitsScreen from './src/screens/ArchivedHabitsScreen'; // Import the new screen
-import HabitInsightsScreen from './src/screens/HabitInsightsScreen'; // Import the new screen
+import ArchivedHabitsScreen from './src/screens/ArchivedHabitsScreen';
+import HabitInsightsScreen from './src/screens/HabitInsightsScreen';
+import HowToUseScreen from './src/screens/HowToUseScreen'; // Import HowToUseScreen
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
 import EditHabitsListScreen from './src/screens/EditHabitsListScreen';
@@ -38,18 +39,19 @@ export type RootStackParamList = {
   IconPicker: { onSelectIcon: (icon: string) => void };
   HabitCalendar: undefined;
   HabitDetails: undefined;
-  Menu: undefined; // Add Menu screen
+  Menu: undefined;
   Settings: undefined;
   GeneralSettings: undefined;
   DailyCheckInReminder: undefined;
   ThemeSelection: undefined;
-  ArchivedHabits: undefined; // Add new screen to RootStackParamList
-  HabitInsights: undefined; // Add new screen for analysis
-  PrivacyPolicy: undefined; // Add Privacy Policy screen
-  TermsOfUse: undefined; // Add Terms of Use screen
-  EditHabitsList: undefined; // Screen to list habits for editing
-  EditHabitDetail: { habitId: string }; // Screen to edit a specific habit
-  ColorPicker: { onSelectColor: (color: string) => void }; // Add ColorPicker screen
+  ArchivedHabits: undefined;
+  HabitInsights: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfUse: undefined;
+  EditHabitsList: undefined;
+  EditHabitDetail: { habitId: string };
+  ColorPicker: { onSelectColor: (color: string) => void };
+  HowToUse: undefined; // New screen for instructions
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -119,6 +121,7 @@ function MainAppContent() {
             <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
             <Stack.Screen name="EditHabitsList" component={EditHabitsListScreen} />
             <Stack.Screen name="EditHabitDetail" component={EditHabitDetailScreen} />
+            <Stack.Screen name="HowToUse" component={HowToUseScreen} />
           </Stack.Group>
           <Stack.Group screenOptions={{ presentation: 'modal' }}>
             <Stack.Screen name="AddHabit" component={AddHabitScreen} />

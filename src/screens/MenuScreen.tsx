@@ -15,6 +15,7 @@ type RootStackParamList = {
   EditHabitsList: undefined;
   PrivacyPolicy: undefined;
   TermsOfUse: undefined;
+  HowToUse: undefined; // Added How To Use Screen
 };
 
 type MenuScreenProps = NativeStackScreenProps<RootStackParamList, 'Menu'>;
@@ -59,6 +60,13 @@ const MenuScreen = ({ navigation }: MenuScreenProps) => {
           iconBackgroundColor="#FF9500"
           title="Edit Habits"
           onPress={() => navigation.navigate('EditHabitsList')}
+        />
+        
+        <SettingItem
+          icon="help-circle" // Icon for How To Use
+          iconBackgroundColor="#2196F3" // Blue color for help/info
+          title="How to Use"
+          onPress={() => navigation.navigate('HowToUse')}
         />
 
         {/* RevenueCat Integration: Remove Ads Button */}
