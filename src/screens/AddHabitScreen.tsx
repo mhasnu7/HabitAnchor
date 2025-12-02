@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  LayoutChangeEvent,
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
@@ -17,32 +16,35 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHabitStore } from '../store/habits';
-import { RootStackParamList } from '../../App'; // Import RootStackParamList
+import { RootStackParamList } from '../../App';
 import { useTheme } from '../context/ThemeContext';
- 
-type AddHabitScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddHabit'>;
+
+const isEmoji = (str: string) => /\p{Emoji}/u.test(str); // ✅ Emoji detection
+
+type AddHabitScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'AddHabit'
+>;
 type AddHabitScreenRouteProp = RouteProp<RootStackParamList, 'AddHabit'>;
- 
-const colors = [
-  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#10b981',
-  '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7',
-  '#d946ef', '#ec4899', '#f43f5e',
-];
- 
+
+const MAX_LENGTH = 20;
+
 const AddHabitScreen = () => {
   const navigation = useNavigation<AddHabitScreenNavigationProp>();
   const route = useRoute<AddHabitScreenRouteProp>();
   const { theme } = useTheme();
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedColor, setSelectedColor] = useState('#a01e5a'); // Default color matching image
-  const [selectedIcon, setSelectedIcon] = useState('bike'); // Default icon (Cycling)
-  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
-  const [targetCompletionDate, setTargetCompletionDate] = useState<Date | undefined>(undefined);
+  const [selectedColor, setSelectedColor] = useState('#a01e5a');
+  const [selectedIcon, setSelectedIcon] = useState('bike');
+  const [targetCompletionDate, setTargetCompletionDate] = useState<
+    Date | undefined
+  >(undefined);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+
   const addHabit = useHabitStore(state => state.addHabit);
- 
-  // Effect to update selectedIcon if passed from IconPickerScreen
+
   React.useEffect(() => {
     if (route.params?.selectedIcon) {
       setSelectedIcon(route.params.selectedIcon);
@@ -54,8 +56,7 @@ const AddHabitScreen = () => {
       setSelectedColor(route.params.selectedColor);
     }
   }, [route.params?.selectedColor]);
- 
- 
+
   const handleSave = () => {
     if (name.trim() !== '') {
       addHabit({
@@ -63,17 +64,19 @@ const AddHabitScreen = () => {
         subtitle: description,
         color: selectedColor,
         icon: selectedIcon,
-        streakGoal: 'None', // Default value
-        reminders: 0, // Default value
-        categories: [], // Default value
-        completionTracking: 'Step by Step', // Default value
-        completionsPerDay: 1, // Default value
-        targetCompletionDate: targetCompletionDate ? format(targetCompletionDate, 'yyyy-MM-dd') : undefined,
+        streakGoal: 'None',
+        reminders: 0,
+        categories: [],
+        completionTracking: 'Step by Step',
+        completionsPerDay: 1,
+        targetCompletionDate: targetCompletionDate
+          ? format(targetCompletionDate, 'yyyy-MM-dd')
+          : undefined,
       });
       navigation.goBack();
     }
   };
- 
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView
@@ -81,6 +84,8 @@ const AddHabitScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={[styles.container, { backgroundColor: theme.background }]}>
+
+          {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Icon name="arrow-left" size={24} color={theme.text} />
@@ -93,23 +98,52 @@ const AddHabitScreen = () => {
           </View>
 
           <ScrollView>
+
+            {/* Habit Name */}
             <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Habit Name *</Text>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Habit Name *
+              </Text>
+
               <TextInput
-                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text, fontWeight: '400', fontStyle: 'italic' }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.cardBackground,
+                    color: theme.text,
+                    fontWeight: '400',
+                    fontStyle: 'italic',
+                  },
+                ]}
                 value={name}
-                onChangeText={setName}
+                onChangeText={text => setName(text)}
                 placeholder="Enter Habit Name"
                 placeholderTextColor={'#aaaaaa'}
                 autoCorrect={false}
                 spellCheck={false}
+                maxLength={MAX_LENGTH}
               />
+
+              <Text style={[styles.charCount, { color: theme.subtleText }]}>
+                {name.length}/{MAX_LENGTH}
+              </Text>
             </View>
 
+            {/* Description */}
             <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Habit Description</Text>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Habit Description
+              </Text>
               <TextInput
-                style={[styles.input, { backgroundColor: theme.cardBackground, color: theme.text, fontWeight: '400', fontStyle: 'italic' }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.cardBackground,
+                    color: theme.text,
+                    fontWeight: '400',
+                    fontStyle: 'italic',
+                  },
+                ]}
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Enter Habit Detail"
@@ -119,73 +153,128 @@ const AddHabitScreen = () => {
               />
             </View>
 
+            {/* Target Date */}
             <View style={styles.section}>
-              <Text style={[styles.label, { color: theme.text }]}>Target Completion Date (Optional)</Text>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Target Completion Date (Optional)
+              </Text>
+
               <TouchableOpacity
-                style={[styles.datePickerButton, { backgroundColor: theme.cardBackground }]}
+                style={[
+                  styles.datePickerButton,
+                  { backgroundColor: theme.cardBackground },
+                ]}
                 onPress={() => setIsDatePickerVisible(true)}
               >
-                <Text style={[styles.datePickerButtonText, { color: theme.text }]}>
-                  {targetCompletionDate ? format(targetCompletionDate, 'PPP') : 'Click to Select date'}
+                <Text
+                  style={[styles.datePickerButtonText, { color: theme.text }]}
+                >
+                  {targetCompletionDate
+                    ? format(targetCompletionDate, 'PPP')
+                    : 'Click to Select date'}
                 </Text>
+
                 {targetCompletionDate && (
-                  <TouchableOpacity onPress={() => setTargetCompletionDate(undefined)} style={styles.clearDateButton}>
-                    <Icon name="close-circle" size={20} color={theme.subtleText} />
+                  <TouchableOpacity
+                    onPress={() => setTargetCompletionDate(undefined)}
+                    style={styles.clearDateButton}
+                  >
+                    <Icon
+                      name="close-circle"
+                      size={20}
+                      color={theme.subtleText}
+                    />
                   </TouchableOpacity>
                 )}
               </TouchableOpacity>
+
               <DatePicker
                 modal
                 open={isDatePickerVisible}
                 date={targetCompletionDate || new Date()}
                 mode="date"
-                minimumDate={new Date(new Date().setDate(new Date().getDate() + 1))} // Future dates only, excluding today
-                onConfirm={(date) => {
+                minimumDate={
+                  new Date(new Date().setDate(new Date().getDate() + 1))
+                }
+                onConfirm={date => {
                   setIsDatePickerVisible(false);
                   setTargetCompletionDate(date);
                 }}
-                onCancel={() => {
-                  setIsDatePickerVisible(false);
-                }}
+                onCancel={() => setIsDatePickerVisible(false)}
               />
             </View>
 
+            {/* Color Picker */}
             <View style={styles.section}>
               <Text style={[styles.label, { color: theme.text }]}>Color</Text>
+
               <TouchableOpacity
-                style={[styles.colorPickerButton, { backgroundColor: selectedColor }]}
-                onPress={() => navigation.navigate('ColorPicker', {
-                  onSelectColor: (color: string) => {
-                    navigation.setParams({ selectedColor: color });
-                  },
-                })}
+                style={[
+                  styles.colorPickerButton,
+                  { backgroundColor: selectedColor },
+                ]}
+                onPress={() =>
+                  navigation.navigate('ColorPicker', {
+                    onSelectColor: (color: string) => {
+                      navigation.setParams({ selectedColor: color });
+                    },
+                  })
+                }
               >
-                <Text style={styles.colorPickerButtonText}>Click here to select color</Text>
+                <Text style={styles.colorPickerButtonText}>
+                  Click here to select color
+                </Text>
               </TouchableOpacity>
             </View>
 
+            {/* Icon Picker */}
             <View style={styles.section}>
               <View style={styles.iconSelectionContainer}>
-                <Text style={[styles.label, styles.iconSelectionText, { color: theme.text }]}>Click on the Icon to select from the list</Text>
-                <TouchableOpacity
-                  style={[styles.selectedIconContainer, { backgroundColor: theme.cardBackground }]}
-                  onPress={() => navigation.navigate('IconPicker', {
-                    onSelectIcon: (icon: string) => {
-                      navigation.setParams({ selectedIcon: icon });
-                    },
-                  })}
+                <Text
+                  style={[
+                    styles.label,
+                    styles.iconSelectionText,
+                    { color: theme.text },
+                  ]}
                 >
-                  <Icon name={selectedIcon} size={48} color={theme.text} />
+                  Click on the Icon to select from the list
+                </Text>
+
+                <TouchableOpacity
+                  style={[
+                    styles.selectedIconContainer,
+                    { backgroundColor: theme.cardBackground },
+                  ]}
+                  onPress={() =>
+                    navigation.navigate('IconPicker', {
+                      onSelectIcon: (icon: string) => {
+                        navigation.setParams({ selectedIcon: icon });
+                      },
+                    })
+                  }
+                >
+                  {/* ⭐ FIXED: Show emoji OR icon */}
+                  {isEmoji(selectedIcon) ? (
+                    <Text style={{ fontSize: 48 }}>{selectedIcon}</Text>
+                  ) : (
+                    <Icon name={selectedIcon} size={48} color={theme.text} />
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
-
           </ScrollView>
 
+          {/* Save Button */}
           <TouchableOpacity
-            style={[styles.saveButton, { backgroundColor: name.trim() === '' ? theme.subtleText : '#3b82f6' }]}
-            onPress={handleSave}
+            style={[
+              styles.saveButton,
+              {
+                backgroundColor:
+                  name.trim() === '' ? theme.subtleText : '#3b82f6',
+              },
+            ]}
             disabled={name.trim() === ''}
+            onPress={handleSave}
           >
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
@@ -217,30 +306,31 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
-    textAlign: 'center', // Center align the label
+    textAlign: 'center',
   },
   input: {
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
   },
+  charCount: {
+    marginTop: 4,
+    fontSize: 12,
+    textAlign: 'right',
+  },
   iconSelectionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
   },
   iconSelectionText: {
-    fontSize: 14, // Increased font size
-    flex: 1, // Allow text to take up available space
-    marginRight: 10, // Add some space between text and icon
+    fontSize: 14,
+    flex: 1,
+    marginRight: 10,
   },
   selectedIconContainer: {
     borderRadius: 8,
     padding: 16,
-  },
-  icon: {
-    marginHorizontal: 8,
   },
   colorPickerButton: {
     borderRadius: 8,
@@ -264,64 +354,6 @@ const styles = StyleSheet.create({
   },
   clearDateButton: {
     padding: 5,
-  },
-  completionTrackingOptions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  completionTrackingButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  completionTrackingButtonActive: {
-    backgroundColor: '#8a2be2',
-  },
-  completionTrackingButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  completionTrackingDescription: {
-    fontSize: 12,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  completionsPerDayContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  completionsPerDayButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  completionsPerDayButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  completionsPerDayInput: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginHorizontal: 10,
-    minWidth: 40,
-    textAlign: 'center',
-    borderRadius: 8,
-    paddingVertical: 5,
-  },
-  completionsPerDayUnit: {
-    fontSize: 16,
-    marginRight: 10,
-  },
-  completionsPerDayEditButton: {
-    padding: 8,
-    borderRadius: 8,
   },
   saveButton: {
     padding: 16,

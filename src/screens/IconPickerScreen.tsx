@@ -1,201 +1,211 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
   FlatList,
-  SectionList,
-  SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
 
-type RootStackParamList = {
-  AddHabit: { selectedIcon: string } | undefined;
-  IconPicker: { onSelectIcon: (icon: string) => void };
-};
+// ---- Curated Habit Icons ----
+const HABIT_ICONS = Array.from(
+  new Set([
+    // Fitness
+    'run', 'walk', 'dumbbell', 'bike', 'yoga', 'meditation',
+    'football', 'basketball', 'tennis', 'swim', 'shoe-sneaker',
 
-type IconPickerScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'IconPicker'
->;
-type IconPickerScreenRouteProp = RouteProp<RootStackParamList, 'IconPicker'>;
+    // Health
+    'water', 'cup-water', 'food-apple', 'fruit-cherries', 'pill',
+    'heart-pulse', 'toothbrush-paste',
 
-interface IconCategory {
-  title: string;
-  icons: string[];
-}
+    // Sleep
+    'power-sleep', 'sleep', 'weather-night', 'white-balance-sunny',
 
-const allIcons: IconCategory[] = [
-  {
-    title: 'Habits',
-    icons: [
-      // Fitness/Movement
-      'run', 'walk', 'dumbbell', 'bike', 'yoga', 'swim', 'meditation',
-      // Food/Drink
-      'coffee', 'tea', 'food-apple', 'water', 'cup', 'glass-cocktail',
-      // Hobbies/Creative
-      'brush', 'palette', 'music', 'book', 'pencil', 'camera', 'movie', 'pottery', 'gamepad-variant',
-      // Daily/Misc
-      'car-side', 'briefcase', 'home', 'sleep', 'weather-sunny', 'weather-night', 'tools', 'leaf', 'heart',
-      // Adventure/Sports
-      'hiking', 'tent', 'football', 'basketball', 'tennis',
-    ],
-  },
+    // Study
+    'book-open-variant', 'book-outline', 'notebook',
+    'notebook-edit-outline', 'school', 'laptop',
+
+    // Productivity
+    'calendar-check', 'clipboard-check-outline', 'check-circle-outline',
+    'alarm-check', 'timer-outline', 'briefcase-outline',
+
+    // Finance
+    'cash-multiple', 'piggy-bank', 'wallet-outline', 'chart-line',
+
+    // Home & chores
+    'home-outline', 'broom', 'washing-machine', 'trash-can-outline',
+    'leaf', 'sprout', 'recycle-variant',
+
+    // Creativity & hobbies
+    'palette-outline', 'pencil-outline', 'guitar-acoustic', 'music-note',
+    'camera-outline', 'movie-open-outline', 'gamepad-variant-outline',
+
+    // Social
+    'account-heart-outline', 'account-group-outline',
+    'message-text-outline', 'phone-outline',
+
+    // Journaling
+    'notebook-heart', 'pen', 'feather',
+  ])
+);
+
+// ---- Expanded Emoji Set (Smileys + People + Gestures + Misc) ----
+const EMOJI_ICONS = [
+  // Smileys
+  '😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😎','🤩','😍','🥰','😘',
+  '🙂','🤗','🤔','😐','😑','😶','🙄','😏','😣','😥','😮','😯','😪','🥱','😴',
+  '😛','😜','😝','🤤','😒','😓','😔','😕','🙃','😖','😢','😭','😤','😠','😡',
+  '🤯','😳','🥵','🥶','😱','😰','🤒','🤕',
+
+  // Gestures
+  '👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👋','👏','👐','🙏',
+
+  // People
+  '👨','👩','🧑','👧','👦','👶','🧓','👴','👵','🧔',
+  '👩‍🎓','👨‍💻','🧑‍🏫','🧑‍🍳','🧑‍🎨','🧑‍🚀','🧑‍🚒',
+
+  // Activities
+  '⚽','🏀','🏈','🎾','🏐','🏉','🎳','🏓','🥋','🎯','🎮','🎲','🎻','🎸',
+
+  // Food
+  '🍎','🍌','🍊','🍉','🍇','🍓','🍒','🥭','🍍','🥝','🥑','🍔','🍕','🍟','🍜',
+
+  // Nature
+  '🌞','🌙','⭐','🌟','🔥','🌈','❄️','☔','🌧️','🍀','🌿','🌱','🌸',
+
+  // Animals
+  '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮',
+
+  // Objects
+  '💡','📘','📚','✏️','🖊️','💻','🖥️','📱','🎧','🕒',
+
+  // Symbols
+  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','✨','⭐','💫','🔥',
 ];
 
-// No need for duplicate filtering as the list is manually curated
+type IconPickerRouteParams = {
+  onSelectIcon?: (icon: string) => void;
+};
 
+type IconPickerRouteProp = RouteProp<
+  { IconPicker: IconPickerRouteParams },
+  'IconPicker'
+>;
 
-const IconPickerScreen = () => {
-  const navigation = useNavigation<IconPickerScreenNavigationProp>();
-  const route = useRoute<IconPickerScreenRouteProp>();
-  const { onSelectIcon } = route.params;
+const IconPickerScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const route = useRoute<IconPickerRouteProp>();
+  const { theme } = useTheme();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const filteredIcons = allIcons
-    .map(category => ({
-      ...category,
-      icons: category.icons.filter(iconName =>
-        iconName.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    }))
-    .filter(category => category.icons.length > 0);
+  const onSelectIcon = route.params?.onSelectIcon;
 
-  const renderListHeader = () => (
-    <View>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Type a search term"
-        placeholderTextColor="#888"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
-    </View>
-  );
-
-  const handleSelect = (item: string) => {
-    onSelectIcon(item);
+  const handleSelect = (iconName: string) => {
+    if (onSelectIcon) onSelectIcon(iconName);
     navigation.goBack();
   };
 
-  const renderIconItem = ({ item }: { item: string }) => (
-    <TouchableOpacity style={styles.itemContainer} onPress={() => handleSelect(item)}>
-      <Icon name={item} size={32} color="#fff" />
+  const renderHabitIcon = ({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={[styles.iconButton, { backgroundColor: theme.cardBackground }]}
+      onPress={() => handleSelect(item)}
+    >
+      <Icon name={item} size={26} color={theme.text} />
     </TouchableOpacity>
   );
 
+  const renderEmoji = ({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={[styles.iconButton, { backgroundColor: theme.cardBackground }]}
+      onPress={() => handleSelect(item)}
+    >
+      <Text style={{ fontSize: 28 }}>{item}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="arrow-left" size={24} color="#fff" />
-          </TouchableOpacity>
-          <View style={{ width: 24 }} />
-        </View>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      
+      {/* Top Bar with Back Button */}
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={26} color={theme.text} />
+        </TouchableOpacity>
 
-        {filteredIcons.length > 0 ? (
-          <SectionList
-            sections={filteredIcons.map(category => ({
-              title: category.title,
-              data: category.icons,
-            }))}
-            renderItem={({ section }) => (
-              <FlatList
-                data={section.data}
-                renderItem={renderIconItem}
-                keyExtractor={(iconItem) => iconItem}
-                numColumns={6}
-                columnWrapperStyle={styles.row}
-                scrollEnabled={false}
-              />
-            )}
-            renderSectionHeader={({ section: { title } }) => (
-              <Text style={styles.categoryTitle}>{title}</Text>
-            )}
-            keyExtractor={(item, index) => item + index}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={renderListHeader()}
-            contentContainerStyle={styles.listContentContainer}
-          />
-        ) : (
-          <View style={styles.noResultsContainer}>
-            {renderListHeader()}
-            <Text style={styles.noResultsText}>No icons found for "{searchQuery}".</Text>
-          </View>
-        )}
+        <Text style={[styles.title, { color: theme.text }]}>
+          Select an Icon
+        </Text>
+
+        {/* Spacer to balance layout */}
+        <View style={{ width: 26 }} />
       </View>
-    </SafeAreaView>
+
+      {/* Habit Icon Section */}
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>
+        Habit Icons
+      </Text>
+      <FlatList
+        data={HABIT_ICONS}
+        keyExtractor={(item) => item}
+        numColumns={6}
+        contentContainerStyle={styles.listContent}
+        renderItem={renderHabitIcon}
+      />
+
+      {/* Emoji Section */}
+      <Text style={[styles.sectionTitle, { color: theme.text }]}>
+        Emojis
+      </Text>
+      <FlatList
+        data={EMOJI_ICONS}
+        keyExtractor={(_, i) => 'emoji-' + i}
+        numColumns={6}
+        contentContainerStyle={styles.listContent}
+        renderItem={renderEmoji}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#111',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#111',
-    paddingHorizontal: 16, // Apply horizontal padding here
+    paddingHorizontal: 16,
   },
-  header: {
+
+  topBar: {
+    paddingTop: 48,
+    paddingBottom: 16,
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 48, // Increased for better spacing
-    paddingBottom: 16,
   },
-  searchInput: {
-    backgroundColor: '#222',
-    color: '#fff',
-    borderRadius: 8,
-    padding: 12,
+
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+
+  sectionTitle: {
     fontSize: 16,
-    marginTop: 16, // Added margin to bring it down
-    marginBottom: 16,
-  },
-  listContentContainer: {
-    flexGrow: 1,
-    paddingBottom: 16,
-  },
-  noResultsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 16,
+    fontWeight: '600',
+    marginTop: 8,
     marginBottom: 8,
   },
-  row: {
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+
+  listContent: {
+    paddingBottom: 16,
   },
-  itemContainer: {
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
+
+  iconButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    margin: 6,
     alignItems: 'center',
-    margin: 4,
-    backgroundColor: '#222',
-    borderRadius: 8,
-  },
-  // Removed category filter styles
-  noResultsText: {
-    color: '#888',
-    textAlign: 'center',
-    marginTop: 20,
-    fontSize: 16,
+    justifyContent: 'center',
   },
 });
 

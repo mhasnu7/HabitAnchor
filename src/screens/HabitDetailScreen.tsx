@@ -6,6 +6,9 @@ import { useHabitStore } from '../store/habits';
 import { generateLastNDays } from '../utils/date';
 import { useTheme } from '../context/ThemeContext';
 
+// ✅ Emoji detection
+const isEmoji = (str: string) => /\p{Emoji}/u.test(str);
+
 type RootStackParamList = {
   Home: undefined;
   AddHabit: undefined;
@@ -44,28 +47,25 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentScrollY = event.nativeEvent.contentOffset.y;
     const scrollDirection = currentScrollY > lastScrollY.current ? 'down' : 'up';
-    const scrollSpeedThreshold = 10; // Minimum scroll distance to register change
-    const scrollStopTimeout = 500; // ms to wait before showing nav bar if scrolling stops
+    const scrollSpeedThreshold = 10;
+    const scrollStopTimeout = 500;
 
-    if (currentScrollY > 0) { // Only apply logic if not at the very top
+    if (currentScrollY > 0) {
       if (scrollDirection === 'down' && currentScrollY > lastScrollY.current + scrollSpeedThreshold && isNavBarVisible) {
         setIsNavBarVisible(false);
       } else if (scrollDirection === 'up' && currentScrollY < lastScrollY.current - scrollSpeedThreshold && !isNavBarVisible) {
         setIsNavBarVisible(true);
       }
     } else {
-      // If scrolling up to the top, ensure it's visible
       if (!isNavBarVisible) {
         setIsNavBarVisible(true);
       }
     }
 
-    // Reset timeout to show nav bar if scrolling stops
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
     scrollTimeoutRef.current = setTimeout(() => {
-      // If scrolling stops, show nav bar after timeout
       setIsNavBarVisible(true);
     }, scrollStopTimeout);
 
@@ -113,14 +113,21 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         <ScrollView
           style={styles.scrollView}
           onScroll={handleScroll}
-          scrollEventThrottle={16} // Important for frequent updates
+          scrollEventThrottle={16}
         >
           {habits.map((habit) => (
             <View key={habit.id} style={[styles.habitRow, { backgroundColor: theme.cardBackground }]}>
               <View style={styles.habitTopRow}>
+                
+                {/* ✅ FIXED: Render emoji or icon */}
                 <View style={[styles.habitIconContainer, { backgroundColor: habit.color }]}>
-                  <Icon name={habit.icon} size={20} color="#fff" />
+                  {isEmoji(habit.icon) ? (
+                    <Text style={{ fontSize: 20, color: '#fff' }}>{habit.icon}</Text>
+                  ) : (
+                    <Icon name={habit.icon} size={20} color="#fff" />
+                  )}
                 </View>
+
                 <View style={styles.calendarBoxes}>
                   {lastNDays.map((day, index) => {
                     const habitDayProgress = habit.progress.find(p => p.date === day.date);
@@ -130,7 +137,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
                         <View
                           style={[
                             styles.calendarBox,
-                            isCompleted ? { ...styles.calendarBoxCompleted, backgroundColor: habit.color } : { ...styles.calendarBoxIncomplete, backgroundColor: theme.subtleText },
+                            isCompleted ? { backgroundColor: habit.color } : { backgroundColor: theme.subtleText },
                           ]}
                         />
                       </View>
@@ -167,139 +174,32 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 48,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    paddingRight: 10,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-  last7DaysDataText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  daysHeader: {
-    flexDirection: 'row',
-    flex: 1,
-    marginLeft: 32,
-    marginRight: 12,
-    marginBottom: 10,
-  },
-  dayContainer: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  dayHeaderText: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  dateHeaderText: {
-    fontSize: 10,
-    textAlign: 'center',
-  },
-  dateNavigationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  arrowButton: {
-    paddingHorizontal: 0,
-    paddingVertical: 2,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  habitRow: {
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    marginBottom: 8,
-  },
-  habitTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  habitBottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-  },
-  habitIconContainer: {
-    borderRadius: 14,
-    padding: 4,
-    marginRight: 8,
-  },
-  habitName: {
-    fontSize: 15,
-  },
-  targetDateText: {
-    fontSize: 12,
-  },
-  calendarBoxes: {
-    flexDirection: 'row',
-    flex: 1,
-  },
-  calendarBoxWrapper: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  calendarBox: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-  },
-  calendarBoxCompleted: {
-    // backgroundColor: '#8a2be2', // Example color for completed
-  },
-  calendarBoxIncomplete: {
-    // backgroundColor: '#555', // Example color for incomplete
-  },
-  bottomNavBarContainer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  bottomNavBar: {
-    flexDirection: 'row',
-    borderRadius: 50,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    justifyContent: 'space-around',
-    width: '80%',
-  },
-  navButton: {
-    padding: 8,
-  },
+  /* (same styles as your file) */
+  container: { flex: 1 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 48, paddingBottom: 16 },
+  title: { fontSize: 24, fontWeight: 'bold' },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingRight: 10 },
+  content: { flex: 1, paddingHorizontal: 16, paddingTop: 20 },
+  last7DaysDataText: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  daysHeader: { flexDirection: 'row', flex: 1, marginLeft: 32, marginRight: 12, marginBottom: 10 },
+  dayContainer: { alignItems: 'center', flex: 1 },
+  dayHeaderText: { fontSize: 12, textAlign: 'center' },
+  dateHeaderText: { fontSize: 10, textAlign: 'center' },
+  dateNavigationContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  arrowButton: { paddingHorizontal: 0, paddingVertical: 2 },
+  scrollView: { flex: 1 },
+  habitRow: { borderRadius: 10, paddingVertical: 12, paddingHorizontal: 10, marginBottom: 8 },
+  habitTopRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  habitBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8 },
+  habitIconContainer: { borderRadius: 14, padding: 4, marginRight: 8 },
+  habitName: { fontSize: 15 },
+  targetDateText: { fontSize: 12 },
+  calendarBoxes: { flexDirection: 'row', flex: 1 },
+  calendarBoxWrapper: { flex: 1, alignItems: 'center' },
+  calendarBox: { width: 26, height: 26, borderRadius: 13 },
+  bottomNavBarContainer: { position: 'absolute', bottom: 30, left: 0, right: 0, alignItems: 'center' },
+  bottomNavBar: { flexDirection: 'row', borderRadius: 50, paddingVertical: 12, paddingHorizontal: 20, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 5, justifyContent: 'space-around', width: '80%' },
+  navButton: { padding: 8 },
 });
 
 export default HabitDetailScreen;

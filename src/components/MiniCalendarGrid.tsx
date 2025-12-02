@@ -1,244 +1,389 @@
 import { FONTS } from '../theme/constants';
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Changed to MaterialCommunityIcons
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Easing,
+  Dimensions,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useHabitStore } from '../store/habits';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isSameDay, isFuture } from 'date-fns';
+import {
+  format,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  eachDayOfInterval,
+  getDay,
+  isFuture,
+  isToday,
+  isSameDay,
+  isSameMonth,
+  subDays,
+  addDays,
+} from 'date-fns';
 import { useTheme } from '../context/ThemeContext';
-import { SIZES, COLORS } from '../theme/constants';
 
 interface MiniCalendarGridProps {
   habitId: string;
   color: string;
 }
 
+const screenWidth = Dimensions.get('window').width;
+
+// Left column width for weekday labels (SU/MO/TU...)
+const DAY_LABEL_WIDTH = 28;
+
+// Total width available for the 3 months (rest of the row)
+const usableWidth = screenWidth - DAY_LABEL_WIDTH - 32; // ~16 padding each side
+const perMonthWidth = usableWidth / 3;
+const MONTH_COLUMN_WIDTH = perMonthWidth;
+const MONTHS_CONTAINER_WIDTH = MONTH_COLUMN_WIDTH * 3;
+
+// Dot size that fits 3 months × up to 6 weeks each
+const DOT_SIZE = Math.min(16, Math.floor(perMonthWidth / 6) - 2);
+
+type DayCell = {
+  date: Date;
+  inCurrentMonth: boolean;
+};
+
 const MiniCalendarGrid: React.FC<MiniCalendarGridProps> = ({ habitId, color }) => {
-  const { habits, toggleCompletion, weekStartsOnMonday, highlightCurrentDay } = useHabitStore();
+  const { habits, toggleCompletion, weekStartsOnMonday, highlightCurrentDay } =
+    useHabitStore();
   const { theme } = useTheme();
   const habit = habits.find(h => h.id === habitId);
+
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [rippleAnimation] = useState(new Animated.Value(0));
   const [rippleScale] = useState(new Animated.Value(0));
   const [rippleOpacity] = useState(new Animated.Value(1));
 
-  const monthsToDisplay = useMemo(() => {
-    return [subMonths(currentDate, 1), currentDate, addMonths(currentDate, 1)];
-  }, [currentDate]);
+  if (!habit) return null;
 
-  const handlePrevious = () => {
-    setCurrentDate(prev => subMonths(prev, 3));
-  };
+  const monthsToDisplay = useMemo(
+    () => [subMonths(currentDate, 1), currentDate, addMonths(currentDate, 1)],
+    [currentDate]
+  );
 
-  const handleNext = () => {
-    setCurrentDate(prev => addMonths(prev, 3));
-  };
+  const handlePrevious = () => setCurrentDate(prev => subMonths(prev, 3));
+  const handleNext = () => setCurrentDate(prev => addMonths(prev, 3));
 
   const handleDayPress = (date: Date) => {
-    if (isFuture(date)) {
-      // Prevent marking future dates as complete
-      return;
-    }
+    if (isFuture(date)) return;
 
-    if (habit) {
-      toggleCompletion(habit.id, format(date, 'yyyy-MM-dd'));
-      // Start ripple animation
-      rippleAnimation.setValue(0);
-      rippleScale.setValue(0);
-      rippleOpacity.setValue(1);
-      Animated.parallel([
-        Animated.timing(rippleAnimation, {
-          toValue: 1,
-          duration: 400,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(rippleScale, {
-          toValue: 1,
-          duration: 400,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(rippleOpacity, {
-          toValue: 0,
-          duration: 400,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
+    toggleCompletion(habit.id, format(date, 'yyyy-MM-dd'));
+
+    rippleScale.setValue(0);
+    rippleOpacity.setValue(1);
+
+    Animated.parallel([
+      Animated.timing(rippleScale, {
+        toValue: 1,
+        duration: 350,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(rippleOpacity, {
+        toValue: 0,
+        duration: 350,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
-  const renderMonth = (month: Date) => {
+  /** Build month grid (6×7), then filter out weeks with no current-month days */
+  const buildMonthRows = (month: Date): DayCell[][] => {
     const monthStart = startOfMonth(month);
-    const monthEnd = endOfMonth(month);
-    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    
-    // Create a 7-row grid for the days of the week
-    const weekGrid: (Date | null)[][] = Array.from({ length: 7 }, () => Array(6).fill(null));
-    
-    // Populate the grid
-    days.forEach(day => {
-      const dayOfWeek = getDay(day);
-      const adjustedDayOfWeek = weekStartsOnMonday ? (dayOfWeek === 0 ? 6 : dayOfWeek - 1) : dayOfWeek;
-      const weekOfMonth = Math.floor((day.getDate() + startOfMonth(day).getDay() - 1) / 7);
-      if (weekGrid[adjustedDayOfWeek]) {
-        weekGrid[adjustedDayOfWeek][weekOfMonth] = day;
-      }
+    const nativeFirstDow = getDay(monthStart);
+
+    const firstIndex = weekStartsOnMonday
+      ? nativeFirstDow === 0
+        ? 6
+        : nativeFirstDow - 1
+      : nativeFirstDow;
+
+    const gridStart = subDays(monthStart, firstIndex);
+    const gridEnd = addDays(gridStart, 6 * 7 - 1);
+
+    const allDays = eachDayOfInterval({ start: gridStart, end: gridEnd });
+
+    const weeks: Date[][] = [];
+    for (let i = 0; i < allDays.length; i += 7) {
+      weeks.push(allDays.slice(i, i + 7));
+    }
+
+    const filteredWeeks = weeks.filter(week =>
+      week.some(d => isSameMonth(d, month))
+    );
+
+    const rows: DayCell[][] = Array.from({ length: 7 }, () => []);
+
+    filteredWeeks.forEach(week => {
+      week.forEach((d, colIndex) => {
+        rows[colIndex].push({
+          date: d,
+          inCurrentMonth: isSameMonth(d, month),
+        });
+      });
     });
 
-    const dayNames = weekStartsOnMonday ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] : ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
-
-    return weekGrid.map((row, rowIndex) => (
-      <View key={rowIndex} style={styles.weekRow}>
-        {/* Day Name Label - only display for the first month in the three-month view */}
-        {monthsToDisplay.findIndex(m => m.getTime() === month.getTime()) === 0 && (
-          <Text style={[styles.dayName, { color: theme.subtleText }]}>
-            {dayNames[rowIndex]}
-          </Text>
-        )}
-        {row.map((day, dayIndex) => {
-          if (!day) {
-            return <View key={`empty-${rowIndex}-${dayIndex}`} style={styles.cell} />;
-          }
-          const dateString = format(day, 'yyyy-MM-dd');
-          const isCompleted = habit?.progress.some(p => p.date === dateString && p.completed);
-          return (
-            <TouchableOpacity key={dateString} onPress={() => handleDayPress(day)} activeOpacity={1}>
-              <View
-                style={[
-                  styles.cell,
-                  styles.dayCell,
-                  { backgroundColor: isCompleted ? color : theme.cardBackground },
-                  isToday(day) && highlightCurrentDay && { borderColor: theme.text, borderWidth: 1 },
-                ]}
-              >
-                <Text style={[styles.dayText, { color: theme.text }]}>{format(day, 'd')}</Text>
-                {isCompleted && isSameDay(day, new Date()) && ( // Only show ripple for today's completed habit
-                  <Animated.View
-                    style={[
-                      styles.ripple,
-                      {
-                        backgroundColor: color,
-                        opacity: rippleOpacity,
-                        transform: [{ scale: rippleScale }],
-                      },
-                    ]}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    ));
+    return rows;
   };
 
-  if (!habit) {
-    return null;
-  }
+  const monthRowsArray: DayCell[][][] = useMemo(
+    () => monthsToDisplay.map(m => buildMonthRows(m)),
+    [monthsToDisplay, weekStartsOnMonday]
+  );
+
+  const dayNames = weekStartsOnMonday
+    ? ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
+    : ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handlePrevious} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Icon name="chevron-left" size={SIZES.icon} color={theme.subtleText} />
+        <TouchableOpacity
+          onPress={handlePrevious}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Icon name="chevron-left" size={22} color={theme.subtleText} />
         </TouchableOpacity>
-        <View style={styles.monthNames}>
-          {monthsToDisplay.map(m => (
-            <Text key={m.toString()} style={[styles.monthName, { color: theme.text }]}>
-              {format(m, 'MMM')}
-            </Text>
-          ))}
+
+        {/* Center header with placeholder for weekday column + 3 month headers */}
+        <View style={styles.headerCenter}>
+          <View style={{ width: DAY_LABEL_WIDTH }} />
+          <View style={styles.monthNames}>
+            {monthsToDisplay.map(m => (
+              <View key={m.toString()} style={styles.monthHeader}>
+                <Text
+                  style={[styles.monthName, { color: theme.text }]}
+                  numberOfLines={1}
+                >
+                  {format(m, 'MMM yy')}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
-        <TouchableOpacity onPress={handleNext} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Icon name="chevron-right" size={SIZES.icon} color={theme.subtleText} />
+
+        <TouchableOpacity
+          onPress={handleNext}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Icon name="chevron-right" size={22} color={theme.subtleText} />
         </TouchableOpacity>
       </View>
-      <View style={styles.calendarGrid}>
-        <View style={styles.monthsGrid}>
-          {monthsToDisplay.map(month => (
-            <View key={month.toString()} style={styles.monthContainer}>
-              {renderMonth(month)}
-            </View>
-          ))}
+
+      {/* Rows */}
+      {dayNames.map((dayLabel, rowIndex) => (
+        <View key={dayLabel} style={styles.row}>
+          <Text
+            style={[
+              styles.dayLabel,
+              { color: theme.subtleText, width: DAY_LABEL_WIDTH },
+            ]}
+          >
+            {dayLabel}
+          </Text>
+
+          {monthRowsArray.map((monthRows, monthIndex) => {
+            const cellsForRow = monthRows[rowIndex];
+            const monthDate = monthsToDisplay[monthIndex];
+            const isCurrentMonthView = isSameMonth(monthDate, new Date());
+
+            return (
+              <View
+                key={`${monthIndex}-${dayLabel}`}
+                style={[
+                  styles.monthColumn,
+                  monthIndex === 0 && { borderLeftWidth: 0 }, // no left border on first month
+                  isCurrentMonthView && {
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    borderRadius: 8,
+                  },
+                ]}
+              >
+                <View style={styles.datesRow}>
+                  {cellsForRow.map(cell => {
+                    const { date, inCurrentMonth } = cell;
+
+                    // Keep spacing, hide extra dates
+                    if (!inCurrentMonth) {
+                      return (
+                        <View
+                          key={format(date, 'yyyy-MM-dd')}
+                          style={[styles.dateDot, { opacity: 0 }]}
+                        />
+                      );
+                    }
+
+                    const dateString = format(date, 'yyyy-MM-dd');
+                    const isCompleted = habit.progress.some(
+                      p => p.date === dateString && p.completed
+                    );
+                    const completedToday =
+                      isCompleted && isSameDay(date, new Date());
+                    const isTodayCell = isToday(date);
+
+                    return (
+                      <TouchableOpacity
+                        key={dateString}
+                        onPress={() => handleDayPress(date)}
+                        activeOpacity={0.8}
+                      >
+                        <View
+                          style={[
+                            styles.dateDot,
+                            {
+                              backgroundColor: isCompleted
+                                ? color
+                                : 'transparent',
+                              borderColor: isCompleted
+                                ? color
+                                : 'transparent',
+                            },
+                            isTodayCell &&
+                              highlightCurrentDay && {
+                                borderColor: theme.text,
+                                borderWidth: 1,
+                              },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.dateText,
+                              {
+                                color: isCompleted ? '#000' : theme.text,
+                                opacity: isCompleted ? 1 : 0.8,
+                              },
+                            ]}
+                          >
+                            {format(date, 'd')}
+                          </Text>
+
+                          {completedToday && (
+                            <Animated.View
+                              pointerEvents="none"
+                              style={[
+                                styles.ripple,
+                                {
+                                  backgroundColor: color,
+                                  opacity: rippleOpacity,
+                                  transform: [{ scale: rippleScale }],
+                                },
+                              ]}
+                            />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })}
         </View>
-      </View>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
+
+  // Center area with weekday placeholder + month labels
+  headerCenter: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+
   monthNames: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    flex: 1,
-    marginHorizontal: 10,
-    paddingHorizontal: 20,
+    width: MONTHS_CONTAINER_WIDTH,
   },
-  monthName: {
-    fontWeight: 'bold',
-    fontSize: 14,
-    textAlign: 'center',
-    flex: 1,
-  },
-  calendarGrid: {
-    flexDirection: 'column',
-    paddingVertical: 2,
-  },
-  dayName: {
-    fontSize: 10,
-    height: 16,
-    width: 20,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    marginRight: 2, // Reduced spacing to fix overflow
-  },
-  monthsGrid: {
-    flexDirection: 'row',
-    flex: 1,
-    justifyContent: 'space-around',
-  },
-  monthContainer: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  weekRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
-  cell: {
-    width: SIZES.circularBox / 2.5, // Adjusted for circular boxes
-    height: SIZES.circularBox / 2.5, // Adjusted for circular boxes
-    margin: 2,
-    justifyContent: 'center',
+
+  monthHeader: {
+    width: MONTH_COLUMN_WIDTH,
     alignItems: 'center',
-    overflow: 'hidden', // Clip ripple animation
   },
-  dayCell: {
-    borderRadius: SIZES.circularBox / 2.5 / 2, // Make it circular
+
+  monthName: {
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
-  todayCell: {
-    // borderColor: '#FFFFFF',
-    // borderWidth: 1,
+
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: -2,
   },
-  dayText: {
-    fontSize: 10,
+
+  dayLabel: {
+    fontSize: 11,
     fontFamily: FONTS.body,
   },
+
+  monthColumn: {
+    width: MONTH_COLUMN_WIDTH,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    borderLeftWidth: 0.5,
+    borderLeftColor: 'rgba(255,255,255,0.08)', // very subtle divider
+  },
+
+  datesRow: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  dateDot: {
+    width: DOT_SIZE,
+    height: DOT_SIZE,
+    borderRadius: DOT_SIZE / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 2,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    overflow: 'hidden',
+    // subtle depth on completed days
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+
+  dateText: {
+    fontSize: 9,
+    fontFamily: FONTS.body,
+  },
+
   ripple: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    borderRadius: SIZES.circularBox / 2.5 / 2,
+    borderRadius: 999,
   },
 });
 
