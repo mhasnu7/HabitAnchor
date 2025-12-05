@@ -1,0 +1,10 @@
+PushNotification.createChannel(
+  {
+    channelId: "habit-reminders",
+    channelName: "Habit Reminder Alerts",
+    soundName: "anchorbell",  // name without extension!
+    importance: 4,
+    vibrate: true,
+  },
+  (created) => console.log(`notification channel created: ${created}`)
+);
