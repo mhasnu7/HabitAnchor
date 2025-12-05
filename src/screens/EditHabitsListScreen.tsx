@@ -13,29 +13,34 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useHabitStore, Habit } from '../store/habits';
 import { useTheme } from '../context/ThemeContext';
 
-// Define RootStackParamList locally
 type RootStackParamList = {
-  Menu: undefined;
   EditHabitsList: undefined;
   EditHabitDetail: { habitId: string };
 };
 
-// Detect emoji (Unicode)
+type Props = NativeStackScreenProps<RootStackParamList, 'EditHabitsList'>;
+
 const isEmoji = (value: string) => /\p{Emoji}/u.test(value);
 
-// Animated row component for habits
-const AnimatedHabitRow = ({
+interface AnimatedValues {
+  opacity: Animated.Value;
+  translateY: Animated.Value;
+}
+
+interface AnimatedRowProps {
+  habit: Habit;
+  index: number;
+  navigation: Props['navigation'];
+  theme: any;
+  animatedValues: AnimatedValues[];
+}
+
+const AnimatedHabitRow: React.FC<AnimatedRowProps> = ({
   habit,
   index,
   navigation,
   theme,
   animatedValues,
-}: {
-  habit: Habit;
-  index: number;
-  navigation: any;
-  theme: any;
-  animatedValues: any;
 }) => {
   return (
     <Animated.View
@@ -46,9 +51,7 @@ const AnimatedHabitRow = ({
     >
       <TouchableOpacity
         style={[styles.listItem, { backgroundColor: theme.cardBackground }]}
-        onPress={() =>
-          navigation.navigate('EditHabitDetail', { habitId: habit.id })
-        }
+        onPress={() => navigation.navigate('EditHabitDetail', { habitId: habit.id })}
       >
         <View style={styles.leftContent}>
           <Text style={[styles.indexText, { color: theme.subtleText }]}>
@@ -79,12 +82,11 @@ const AnimatedHabitRow = ({
   );
 };
 
-const EditHabitsListScreen = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'EditHabitsList'>['navigation']) => {
+const EditHabitsListScreen: React.FC<Props> = ({ navigation }) => {
   const { habits } = useHabitStore();
   const { theme } = useTheme();
 
-  // Prepare animation values — one per row
-  const animatedValues = useRef(
+  const animatedValues = useRef<AnimatedValues[]>(
     habits.map(() => ({
       opacity: new Animated.Value(0),
       translateY: new Animated.Value(-20),
@@ -115,18 +117,16 @@ const EditHabitsListScreen = ({ navigation }: NativeStackScreenProps<RootStackPa
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* HEADER */}
-      <View style={[styles.header, { backgroundColor: theme.background }]}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
 
         <Text style={[styles.title, { color: theme.text }]}>Edit Habits</Text>
 
-        <View style={styles.headerRightPlaceholder} />
+        <View style={{ width: 24 }} />
       </View>
 
-      {/* HABIT LIST */}
       <FlatList
         data={habits}
         keyExtractor={(item) => item.id}
@@ -147,6 +147,7 @@ const EditHabitsListScreen = ({ navigation }: NativeStackScreenProps<RootStackPa
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -155,12 +156,14 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingBottom: 16,
   },
+
   title: { fontSize: 20, fontWeight: 'bold' },
-  headerRightPlaceholder: { width: 24 },
+
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
+
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -170,14 +173,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
+
   leftContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   indexText: {
     fontSize: 16,
     marginRight: 10,
   },
+
   habitIconContainer: {
     width: 32,
     height: 32,
@@ -185,10 +191,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 10,
   },
+
   emoji: {
     fontSize: 20,
     color: '#fff',
   },
+
   habitName: {
     fontSize: 16,
     fontWeight: '500',

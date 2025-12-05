@@ -15,8 +15,11 @@ import HabitCard from '../components/HabitCard';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
 import { Alert } from 'react-native';
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import ThanosSnapAnimation from '../components/ThanosSnapAnimation';
+
+// ⭐ Import Banner Ad Component
+import BannerAdView from '../components/BannerAdView';
 
 type RootStackParamList = {
   Home: undefined;
@@ -38,7 +41,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const [habitToDelete, setHabitToDelete] = useState<string | null>(null);
 
   // 🔥 Animated navbar values
-  const navbarTranslate = useRef(new Animated.Value(0)).current; // 0 = visible, 100 = hidden
+  const navbarTranslate = useRef(new Animated.Value(0)).current;
   const navbarOpacity = useRef(new Animated.Value(1)).current;
 
   const lastScrollY = useRef(0);
@@ -77,15 +80,8 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const currentY = event.nativeEvent.contentOffset.y;
 
-      // Scroll down = hide navbar
-      if (currentY > lastScrollY.current + 12) {
-        hideNavbar();
-      }
-
-      // Scroll up = show navbar
-      if (currentY < lastScrollY.current - 12) {
-        showNavbar();
-      }
+      if (currentY > lastScrollY.current + 12) hideNavbar();
+      if (currentY < lastScrollY.current - 12) showNavbar();
 
       lastScrollY.current = currentY;
     },
@@ -111,6 +107,8 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+
+      {/* SNAP ANIMATION */}
       {isAnimating && habitToDelete ? (
         <ThanosSnapAnimation
           isVisible={isAnimating}
@@ -155,7 +153,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           ) : (
             <ScrollView
               style={styles.scrollView}
-              contentContainerStyle={{ paddingBottom: 200 }} // ⭐ Allows last item to scroll above navbar
+              contentContainerStyle={{ paddingBottom: 250 }}  // ⭐ space for banner + navbar
               onScroll={handleScroll}
               scrollEventThrottle={16}
             >
@@ -170,7 +168,12 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             </ScrollView>
           )}
 
-          {/* 🔥 ANIMATED NAVBAR */}
+          {/* ⭐ BANNER AD (fixed above navbar) */}
+          <View style={styles.bannerContainer}>
+            <BannerAdView />
+          </View>
+
+          {/* 🔥 NAVBAR (Animated) */}
           <Animated.View
             style={[
               styles.bottomNavBarContainer,
@@ -229,26 +232,20 @@ const styles = StyleSheet.create({
     marginBottom: -70,
   },
 
-  headerRight: {
-    flexDirection: 'row',
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+
+  scrollView: { paddingHorizontal: 16 },
+
+  emptyStateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  emptyStateText: { fontSize: 18, textAlign: 'center' },
+
+  // ⭐ Banner placed above navbar
+  bannerContainer: {
+    position: 'absolute',
+    bottom: 110,
+    width: '100%',
     alignItems: 'center',
-    gap: 16,
-    paddingRight: 10,
-  },
-
-  scrollView: {
-    paddingHorizontal: 16,
-  },
-
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  emptyStateText: {
-    fontSize: 18,
-    textAlign: 'center',
   },
 
   bottomNavBarContainer: {
@@ -272,9 +269,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  navButton: {
-    padding: 8,
-  },
+  navButton: { padding: 8 },
 
   logo: {
     width: 250,

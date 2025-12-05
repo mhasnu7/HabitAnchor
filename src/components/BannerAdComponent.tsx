@@ -1,45 +1,45 @@
 import React from 'react';
-import { Platform, View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 import { useAdsContext } from '../context/AdsContext';
 
-const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy'; // Replace with your real Ad Unit ID later
+const adUnitId = __DEV__
+  ? TestIds.BANNER
+  : 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy'; // Replace with real unit ID later
 
 const BannerAdComponent: React.FC = () => {
-  const { adsRemoved, loadingAdsStatus } = useAdsContext();
+  const { adsRemoved } = useAdsContext();
 
-  if (adsRemoved || loadingAdsStatus) {
-    // Do not render ad if ads are removed or status is still loading
-    return null;
-  }
+  // If user purchased Remove Ads → Don't render banner
+  if (adsRemoved) return null;
 
   return (
-    <View style={styles.bannerContainer}>
+    <View style={styles.container}>
       <BannerAd
         unitId={adUnitId}
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{
           requestNonPersonalizedAdsOnly: true,
         }}
-        onAdFailedToLoad={(error) => {
-          console.error('Ad failed to load:', error);
-        }}
-        onAdLoaded={() => {
-          console.log('Ad loaded successfully!');
-        }}
+        onAdLoaded={() => console.log('Banner Ad Loaded')}
+        onAdFailedToLoad={(err) => console.log('Banner Ad Error:', err)}
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  bannerContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+  container: {
+    width: '100%',
     alignItems: 'center',
-    backgroundColor: 'transparent', // Or a color that matches your app's theme
+    backgroundColor: 'transparent',
+    
+    // ⭐ Important: Avoid covering UI when keyboard opens
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 0 : 0,
+    zIndex: 999,
+    elevation: 10,
+    paddingBottom: Platform.OS === 'ios' ? 10 : 0,
   },
 });
 

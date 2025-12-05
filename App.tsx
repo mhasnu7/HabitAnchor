@@ -1,8 +1,5 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * App.tsx – Clean, error-free version
  */
 
 import React, { useEffect, useState } from 'react';
@@ -28,7 +25,7 @@ import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
 import EditHabitsListScreen from './src/screens/EditHabitsListScreen';
 import EditHabitDetailScreen from './src/screens/EditHabitDetailScreen';
 
-import { AdsProvider, useAdsContext } from './src/context/AdsContext';
+import { AdsProvider } from './src/context/AdsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
 
@@ -36,7 +33,6 @@ import { ThemeProvider } from './src/context/ThemeContext';
 import ThemeSelectionScreen from './src/screens/ThemeSelectionScreen';
 import SplashScreen from './src/components/SplashScreen';
 
-// ⭐ IMPORT NOTIFICATIONS INITIALIZER
 import { configureNotifications } from './src/utils/notifications';
 
 export type RootStackParamList = {
@@ -64,45 +60,31 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function MainAppContent() {
   const { habits } = useHabitStore();
-  const { loadingAdsStatus } = useAdsContext();
   const [isSplashVisible, setIsSplashVisible] = useState(true);
+  const [adsReady, setAdsReady] = useState(false);
 
-  // ⭐ NEW — Initialize notification channels ONCE at startup
   useEffect(() => {
     configureNotifications();
   }, []);
 
   useEffect(() => {
-    // Initialize Google Mobile Ads
     mobileAds()
       .initialize()
-      .then(adapterStatuses => {
-        console.log('AdMob initialized:', adapterStatuses);
-      })
-      .catch(error => {
-        console.error('AdMob initialization failed:', error);
-      });
+      .then(() => setAdsReady(true))
+      .catch(() => setAdsReady(true));
 
-    const loadAndLogHabits = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem('habit-storage');
-        console.log('AsyncStorage Content (habit-storage):', storedData);
-        console.log('Zustand Habits State:', habits);
-      } catch (error) {
-        console.error('Error reading AsyncStorage:', error);
-      }
-    };
-    loadAndLogHabits();
-  }, [habits]);
+    // Debug habit storage
+    AsyncStorage.getItem('habit-storage').then(v =>
+      console.log('Stored Habit Data:', v),
+    );
+  }, []);
 
-  const handleSplashAnimationFinish = () => {
-    setIsSplashVisible(false);
-  };
+  const handleSplashFinish = () => setIsSplashVisible(false);
 
-  if (isSplashVisible || loadingAdsStatus) {
+  if (isSplashVisible || !adsReady) {
     return (
       <ThemeProvider>
-        <SplashScreen onAnimationFinish={handleSplashAnimationFinish} />
+        <SplashScreen onAnimationFinish={handleSplashFinish} />
       </ThemeProvider>
     );
   }
@@ -140,12 +122,10 @@ function MainAppContent() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AdsProvider>
       <MainAppContent />
     </AdsProvider>
   );
 }
-
-export default App;

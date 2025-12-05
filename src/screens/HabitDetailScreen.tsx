@@ -16,6 +16,9 @@ import { useHabitStore } from '../store/habits';
 import { generateLastNDays } from '../utils/date';
 import { useTheme } from '../context/ThemeContext';
 
+// ⭐ Import Banner Ad
+import BannerAdView from '../components/BannerAdView';
+
 const isEmoji = (str: string) => /\p{Emoji}/u.test(str);
 
 const LIGHTER_COLOR_MAP: Record<string, string> = {
@@ -61,10 +64,9 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lastNDays, setLastNDays] = useState(generateLastNDays(7, currentDate));
-
   const today = new Date();
 
-  /** ⭐ Navbar Animation State */
+  // ⭐ Animated navbar
   const navbarTranslate = useRef(new Animated.Value(0)).current;
   const navbarOpacity = useRef(new Animated.Value(1)).current;
   const lastScrollY = useRef(0);
@@ -102,13 +104,12 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const currentY = e.nativeEvent.contentOffset.y;
 
-    if (currentY > lastScrollY.current + 12) hideNavbar();     // scroll down
-    if (currentY < lastScrollY.current - 12) showNavbar();     // scroll up
+    if (currentY > lastScrollY.current + 12) hideNavbar();
+    if (currentY < lastScrollY.current - 12) showNavbar();
 
     lastScrollY.current = currentY;
   };
 
-  /** Bounce scaling animation for tapping day circles */
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [lastTapped, setLastTapped] = useState<{ habitId: string; date: string } | null>(null);
 
@@ -152,10 +153,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
 
     let currentStreak = 0;
     for (let i = lastNDays.length - 1; i >= 0; i--) {
-      const prog = habit.progress[i]
-        ? habit.progress.find(p => p.date === lastNDays[i].date)
-        : null;
-
+      const prog = habit.progress.find(p => p.date === lastNDays[i].date);
       if (prog?.completed) currentStreak++;
       else break;
     }
@@ -166,7 +164,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       
-      {/* Header */}
+      {/* HEADER */}
       <View style={[styles.header, { backgroundColor: theme.background }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color={theme.text} />
@@ -182,13 +180,13 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         </TouchableOpacity>
       </View>
 
+      {/* CONTENT */}
       <View style={styles.content}>
-        {/* Section title */}
         <Text style={[styles.last7DaysDataText, { color: theme.text }]}>
           Last 7 Days Data
         </Text>
 
-        {/* Week navigation */}
+        {/* WEEK NAVIGATION */}
         <View style={styles.dateNavigationContainer}>
           <TouchableOpacity onPress={() => setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)))} >
             <Icon name="chevron-left" size={24} color={theme.text} />
@@ -203,9 +201,10 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
           </TouchableOpacity>
         </View>
 
+        {/* SCROLL CONTENT */}
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: 200 }}  // ⭐ ensures last habit visible
+          contentContainerStyle={{ paddingBottom: 250 }}  // ⭐ Space for banner + navbar
           onScroll={handleScroll}
           scrollEventThrottle={16}
         >
@@ -215,7 +214,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
 
             return (
               <View key={habit.id} style={styles.habitBlock}>
-                {/* Gradient header */}
+                {/* Gradient Header */}
                 <LinearGradient
                   colors={[habit.color, lighter]}
                   start={{ x: 0, y: 0 }}
@@ -242,16 +241,13 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
                       </View>
                     </View>
                   </View>
-
                 </LinearGradient>
 
-                {/* 7-Day Rows */}
+                {/* DAY CIRCLES ROW */}
                 <View style={styles.weekRow}>
                   {lastNDays.map(day => {
                     const dateObj = new Date(day.date);
-                    const dayText = dateObj
-                      .toLocaleDateString('en-US', { weekday: 'short' })
-                      .slice(0, 2);
+                    const dayText = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
 
                     const progress = habit.progress.find(p => p.date === day.date);
                     const completed = progress?.completed ?? false;
@@ -289,6 +285,7 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
                   })}
                 </View>
 
+                {/* SEPARATOR */}
                 <View style={styles.separatorWrapper}>
                   <View style={[styles.separator, { backgroundColor: lighter }]} />
                 </View>
@@ -296,6 +293,11 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
             );
           })}
         </ScrollView>
+      </View>
+
+      {/* ⭐ Banner Ad ABOVE navbar */}
+      <View style={styles.bannerContainer}>
+        <BannerAdView />
       </View>
 
       {/* ⭐ Animated Navbar */}
@@ -419,6 +421,14 @@ const styles = StyleSheet.create({
     height: 2,
     opacity: 0.4,
     borderRadius: 999,
+  },
+
+  // ⭐ Banner above navbar
+  bannerContainer: {
+    position: 'absolute',
+    bottom: 110,
+    width: '100%',
+    alignItems: 'center',
   },
 
   bottomNavBarContainer: {
