@@ -1,5 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Animated,
+  Easing,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useHabitStore, Habit } from '../store/habits';
@@ -12,66 +20,98 @@ type RootStackParamList = {
   EditHabitDetail: { habitId: string };
 };
 
-type EditHabitsListScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'EditHabitsList'
->;
-
 // Detect emoji (Unicode)
-const isEmoji = (value: string) => {
-  return /\p{Emoji}/u.test(value);
-};
+const isEmoji = (value: string) => /\p{Emoji}/u.test(value);
 
-const HabitListItem = ({
+// Animated row component for habits
+const AnimatedHabitRow = ({
   habit,
   index,
   navigation,
   theme,
+  animatedValues,
 }: {
   habit: Habit;
   index: number;
-  navigation: EditHabitsListScreenProps['navigation'];
+  navigation: any;
   theme: any;
+  animatedValues: any;
 }) => {
   return (
-    <TouchableOpacity
-      style={[styles.listItem, { backgroundColor: theme.cardBackground }]}
-      onPress={() =>
-        navigation.navigate('EditHabitDetail', { habitId: habit.id })
-      }
+    <Animated.View
+      style={{
+        opacity: animatedValues[index].opacity,
+        transform: [{ translateY: animatedValues[index].translateY }],
+      }}
     >
-      <View style={styles.leftContent}>
-        <Text style={[styles.indexText, { color: theme.subtleText }]}>
-          {index + 1}.
-        </Text>
+      <TouchableOpacity
+        style={[styles.listItem, { backgroundColor: theme.cardBackground }]}
+        onPress={() =>
+          navigation.navigate('EditHabitDetail', { habitId: habit.id })
+        }
+      >
+        <View style={styles.leftContent}>
+          <Text style={[styles.indexText, { color: theme.subtleText }]}>
+            {index + 1}.
+          </Text>
 
-        {/* ICON OR EMOJI FIXED HERE */}
-        <View
-          style={[
-            styles.habitIconContainer,
-            { backgroundColor: habit.color, borderRadius: 14 },
-          ]}
-        >
-          {isEmoji(habit.icon) ? (
-            <Text style={styles.emoji}>{habit.icon}</Text>
-          ) : (
-            <Icon name={habit.icon} size={20} color="#fff" />
-          )}
+          <View
+            style={[
+              styles.habitIconContainer,
+              { backgroundColor: habit.color, borderRadius: 14 },
+            ]}
+          >
+            {isEmoji(habit.icon) ? (
+              <Text style={styles.emoji}>{habit.icon}</Text>
+            ) : (
+              <Icon name={habit.icon} size={20} color="#fff" />
+            )}
+          </View>
+
+          <Text style={[styles.habitName, { color: theme.text }]}>
+            {habit.name}
+          </Text>
         </View>
 
-        <Text style={[styles.habitName, { color: theme.text }]}>
-          {habit.name}
-        </Text>
-      </View>
-
-      <Icon name="chevron-right" size={24} color={theme.subtleText} />
-    </TouchableOpacity>
+        <Icon name="chevron-right" size={24} color={theme.subtleText} />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
-const EditHabitsListScreen = ({ navigation }: EditHabitsListScreenProps) => {
+const EditHabitsListScreen = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'EditHabitsList'>['navigation']) => {
   const { habits } = useHabitStore();
   const { theme } = useTheme();
+
+  // Prepare animation values — one per row
+  const animatedValues = useRef(
+    habits.map(() => ({
+      opacity: new Animated.Value(0),
+      translateY: new Animated.Value(-20),
+    }))
+  ).current;
+
+  useEffect(() => {
+    const animations = habits.map((_, index) =>
+      Animated.parallel([
+        Animated.timing(animatedValues[index].opacity, {
+          toValue: 1,
+          duration: 350,
+          delay: index * 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animatedValues[index].translateY, {
+          toValue: 0,
+          duration: 350,
+          delay: index * 100,
+          easing: Easing.out(Easing.exp),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    Animated.stagger(80, animations).start();
+  }, [habits]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -90,15 +130,16 @@ const EditHabitsListScreen = ({ navigation }: EditHabitsListScreenProps) => {
       <FlatList
         data={habits}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
         renderItem={({ item, index }) => (
-          <HabitListItem
+          <AnimatedHabitRow
             habit={item}
             index={index}
             navigation={navigation}
             theme={theme}
+            animatedValues={animatedValues}
           />
         )}
-        contentContainerStyle={styles.listContent}
       />
     </View>
   );
