@@ -1,98 +1,101 @@
-import PushNotification from 'react-native-push-notification';
-import { Platform } from 'react-native';
+// src/utils/notifications.ts
 
-// Must be called on startup
-export const configureNotifications = () => {
-  PushNotification.configure({
-    onRegister: function (token) {
-      console.log('TOKEN:', token);
-    },
+import notifee, {
+  AndroidImportance,
+  TimestampTrigger,
+  TriggerType,
+  RepeatFrequency,
+} from '@notifee/react-native';
 
-    onNotification: function (notification) {
-      console.log('NOTIFICATION:', notification);
-      // required on iOS only.
-      if (notification.finish) {
-        notification.finish('default'); // Use a string value for completion status
-      }
-    },
+// 🔔 DEFAULT custom sound name (without extension)
+// Put morning_chime.wav in android/app/src/main/res/raw/
+const DEFAULT_SOUND = 'morning_chime';
 
-    onAction: function (notification) {
-      console.log('ACTION:', notification.action);
-      console.log('NOTIFICATION:', notification);
-    },
+/**
+ * Call once on app startup (e.g. inside App.tsx useEffect)
+ */
+export async function configureNotifications() {
+  // Ask for permission (Android & iOS)
+  await notifee.requestPermission();
 
-    onRegistrationError: function (err) {
-      console.error(err.message, err);
-    },
-
-    permissions: {
-      alert: true,
-      badge: true,
-      sound: true,
-    },
-
-    popInitialNotification: true,
-    requestPermissions: Platform.OS === 'ios', // Request permissions on iOS only, Android handles it via manifest
+  // Create / update Android channel
+  await notifee.createChannel({
+    id: 'habit-reminders',
+    name: 'Habit Reminders',
+    description: 'Reminders for daily habit check-ins',
+    sound: DEFAULT_SOUND, // must exist in res/raw
+    importance: AndroidImportance.HIGH,
+    vibration: true,
   });
+}
 
-  // Create a default channel for Android
-  if (Platform.OS === 'android') {
-    PushNotification.createChannel(
-      {
-        channelId: 'habit-reminders',
-        channelName: 'Habit Reminders',
-        channelDescription: 'Reminders for daily habit check-ins',
-        soundName: 'default',
-        importance: 4, // ImportanceHigh
-        vibrate: true,
-      },
-      (created) => console.log(`createChannel returned '${created}'`),
-    );
+/**
+ * Optional explicit permission helper.
+ */
+export async function requestNotificationPermissions() {
+  try {
+    await notifee.requestPermission();
+    console.log('Notification permissions granted');
+  } catch (e) {
+    console.log('Notification permissions error', e);
   }
-};
+}
 
-export const requestNotificationPermissions = () => {
-  // This function is now primarily for Android 13+ POST_NOTIFICATIONS permission if not handled by configure
-  // Since configure sets requestPermissions: Platform.OS === 'ios', we only need to ensure Android permissions are requested.
-  // The library documentation suggests calling requestPermissions() for Android 13+.
-  if (Platform.OS === 'android') {
-    PushNotification.requestPermissions().then(
-      (permissions) => {
-        console.log('Notification permissions granted:', permissions);
-      },
-      (error) => {
-        console.error('Notification permissions denied:', error);
-      },
-    );
-  }
-};
-
-export const scheduleDailyReminder = (date: Date) => {
-  // Cancel any existing daily reminder to ensure only one is active
-  PushNotification.cancelAllLocalNotifications();
-
+/**
+ * Schedule a DAILY reminder at the given time.
+ * `soundName` is optional – defaults to our custom sound.
+ *
+ * Example:
+ *   scheduleDailyReminder(date, 'softbell'); // softbell.mp3 in res/raw
+ */
+export async function scheduleDailyReminder(
+  date: Date,
+  soundName: string = DEFAULT_SOUND,
+) {
   const now = new Date();
   let scheduledDate = new Date(date);
 
-  // If the scheduled time is already passed today, schedule it for tomorrow
-  if (scheduledDate.getTime() < now.getTime()) {
+  // If time already passed today, move to tomorrow
+  if (scheduledDate.getTime() <= now.getTime()) {
     scheduledDate.setDate(scheduledDate.getDate() + 1);
   }
 
-  PushNotification.localNotificationSchedule({
-    channelId: 'habit-reminders',
-    title: 'Habit Anchor',
-    message: 'Time to check in on your daily habits!',
-    date: scheduledDate,
-    repeatType: 'day',
-    allowWhileIdle: true,
-    id: 1, // Use a fixed ID for the daily reminder
-  });
+  const trigger: TimestampTrigger = {
+    type: TriggerType.TIMESTAMP,
+    timestamp: scheduledDate.getTime(),
+    repeatFrequency: RepeatFrequency.DAILY,
+    alarmManager: true,
+  };
 
-  console.log('Daily reminder scheduled for:', scheduledDate.toLocaleTimeString());
-};
+  await notifee.createTriggerNotification(
+    {
+      title: 'Habit Anchor',
+      body: 'Time to check in on your daily habits!',
+      android: {
+        channelId: 'habit-reminders',
+        sound: soundName || DEFAULT_SOUND,
+        smallIcon: 'ic_launcher', // make sure this exists (default app icon)
+        importance: AndroidImportance.HIGH,
+        pressAction: {
+          id: 'default',
+        },
+      },
+    },
+    trigger,
+  );
 
-export const cancelDailyReminder = () => {
-  PushNotification.cancelAllLocalNotifications();
-  console.log('Daily reminder cancelled.');
-};
+  console.log(
+    'Daily reminder scheduled for:',
+    scheduledDate.toLocaleTimeString(),
+    'with sound:',
+    soundName,
+  );
+}
+
+/**
+ * Cancel all scheduled habit reminders.
+ */
+export async function cancelDailyReminder() {
+  await notifee.cancelAllNotifications();
+  console.log('Daily reminder(s) cancelled.');
+}

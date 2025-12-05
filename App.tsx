@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import mobileAds from 'react-native-google-mobile-ads';
+
 import HomeScreen from './src/screens/HomeScreen';
 import AddHabitScreen from './src/screens/AddHabitScreen';
 import HabitCalendarScreen from './src/screens/HabitCalendarScreen';
@@ -21,17 +22,22 @@ import MenuScreen from './src/screens/MenuScreen';
 import DailyCheckInReminderScreen from './src/screens/DailyCheckInReminderScreen';
 import ArchivedHabitsScreen from './src/screens/ArchivedHabitsScreen';
 import HabitInsightsScreen from './src/screens/HabitInsightsScreen';
-import HowToUseScreen from './src/screens/HowToUseScreen'; // Import HowToUseScreen
+import HowToUseScreen from './src/screens/HowToUseScreen';
 import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
 import TermsOfUseScreen from './src/screens/TermsOfUseScreen';
 import EditHabitsListScreen from './src/screens/EditHabitsListScreen';
 import EditHabitDetailScreen from './src/screens/EditHabitDetailScreen';
-import { AdsProvider, useAdsContext } from './src/context/AdsContext'; // Import Ads Context
+
+import { AdsProvider, useAdsContext } from './src/context/AdsContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
+
 import { ThemeProvider } from './src/context/ThemeContext';
 import ThemeSelectionScreen from './src/screens/ThemeSelectionScreen';
 import SplashScreen from './src/components/SplashScreen';
+
+// ⭐ IMPORT NOTIFICATIONS INITIALIZER
+import { configureNotifications } from './src/utils/notifications';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -51,15 +57,20 @@ export type RootStackParamList = {
   EditHabitsList: undefined;
   EditHabitDetail: { habitId: string };
   ColorPicker: { onSelectColor: (color: string) => void };
-  HowToUse: undefined; // New screen for instructions
+  HowToUse: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function MainAppContent() {
   const { habits } = useHabitStore();
-  const { loadingAdsStatus, refreshAdsStatus } = useAdsContext();
+  const { loadingAdsStatus } = useAdsContext();
   const [isSplashVisible, setIsSplashVisible] = useState(true);
+
+  // ⭐ NEW — Initialize notification channels ONCE at startup
+  useEffect(() => {
+    configureNotifications();
+  }, []);
 
   useEffect(() => {
     // Initialize Google Mobile Ads
@@ -72,8 +83,6 @@ function MainAppContent() {
         console.error('AdMob initialization failed:', error);
       });
 
-    // RevenueCat initialization and listener setup are disabled/removed.
-    
     const loadAndLogHabits = async () => {
       try {
         const storedData = await AsyncStorage.getItem('habit-storage');
@@ -90,7 +99,6 @@ function MainAppContent() {
     setIsSplashVisible(false);
   };
 
-  // Wait for both splash screen and ads status to load before showing main content
   if (isSplashVisible || loadingAdsStatus) {
     return (
       <ThemeProvider>
@@ -102,10 +110,7 @@ function MainAppContent() {
   return (
     <ThemeProvider>
       <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Group>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
@@ -123,6 +128,7 @@ function MainAppContent() {
             <Stack.Screen name="EditHabitDetail" component={EditHabitDetailScreen} />
             <Stack.Screen name="HowToUse" component={HowToUseScreen} />
           </Stack.Group>
+
           <Stack.Group screenOptions={{ presentation: 'modal' }}>
             <Stack.Screen name="AddHabit" component={AddHabitScreen} />
             <Stack.Screen name="IconPicker" component={IconPickerScreen} />

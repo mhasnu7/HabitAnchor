@@ -51,10 +51,9 @@ const HabitCard: React.FC<HabitCardProps> = ({
       style={[styles.container, { backgroundColor: theme.cardBackground }]}
     >
       <View style={styles.header}>
-        {/* 🟪 FIXED: Icon OR Emoji */}
-        <View
-          style={[styles.iconContainer, { backgroundColor: habit.color }]}
-        >
+        
+        {/* 🟪 FIX: Icon OR Emoji */}
+        <View style={[styles.iconContainer, { backgroundColor: habit.color }]}>
           {isEmoji(habit.icon) ? (
             <Text style={{ fontSize: SIZES.icon, color: '#fff' }}>
               {habit.icon}
@@ -83,19 +82,26 @@ const HabitCard: React.FC<HabitCardProps> = ({
           </Text>
         </View>
 
+        {/* ✔ FIXED CHECK BUTTON COLOR LOGIC */}
         {!showRestoreButton && (
           <TouchableOpacity
             style={[
               styles.checkButton,
               {
                 backgroundColor: isCompletedToday
-                  ? habit.color
-                  : theme.subtleText,
+                  ? habit.color      // Completed → colored circle
+                  : '#fff',          // Not completed → white circle
               },
             ]}
             onPress={handleCheck}
           >
-            <Icon name="check" size={SIZES.icon - 4} color="#fff" />
+            <Icon
+              name="check"
+              size={SIZES.icon - 4}
+              color={isCompletedToday ? '#fff' : '#000'} 
+              // ✔ White tick on colored circle
+              // ✔ Black tick on white circle
+            />
           </TouchableOpacity>
         )}
 
@@ -157,6 +163,7 @@ const styles = StyleSheet.create({
     borderRadius: (SIZES.icon + 12) / 2,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 6,
   },
   deleteButton: {
     width: SIZES.icon + 12,

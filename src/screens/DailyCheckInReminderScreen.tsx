@@ -1,101 +1,209 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Button, Alert, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  StyleSheet,
+  Switch,
+} from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import styles from '../styles/DailyCheckInReminderScreenStyles';
+
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type DailyCheckInReminderScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'DailyCheckInReminder'
->;
+import { useReminderStore } from '../store/reminders';
+import { useTheme } from '../context/ThemeContext';
 
-const REMINDER_KEY = 'dailyCheckInReminderTime';
+type Props = NativeStackScreenProps<RootStackParamList, 'DailyCheckInReminder'>;
 
-const DailyCheckInReminderScreen = ({
-  navigation,
-}: DailyCheckInReminderScreenProps) => {
-  const [reminderTime, setReminderTime] = useState<Date | null>(null);
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+const sounds = [
+  { id: 'morning_chime', label: 'Morning Chime' },
+  { id: 'softbell', label: 'Soft Bell' },
+  { id: 'default', label: 'Default Tone' },
+];
+
+const DailyCheckInReminderScreen = ({ navigation }: Props) => {
+  const { theme } = useTheme();
+
+  const {
+    reminders,
+    loadReminders,
+    addReminder,
+    updateReminder,
+    deleteReminder,
+    toggleReminder,
+  } = useReminderStore();
+
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedSound, setSelectedSound] = useState('default');
 
   useEffect(() => {
-    const loadReminderTime = async () => {
-      try {
-        const storedTime = await AsyncStorage.getItem(REMINDER_KEY);
-        if (storedTime) {
-          setReminderTime(new Date(storedTime));
-        }
-      } catch (error) {
-        console.error('Error loading reminder time:', error);
-      }
-    };
-    loadReminderTime();
+    loadReminders();
   }, []);
 
-  const handleSetReminder = async (time: Date) => {
-    try {
-      await AsyncStorage.setItem(REMINDER_KEY, time.toISOString());
-      setReminderTime(time);
-      Alert.alert('Success', `Daily reminder time saved: ${time.toLocaleTimeString()}`);
-    } catch (error) {
-      console.error('Error saving reminder time:', error);
-      Alert.alert('Error', 'Failed to save daily reminder time.');
-    }
+  const handleAdd = async () => {
+    await addReminder(selectedDate, selectedSound);
+    setPickerOpen(false);
   };
 
-  const handleCancelReminder = async () => {
-    try {
-      await AsyncStorage.removeItem(REMINDER_KEY);
-      setReminderTime(null);
-      Alert.alert('Success', 'Daily reminder time cancelled.');
-    } catch (error) {
-      console.error('Error cancelling reminder:', error);
-      Alert.alert('Error', 'Failed to cancel daily reminder time.');
-    }
-  };
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#fff" />
+          <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Daily Check-in Reminder</Text>
-      </View>
 
-      <Button title="Set Reminder Time" onPress={() => setIsDatePickerOpen(true)} />
-
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={styles.infoText}>*Full Feature coming soon*</Text>
-      </View>
-
-      {reminderTime && (
-        <Text style={styles.selectedTime}>
-          Reminder set for: {reminderTime.toLocaleTimeString()}
+        <Text style={[styles.headerTitle, { color: theme.text }]}>
+          Reminders
         </Text>
-      )}
 
-      {reminderTime && (
-        <Button title="Cancel Reminder" onPress={handleCancelReminder} color="red" />
-      )}
+        <TouchableOpacity onPress={() => setPickerOpen(true)}>
+          <Icon name="plus-circle" size={26} color={theme.text} />
+        </TouchableOpacity>
+      </View>
 
+      {/* LIST */}
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {reminders.map((r) => (
+          <View
+            key={r.id}
+            style={[styles.card, { backgroundColor: theme.cardBackground }]}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedDate(new Date(r.timeISO));
+                setSelectedSound(r.sound);
+                setPickerOpen(true);
+              }}
+            >
+              <Text style={[styles.time, { color: theme.text }]}>
+                {formatTime(r.timeISO)}
+              </Text>
+
+              <Text style={{ color: theme.subtleText, marginTop: 4 }}>
+                Sound: {sounds.find((s) => s.id === r.sound)?.label}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.row}>
+              <Switch
+                value={r.enabled}
+                onValueChange={() => toggleReminder(r.id)}
+                trackColor={{ false: '#444', true: '#22c55e55' }}
+                thumbColor={r.enabled ? '#22c55e' : '#888'}
+              />
+
+              <TouchableOpacity
+                onPress={() =>
+                  Alert.alert('Delete?', 'Remove this reminder?', [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: () => deleteReminder(r.id),
+                    },
+                  ])
+                }
+              >
+                <Icon name="delete" size={22} color="#EF4444" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+
+        {reminders.length === 0 && (
+          <Text style={{ color: theme.subtleText, textAlign: 'center' }}>
+            No reminders yet. Tap + to add one.
+          </Text>
+        )}
+      </ScrollView>
+
+      {/* TIME PICKER */}
       <DatePicker
         modal
-        open={isDatePickerOpen}
-        date={reminderTime || new Date()}
+        open={pickerOpen}
         mode="time"
-        onConfirm={(selectedDate) => {
-          setIsDatePickerOpen(false);
-          handleSetReminder(selectedDate);
+        date={selectedDate}
+        onConfirm={(date) => {
+          setSelectedDate(date);
+          handleAdd();
         }}
-        onCancel={() => {
-          setIsDatePickerOpen(false);
-        }}
+        onCancel={() => setPickerOpen(false)}
       />
+
+      {/* SOUND PICKER (Simple UI Below Picker) */}
+      {pickerOpen && (
+        <View style={[styles.soundBox, { backgroundColor: theme.cardBackground }]}>
+          <Text style={{ color: theme.text, marginBottom: 8 }}>Select Sound:</Text>
+
+          {sounds.map((s) => (
+            <TouchableOpacity
+              key={s.id}
+              style={styles.soundRow}
+              onPress={() => setSelectedSound(s.id)}
+            >
+              <Text style={{ color: theme.text }}>{s.label}</Text>
+
+              {selectedSound === s.id && (
+                <Icon name="check" size={20} color={theme.primary} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
 
 export default DailyCheckInReminderScreen;
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    paddingTop: 48,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTitle: { fontSize: 20, fontWeight: '700' },
+  card: {
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  time: { fontSize: 26, fontWeight: '700' },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  soundBox: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    padding: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    elevation: 6,
+  },
+  soundRow: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+});
