@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -6,6 +6,14 @@ import { useTheme } from '../context/ThemeContext';
 import { useAdsContext } from '../context/AdsContext';
 import { styles } from '../styles/MenuScreenStyles';
 import SettingItem from '../components/SettingItem';
+
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
 
 type RootStackParamList = {
   Home: undefined;
@@ -15,27 +23,70 @@ type RootStackParamList = {
   EditHabitsList: undefined;
   PrivacyPolicy: undefined;
   TermsOfUse: undefined;
-  HowToUse: undefined; // Added How To Use Screen
+  HowToUse: undefined;
 };
 
 type MenuScreenProps = NativeStackScreenProps<RootStackParamList, 'Menu'>;
 
 const MenuScreen = ({ navigation }: MenuScreenProps) => {
   const { theme } = useTheme();
-  const { adsRemoved, refreshAdsStatus } = useAdsContext();
-  
+  const { adsRemoved } = useAdsContext();
+
   const handlePurchase = useCallback(() => {
     Alert.alert('Coming Soon', 'In-app purchases are temporarily disabled.');
   }, []);
-  
+
   const handleRestore = useCallback(() => {
     Alert.alert('Coming Soon', 'Purchase restoration is temporarily disabled.');
   }, []);
-  
-  // Placeholder action for Rate this app
+
   const handleRateApp = useCallback(() => {
     console.log('Rate this app pressed');
-    // Implementation for rating app
+  }, []);
+
+  const menuItems = [
+    { icon: 'cog', bg: '#007AFF', title: 'Settings', nav: 'Settings' },
+    { icon: 'pencil', bg: '#FF9500', title: 'Edit Habits', nav: 'EditHabitsList' },
+    { icon: 'help-circle', bg: '#2196F3', title: 'How to Use', nav: 'HowToUse' },
+    { icon: 'crown', bg: '#FFD60A', title: 'Remove Ads', action: handlePurchase },
+    { icon: 'restore', bg: '#007AFF', title: 'Restore Purchases', action: handleRestore },
+    { header: 'About' },
+    { icon: 'lock', bg: '#FF2D55', title: 'Privacy Policy', nav: 'PrivacyPolicy' },
+    { icon: 'file-document', bg: '#FF9500', title: 'Terms of Use', nav: 'TermsOfUse' },
+    { icon: 'star', bg: '#FFD60A', title: 'Rate the app', action: handleRateApp },
+    { icon: 'home', bg: '#22c55e', title: 'Home', nav: 'Home' },
+  ];
+
+  const translateY = menuItems.map(() => useSharedValue(-60));
+  const rotateX = menuItems.map(() => useSharedValue(45));
+  const opacity = menuItems.map(() => useSharedValue(0));
+
+  useEffect(() => {
+    menuItems.forEach((_, index) => {
+      translateY[index].value = withDelay(
+        index * 120,
+        withTiming(0, {
+          duration: 600,
+          easing: Easing.out(Easing.elastic(1.2)),
+        })
+      );
+
+      rotateX[index].value = withDelay(
+        index * 120,
+        withTiming(0, {
+          duration: 700,
+          easing: Easing.out(Easing.elastic(1.3)),
+        })
+      );
+
+      opacity[index].value = withDelay(
+        index * 120,
+        withTiming(1, {
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+        })
+      );
+    });
   }, []);
 
   return (
@@ -44,74 +95,50 @@ const MenuScreen = ({ navigation }: MenuScreenProps) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
-        {/* Title: "Menu", matching Settings font size (24, bold), color blue (#007AFF) */}
+
         <Text style={[styles.headerTitle, { color: '#007AFF' }]}>Menu</Text>
+
         <View style={{ width: 24 }} />
       </View>
-      <ScrollView>
-        <SettingItem
-          icon="cog"
-          iconBackgroundColor="#007AFF"
-          title="Settings"
-          onPress={() => navigation.navigate('Settings')}
-        />
-        <SettingItem
-          icon="pencil"
-          iconBackgroundColor="#FF9500"
-          title="Edit Habits"
-          onPress={() => navigation.navigate('EditHabitsList')}
-        />
-        
-        <SettingItem
-          icon="help-circle" // Icon for How To Use
-          iconBackgroundColor="#2196F3" // Blue color for help/info
-          title="How to Use"
-          onPress={() => navigation.navigate('HowToUse')}
-        />
 
-        {/* RevenueCat Integration: Remove Ads Button */}
-        <SettingItem
-          icon="crown" // Using 'crown' as the logo for premium/remove ads
-          iconBackgroundColor="#FFD60A" // Gold/Yellow color
-          title="Remove Ads"
-          onPress={handlePurchase}
-        />
-        
-        <SettingItem
-          icon="restore"
-          iconBackgroundColor="#007AFF"
-          title="Restore Purchases"
-          onPress={handleRestore}
-        />
-        
-        {/* About Section */}
-        <View style={[styles.sectionHeader, { marginTop: 20 }]}>
-          <Text style={[styles.sectionHeaderText, { color: theme.subtleText }]}>About</Text>
-        </View>
-        <SettingItem
-          icon="lock"
-          iconBackgroundColor="#FF2D55"
-          title="Privacy Policy"
-          onPress={() => navigation.navigate('PrivacyPolicy')}
-        />
-        <SettingItem
-          icon="file-document"
-          iconBackgroundColor="#FF9500"
-          title="Terms of Use"
-          onPress={() => navigation.navigate('TermsOfUse')}
-        />
-        <SettingItem
-          icon="star"
-          iconBackgroundColor="#FFD60A"
-          title="Rate the app"
-          onPress={handleRateApp}
-        />
-        <SettingItem
-          icon="home"
-          iconBackgroundColor="#22c55e"
-          title="Home"
-          onPress={() => navigation.navigate('Home')}
-        />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {menuItems.map((item, index) => {
+          const animatedStyle = useAnimatedStyle(() => ({
+            opacity: opacity[index].value,
+            transform: [
+              { translateY: translateY[index].value },
+              { rotateX: `${rotateX[index].value}deg` },
+              { perspective: 800 },
+            ],
+          }));
+
+          if (item.header) {
+            return (
+              <Animated.View key={`header-${index}`} style={[animatedStyle, { marginTop: 20 }]}>
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionHeaderText, { color: theme.subtleText }]}>
+                    {item.header}
+                  </Text>
+                </View>
+              </Animated.View>
+            );
+          }
+
+          return (
+            <Animated.View key={index} style={[animatedStyle]}>
+              <SettingItem
+                icon={item.icon}
+                iconBackgroundColor={item.bg}
+                title={item.title}
+                onPress={() =>
+                  item.nav
+                    ? navigation.navigate(item.nav as never)
+                    : item.action?.()
+                }
+              />
+            </Animated.View>
+          );
+        })}
       </ScrollView>
     </View>
   );
