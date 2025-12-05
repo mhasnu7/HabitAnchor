@@ -16,10 +16,8 @@ import { useHabitStore } from '../store/habits';
 import { generateLastNDays } from '../utils/date';
 import { useTheme } from '../context/ThemeContext';
 
-// ✅ Emoji detection
 const isEmoji = (str: string) => /\p{Emoji}/u.test(str);
 
-// ✅ Predefined lighter palette for gradients
 const LIGHTER_COLOR_MAP: Record<string, string> = {
   '#ef4444': '#fca5a5',
   '#f97316': '#fdba74',
@@ -38,13 +36,11 @@ const LIGHTER_COLOR_MAP: Record<string, string> = {
   '#d946ef': '#f9a8ff',
   '#ec4899': '#f9a8d4',
   '#f43f5e': '#fecaca',
-  '#a01e5a': '#ec4899', // your default base color
+  '#a01e5a': '#ec4899',
 };
 
-const getLighterColor = (color: string) => {
-  const key = color.toLowerCase();
-  return LIGHTER_COLOR_MAP[key] || color;
-};
+const getLighterColor = (c: string) =>
+  LIGHTER_COLOR_MAP[c.toLowerCase()] || c;
 
 type RootStackParamList = {
   Home: undefined;
@@ -65,13 +61,71 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [lastNDays, setLastNDays] = useState(generateLastNDays(7, currentDate));
-  const [isNavBarVisible, setIsNavBarVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const scrollTimeoutRef = useRef<number | null>(null);
 
-  // 🔥 Animation for bouncing the last tapped circle
+  const today = new Date();
+
+  /** ⭐ Navbar Animation State */
+  const navbarTranslate = useRef(new Animated.Value(0)).current;
+  const navbarOpacity = useRef(new Animated.Value(1)).current;
+  const lastScrollY = useRef(0);
+
+  const hideNavbar = () => {
+    Animated.parallel([
+      Animated.timing(navbarTranslate, {
+        toValue: 100,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(navbarOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const showNavbar = () => {
+    Animated.parallel([
+      Animated.timing(navbarTranslate, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(navbarOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentY = e.nativeEvent.contentOffset.y;
+
+    if (currentY > lastScrollY.current + 12) hideNavbar();     // scroll down
+    if (currentY < lastScrollY.current - 12) showNavbar();     // scroll up
+
+    lastScrollY.current = currentY;
+  };
+
+  /** Bounce scaling animation for tapping day circles */
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const [lastTapped, setLastTapped] = useState<{ habitId: string; date: string } | null>(null);
+
+  const handleTap = (habitId: string, date: string) => {
+    const d = new Date(date);
+    if (d > today) return;
+
+    toggleCompletion(habitId, date);
+
+    setLastTapped({ habitId, date });
+    scaleAnim.setValue(0.5);
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 4,
+      useNativeDriver: true,
+    }).start();
+  };
 
   useEffect(() => {
     setLastNDays(generateLastNDays(7, currentDate));
@@ -86,95 +140,24 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
     return `${fmt(first)} - ${fmt(last)}`;
   }, [lastNDays]);
 
-  const goToPreviousDays = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentDate(newDate);
-  };
-
-  const goToNextDays = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentDate(newDate);
-  };
-
-  const handleScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const currentScrollY = event.nativeEvent.contentOffset.y;
-      const scrollDirection = currentScrollY > lastScrollY.current ? 'down' : 'up';
-      const scrollSpeedThreshold = 10;
-      const scrollStopTimeout = 500;
-
-      if (currentScrollY > 0) {
-        if (
-          scrollDirection === 'down' &&
-          currentScrollY > lastScrollY.current + scrollSpeedThreshold &&
-          isNavBarVisible
-        ) {
-          setIsNavBarVisible(false);
-        } else if (
-          scrollDirection === 'up' &&
-          currentScrollY < lastScrollY.current - scrollSpeedThreshold &&
-          !isNavBarVisible
-        ) {
-          setIsNavBarVisible(true);
-        }
-      } else {
-        if (!isNavBarVisible) {
-          setIsNavBarVisible(true);
-        }
-      }
-
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      scrollTimeoutRef.current = setTimeout(() => {
-        setIsNavBarVisible(true);
-      }, scrollStopTimeout);
-
-      lastScrollY.current = currentScrollY;
-    },
-    [isNavBarVisible]
-  );
-
-  const today = new Date();
-
-  const handleDayPress = (habitId: string, date: string) => {
-    const dateObj = new Date(date);
-    if (dateObj > today) return; // prevent toggling future days
-
-    toggleCompletion(habitId, date);
-
-    setLastTapped({ habitId, date });
-    scaleAnim.setValue(0.5);
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 4,
-      useNativeDriver: true,
-    }).start();
-  };
-
   const getWeekStats = (habitId: string, habitColor: string) => {
     const habit = habits.find(h => h.id === habitId);
     if (!habit) return { completedThisWeek: 0, currentStreak: 0 };
 
-    // Completed days in this 7-day window
     let completedThisWeek = 0;
     lastNDays.forEach(day => {
-      const progress = habit.progress.find(p => p.date === day.date);
-      if (progress?.completed) completedThisWeek += 1;
+      const prog = habit.progress.find(p => p.date === day.date);
+      if (prog?.completed) completedThisWeek++;
     });
 
-    // Streak counting backwards from the last day in this window
     let currentStreak = 0;
     for (let i = lastNDays.length - 1; i >= 0; i--) {
-      const d = lastNDays[i];
-      const progress = habit.progress.find(p => p.date === d.date);
-      if (progress?.completed) {
-        currentStreak += 1;
-      } else {
-        break;
-      }
+      const prog = habit.progress[i]
+        ? habit.progress.find(p => p.date === lastNDays[i].date)
+        : null;
+
+      if (prog?.completed) currentStreak++;
+      else break;
     }
 
     return { completedThisWeek, currentStreak };
@@ -182,20 +165,21 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Main screen header */}
+      
+      {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.background }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" size={24} color={theme.text} />
         </TouchableOpacity>
+
         <Text style={styles.title}>
           <Text style={{ color: '#2AB574' }}>Habit</Text>
           <Text style={{ color: '#1A73E8' }}> Details</Text>
         </Text>
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
-            <Icon name="plus-circle" size={24} color={theme.text} />
-          </TouchableOpacity>
-        </View>
+
+        <TouchableOpacity onPress={() => navigation.navigate('AddHabit')}>
+          <Icon name="plus-circle" size={24} color={theme.text} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
@@ -204,9 +188,9 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
           Last 7 Days Data
         </Text>
 
-        {/* Week navigation with range label */}
+        {/* Week navigation */}
         <View style={styles.dateNavigationContainer}>
-          <TouchableOpacity onPress={goToPreviousDays} style={styles.arrowButton}>
+          <TouchableOpacity onPress={() => setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)))} >
             <Icon name="chevron-left" size={24} color={theme.text} />
           </TouchableOpacity>
 
@@ -214,26 +198,24 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
             {weekRangeLabel}
           </Text>
 
-          <TouchableOpacity onPress={goToNextDays} style={styles.arrowButton}>
+          <TouchableOpacity onPress={() => setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)))} >
             <Icon name="chevron-right" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
 
         <ScrollView
           style={styles.scrollView}
+          contentContainerStyle={{ paddingBottom: 200 }}  // ⭐ ensures last habit visible
           onScroll={handleScroll}
           scrollEventThrottle={16}
         >
           {habits.map(habit => {
             const lighter = getLighterColor(habit.color);
-            const { completedThisWeek, currentStreak } = getWeekStats(
-              habit.id,
-              habit.color
-            );
+            const { completedThisWeek, currentStreak } = getWeekStats(habit.id, habit.color);
 
             return (
               <View key={habit.id} style={styles.habitBlock}>
-                {/* Gradient mini-header per habit */}
+                {/* Gradient header */}
                 <LinearGradient
                   colors={[habit.color, lighter]}
                   start={{ x: 0, y: 0 }}
@@ -241,124 +223,64 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
                   style={styles.habitHeaderCard}
                 >
                   <View style={styles.habitHeaderRow}>
-                    <View
-                      style={[
-                        styles.habitIconContainer,
-                        { backgroundColor: 'rgba(0,0,0,0.15)' },
-                      ]}
-                    >
-                      {isEmoji(habit.icon) ? (
-                        <Text style={{ fontSize: 20, color: '#fff' }}>
-                          {habit.icon}
-                        </Text>
-                      ) : (
-                        <Icon name={habit.icon} size={20} color="#fff" />
-                      )}
+                    <View style={[styles.habitIconContainer, { backgroundColor: 'rgba(0,0,0,0.15)' }]}>
+                      {isEmoji(habit.icon) ?
+                        <Text style={{ fontSize: 20, color: '#fff' }}>{habit.icon}</Text> :
+                        <Icon name={habit.icon} size={20} color="#fff" />}
                     </View>
 
                     <View style={styles.habitHeaderTextContainer}>
                       <Text style={styles.habitHeaderName}>{habit.name}</Text>
+
                       {habit.subtitle ? (
-                        <Text style={styles.habitHeaderSubtitle}>
-                          {habit.subtitle}
-                        </Text>
+                        <Text style={styles.habitHeaderSubtitle}>{habit.subtitle}</Text>
                       ) : null}
+
                       <View style={styles.habitHeaderStatsRow}>
-                        <Text style={styles.habitHeaderStat}>
-                          This week: {completedThisWeek}/7 days
-                        </Text>
-                        <Text style={styles.habitHeaderStat}>
-                          Streak: {currentStreak} day
-                          {currentStreak === 1 ? '' : 's'}
-                        </Text>
+                        <Text style={styles.habitHeaderStat}>This week: {completedThisWeek}/7</Text>
+                        <Text style={styles.habitHeaderStat}>Streak: {currentStreak} day{currentStreak !== 1 ? 's' : ''}</Text>
                       </View>
                     </View>
                   </View>
 
-                  {habit.targetCompletionDate && (
-                    <View style={styles.targetPill}>
-                      <Icon
-                        name="calendar"
-                        size={14}
-                        color="rgba(255,255,255,0.9)"
-                      />
-                      <Text style={styles.targetPillText}>
-                        Target: {new Date(habit.targetCompletionDate).toLocaleDateString()}
-                      </Text>
-                    </View>
-                  )}
                 </LinearGradient>
 
-                {/* 7-day aligned row */}
+                {/* 7-Day Rows */}
                 <View style={styles.weekRow}>
-                  {lastNDays.map((day, index) => {
+                  {lastNDays.map(day => {
                     const dateObj = new Date(day.date);
-                    const weekdayLabel = dateObj
+                    const dayText = dateObj
                       .toLocaleDateString('en-US', { weekday: 'short' })
-                      .substring(0, 2);
-                    const dayOfMonth = dateObj.getDate();
-                    const progress = habit.progress.find(p => p.date === day.date);
-                    const isCompleted = progress?.completed ?? false;
-                    const isToday =
-                      dateObj.toDateString() === today.toDateString();
-                    const isFuture = dateObj > today;
-                    const isActiveTapped =
-                      lastTapped &&
-                      lastTapped.habitId === habit.id &&
-                      lastTapped.date === day.date;
+                      .slice(0, 2);
 
-                    const circleTransform = isActiveTapped
-                      ? [{ scale: scaleAnim }]
-                      : [{ scale: 1 }];
+                    const progress = habit.progress.find(p => p.date === day.date);
+                    const completed = progress?.completed ?? false;
+                    const isFuture = dateObj > today;
+                    const isActive =
+                      lastTapped?.habitId === habit.id &&
+                      lastTapped?.date === day.date;
 
                     return (
-                      <View key={index} style={styles.dayStack}>
-                        <Text
-                          style={[
-                            styles.dayHeaderText,
-                            { color: theme.subtleText },
-                          ]}
-                        >
-                          {weekdayLabel}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.dateHeaderText,
-                            { color: theme.subtleText },
-                          ]}
-                        >
-                          {dayOfMonth}
+                      <View key={day.date} style={styles.dayStack}>
+                        <Text style={[styles.dayHeaderText, { color: theme.subtleText }]}>{dayText}</Text>
+                        <Text style={[styles.dateHeaderText, { color: theme.subtleText }]}>
+                          {dateObj.getDate()}
                         </Text>
 
                         <TouchableOpacity
-                          style={styles.dayCircleTouch}
+                          disabled={isFuture}
+                          onPress={() => handleTap(habit.id, day.date)}
                           activeOpacity={0.8}
-                          onPress={() =>
-                            !isFuture && handleDayPress(habit.id, day.date)
-                          }
                         >
                           <Animated.View
                             style={[
                               styles.dayCircle,
                               {
-                                borderColor: isCompleted
-                                  ? lighter
-                                  : theme.subtleText,
-                                backgroundColor: isCompleted
-                                  ? habit.color
-                                  : 'transparent',
+                                backgroundColor: completed ? habit.color : 'transparent',
+                                borderColor: completed ? lighter : theme.subtleText,
                                 opacity: isFuture ? 0.3 : 1,
+                                transform: isActive ? [{ scale: scaleAnim }] : [{ scale: 1 }],
                               },
-                              isToday && {
-                                borderWidth: 2,
-                                borderColor: '#ffffff',
-                                shadowColor: habit.color,
-                                shadowOpacity: 0.7,
-                                shadowRadius: 6,
-                                shadowOffset: { width: 0, height: 0 },
-                                elevation: 6,
-                              },
-                              { transform: circleTransform },
                             ]}
                           />
                         </TouchableOpacity>
@@ -367,7 +289,6 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
                   })}
                 </View>
 
-                {/* Separator */}
                 <View style={styles.separatorWrapper}>
                   <View style={[styles.separator, { backgroundColor: lighter }]} />
                 </View>
@@ -377,36 +298,31 @@ const HabitDetailScreen = ({ navigation }: HabitDetailScreenProps) => {
         </ScrollView>
       </View>
 
-      {isNavBarVisible && (
-        <View style={styles.bottomNavBarContainer}>
-          <View
-            style={[
-              styles.bottomNavBar,
-              {
-                backgroundColor: theme.cardBackground,
-                shadowColor: theme.background,
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.navButton}
-              onPress={() => navigation.navigate('Home')}
-            >
-              <Icon name="home" size={24} color={theme.subtleText} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.navButton}
-              onPress={() => navigation.navigate('Settings')}
-            >
-              <Icon
-                name="cog"
-                size={24}
-                color={theme.text === '#fff' ? '#8a2be2' : '#8a2be2'}
-              />
-            </TouchableOpacity>
-          </View>
+      {/* ⭐ Animated Navbar */}
+      <Animated.View
+        style={[
+          styles.bottomNavBarContainer,
+          {
+            opacity: navbarOpacity,
+            transform: [{ translateY: navbarTranslate }],
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.bottomNavBar,
+            { backgroundColor: theme.cardBackground, shadowColor: theme.background },
+          ]}
+        >
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <Icon name="home" size={24} color={theme.subtleText} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+            <Icon name="cog" size={24} color={'#8a2be2'} />
+          </TouchableOpacity>
         </View>
-      )}
+      </Animated.View>
     </View>
   );
 };
@@ -422,10 +338,11 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingBottom: 16,
   },
+
   title: { fontSize: 24, fontWeight: 'bold' },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingRight: 10 },
 
   content: { flex: 1, paddingHorizontal: 16, paddingTop: 10 },
+
   last7DaysDataText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -435,129 +352,73 @@ const styles = StyleSheet.create({
 
   dateNavigationContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
-  weekRangeText: {
-    fontSize: 13,
-    textAlign: 'center',
-  },
-  arrowButton: {
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-  },
+
+  weekRangeText: { fontSize: 13 },
 
   scrollView: { flex: 1 },
 
-  habitBlock: {
-    marginBottom: 16,
-  },
+  habitBlock: { marginBottom: 16 },
 
-  // Gradient mini header per habit
   habitHeaderCard: {
     borderRadius: 14,
     padding: 10,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
     elevation: 4,
   },
-  habitHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+
+  habitHeaderRow: { flexDirection: 'row', alignItems: 'center' },
+
   habitIconContainer: {
     width: 34,
     height: 34,
     borderRadius: 17,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
-  },
-  habitHeaderTextContainer: { flex: 1 },
-  habitHeaderName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  habitHeaderSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 2,
-  },
-  habitHeaderStatsRow: {
-    flexDirection: 'row',
-    marginTop: 4,
-  },
-  habitHeaderStat: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.9)',
-    marginRight: 10,
-  },
-  targetPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-  },
-  targetPillText: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.95)',
-    marginLeft: 6,
+    marginRight: 12,
   },
 
-  // Week row with aligned day / date / circle
+  habitHeaderTextContainer: { flex: 1 },
+
+  habitHeaderName: { fontSize: 16, fontWeight: '600', color: '#fff' },
+
+  habitHeaderSubtitle: { fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
+
+  habitHeaderStatsRow: { flexDirection: 'row', marginTop: 4 },
+
+  habitHeaderStat: { fontSize: 11, color: 'rgba(255,255,255,0.9)', marginRight: 10 },
+
   weekRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 4,
   },
+
   dayStack: {
     alignItems: 'center',
     flex: 1,
   },
-  dayHeaderText: {
-    fontSize: 11,
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  dateHeaderText: {
-    fontSize: 10,
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  dayCircleTouch: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+
+  dayHeaderText: { fontSize: 11 },
+
+  dateHeaderText: { fontSize: 10, marginBottom: 4 },
+
   dayCircle: {
     width: 26,
     height: 26,
     borderRadius: 13,
     borderWidth: 1.5,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 3,
   },
 
-  separatorWrapper: {
-    alignItems: 'center',
-    marginTop: 10,
-  },
+  separatorWrapper: { alignItems: 'center', marginTop: 10 },
+
   separator: {
     width: '40%',
     height: 2,
-    borderRadius: 999,
     opacity: 0.4,
+    borderRadius: 999,
   },
 
   bottomNavBarContainer: {
@@ -567,19 +428,16 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
   },
+
   bottomNavBar: {
     flexDirection: 'row',
-    borderRadius: 50,
+    paddingHorizontal: 30,
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    justifyContent: 'space-around',
-    width: '80%',
+    borderRadius: 999,
+    width: '75%',
+    justifyContent: 'space-between',
+    elevation: 6,
   },
-  navButton: { padding: 8 },
 });
 
 export default HabitDetailScreen;

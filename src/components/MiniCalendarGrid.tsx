@@ -44,7 +44,7 @@ const MONTH_COLUMN_WIDTH = perMonthWidth;
 const MONTHS_CONTAINER_WIDTH = MONTH_COLUMN_WIDTH * 3;
 
 // Dot size that fits 3 months × up to 6 weeks each
-const DOT_SIZE = Math.min(16, Math.floor(perMonthWidth / 6) - 2);
+const DOT_SIZE = 14.7;
 
 type DayCell = {
   date: Date;
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
 
   dateDot: {
     width: DOT_SIZE,
-    height: DOT_SIZE,
+    height: 12,
     borderRadius: DOT_SIZE / 2,
     justifyContent: 'center',
     alignItems: 'center',
