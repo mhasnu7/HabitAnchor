@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Easing, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useTheme } from '../context/ThemeContext';
-import { COLORS } from '../theme/constants';
 
 interface SplashScreenProps {
   onAnimationFinish: () => void;
@@ -10,38 +9,69 @@ interface SplashScreenProps {
 
 const SplashScreen = ({ onAnimationFinish }: SplashScreenProps) => {
   const { theme } = useTheme();
-  const fadeAnim = useRef(new Animated.Value(1)).current; // Initial opacity 1
+
+  // Fade & scale animations
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(0.7)).current;
+
   const lottieRef = useRef<LottieView>(null);
 
   useEffect(() => {
-    // Start Lottie animation
     lottieRef.current?.play();
 
-    // Fade out animation after 2 seconds
+    // Smooth scale-in animation
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 900,
+      easing: Easing.out(Easing.exp),
+      useNativeDriver: true,
+    }).start();
+
+    // Fade-out after animation completes
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 500, // Fade out duration
-        easing: Easing.ease,
+        duration: 500,
+        easing: Easing.inOut(Easing.ease),
         useNativeDriver: true,
       }).start(() => onAnimationFinish());
-    }, 2000); // 2 seconds for the splash screen
+    }, 2200); // Adjust based on Lottie animation length
 
     return () => clearTimeout(timer);
-  }, [fadeAnim, onAnimationFinish]);
+  }, []);
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor: theme.background, opacity: fadeAnim }]}>
-      <LottieView
-        ref={lottieRef}
-        source={require('../../assets/lottie/AnimationForAnchor.json')}
-        autoPlay
-        loop={false}
-        style={styles.lottieAnimation}
-      />
-      <Text style={[styles.welcomeText, { color: theme.text }]}>
-        Welcome to <Text style={styles.greenText}>A</Text>nchor <Text style={styles.blueText}>H</Text>abits
-      </Text>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.background,
+          opacity: fadeAnim,
+        },
+      ]}
+    >
+      {/* Lottie Animation */}
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <LottieView
+          ref={lottieRef}
+          source={require('../../assets/animations/anchorsplash.json')} // ⭐ New animation file
+          autoPlay
+          loop={false}
+          style={styles.lottieAnimation}
+        />
+      </Animated.View>
+
+      {/* Welcome Text */}
+      <Animated.Text
+        style={[
+          styles.welcomeText,
+          { color: theme.text, opacity: fadeAnim },
+        ]}
+      >
+        Welcome to <Text style={styles.greenText}>A</Text>
+        nchor <Text style={styles.blueText}>H</Text>
+        abits
+      </Animated.Text>
     </Animated.View>
   );
 };
@@ -52,21 +82,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   lottieAnimation: {
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
   },
+
   welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 20,
+    fontSize: 22,
+    fontWeight: '700',
+    marginTop: 18,
     textAlign: 'center',
   },
+
   greenText: {
-    color: '#2E8B57', // A shade of green
+    color: '#2E8B57', // Green
   },
+
   blueText: {
-    color: '#4682B4', // A shade of blue
+    color: '#4682B4', // Blue
   },
 });
 
