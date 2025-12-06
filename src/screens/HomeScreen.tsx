@@ -8,6 +8,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   Animated,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useHabitStore } from '../store/habits';
@@ -108,6 +109,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
+      {/* ⭐ Remove Top Padding + Move Logo Up */}
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
       {/* SNAP ANIMATION */}
       {isAnimating && habitToDelete ? (
         <ThanosSnapAnimation
@@ -137,7 +141,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
             <Image
               source={require('../../assets/logo/Newlogo1.png')}
-              style={[styles.logo, { backgroundColor: 'transparent' }]}
+              style={styles.logo}
             />
 
             <View style={styles.headerRight} />
@@ -153,7 +157,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           ) : (
             <ScrollView
               style={styles.scrollView}
-              contentContainerStyle={{ paddingBottom: 250 }}  // ⭐ space for banner + navbar
+              contentContainerStyle={{ paddingBottom: 250 }}
               onScroll={handleScroll}
               scrollEventThrottle={16}
             >
@@ -168,12 +172,12 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             </ScrollView>
           )}
 
-          {/* ⭐ BANNER AD (fixed above navbar) */}
+          {/* ⭐ BANNER AD */}
           <View style={styles.bannerContainer}>
             <BannerAdView />
           </View>
 
-          {/* 🔥 NAVBAR (Animated) */}
+          {/* 🔥 NAVBAR */}
           <Animated.View
             style={[
               styles.bottomNavBarContainer,
@@ -228,8 +232,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginTop: -35,
-    marginBottom: -70,
+    marginTop: -20,     // 🔥 Moves logo upward cleanly
+    marginBottom: -80,  // Reduces gap below logo
   },
 
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 16 },
@@ -240,7 +244,6 @@ const styles = StyleSheet.create({
 
   emptyStateText: { fontSize: 18, textAlign: 'center' },
 
-  // ⭐ Banner placed above navbar
   bannerContainer: {
     position: 'absolute',
     bottom: 110,
@@ -273,7 +276,7 @@ const styles = StyleSheet.create({
 
   logo: {
     width: 250,
-    height: 220,
+    height: 200,  // slightly smaller + visually higher
     resizeMode: 'contain',
   },
 });

@@ -30,33 +30,46 @@ type MenuScreenProps = NativeStackScreenProps<RootStackParamList, 'Menu'>;
 
 const MenuScreen = ({ navigation }: MenuScreenProps) => {
   const { theme } = useTheme();
-  const { adsRemoved } = useAdsContext();
+  const { adsRemoved, removeAds, restoreAds } = useAdsContext();
 
+  /** REMOVE ADS — disabled until IAP supported */
   const handlePurchase = useCallback(() => {
-    Alert.alert('Coming Soon', 'In-app purchases are temporarily disabled.');
+    Alert.alert(
+      "Coming Soon",
+      "In-app purchases are temporarily disabled until supported by React Native 0.82."
+    );
   }, []);
 
+  /** RESTORE PURCHASE — disabled */
   const handleRestore = useCallback(() => {
-    Alert.alert('Coming Soon', 'Purchase restoration is temporarily disabled.');
+    Alert.alert(
+      "Coming Soon",
+      "Restore purchases will be available in a future update."
+    );
   }, []);
 
-  const handleRateApp = useCallback(() => {
-    console.log('Rate this app pressed');
-  }, []);
+  const handleRateApp = () => {
+    console.log("Rate this app pressed");
+  };
 
   const menuItems = [
     { icon: 'cog', bg: '#007AFF', title: 'Settings', nav: 'Settings' },
     { icon: 'pencil', bg: '#FF9500', title: 'Edit Habits', nav: 'EditHabitsList' },
     { icon: 'help-circle', bg: '#2196F3', title: 'How to Use', nav: 'HowToUse' },
-    { icon: 'crown', bg: '#FFD60A', title: 'Remove Ads', action: handlePurchase },
+
+    // Show Remove Ads only if NOT already removed
+    !adsRemoved && { icon: 'crown', bg: '#FFD60A', title: 'Remove Ads', action: handlePurchase },
+
     { icon: 'restore', bg: '#007AFF', title: 'Restore Purchases', action: handleRestore },
+
     { header: 'About' },
     { icon: 'lock', bg: '#FF2D55', title: 'Privacy Policy', nav: 'PrivacyPolicy' },
     { icon: 'file-document', bg: '#FF9500', title: 'Terms of Use', nav: 'TermsOfUse' },
     { icon: 'star', bg: '#FFD60A', title: 'Rate the app', action: handleRateApp },
     { icon: 'home', bg: '#22c55e', title: 'Home', nav: 'Home' },
-  ];
+  ].filter(Boolean);
 
+  /** Animations */
   const translateY = menuItems.map(() => useSharedValue(-60));
   const rotateX = menuItems.map(() => useSharedValue(45));
   const opacity = menuItems.map(() => useSharedValue(0));
@@ -65,26 +78,17 @@ const MenuScreen = ({ navigation }: MenuScreenProps) => {
     menuItems.forEach((_, index) => {
       translateY[index].value = withDelay(
         index * 120,
-        withTiming(0, {
-          duration: 600,
-          easing: Easing.out(Easing.elastic(1.2)),
-        })
+        withTiming(0, { duration: 600, easing: Easing.out(Easing.elastic(1.2)) })
       );
 
       rotateX[index].value = withDelay(
         index * 120,
-        withTiming(0, {
-          duration: 700,
-          easing: Easing.out(Easing.elastic(1.3)),
-        })
+        withTiming(0, { duration: 700, easing: Easing.out(Easing.elastic(1.3)) })
       );
 
       opacity[index].value = withDelay(
         index * 120,
-        withTiming(1, {
-          duration: 300,
-          easing: Easing.out(Easing.cubic),
-        })
+        withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) })
       );
     });
   }, []);
@@ -102,7 +106,7 @@ const MenuScreen = ({ navigation }: MenuScreenProps) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {menuItems.map((item, index) => {
+        {menuItems.map((item: any, index: number) => {
           const animatedStyle = useAnimatedStyle(() => ({
             opacity: opacity[index].value,
             transform: [
@@ -131,9 +135,7 @@ const MenuScreen = ({ navigation }: MenuScreenProps) => {
                 iconBackgroundColor={item.bg}
                 title={item.title}
                 onPress={() =>
-                  item.nav
-                    ? navigation.navigate(item.nav as never)
-                    : item.action?.()
+                  item.nav ? navigation.navigate(item.nav as never) : item.action?.()
                 }
               />
             </Animated.View>

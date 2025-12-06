@@ -3,14 +3,15 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 import { useAdsContext } from '../context/AdsContext';
 
+// ⭐ Use Test ID in development, Real ID in production
 const adUnitId = __DEV__
   ? TestIds.BANNER
-  : 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy'; // Replace with real unit ID later
+  : 'ca-app-pub-2024868517400530/8645807008'; // ✅ Your real banner ID
 
 const BannerAdComponent: React.FC = () => {
   const { adsRemoved } = useAdsContext();
 
-  // If user purchased Remove Ads → Don't render banner
+  // ⭐ Hide ad if user purchased Remove Ads
   if (adsRemoved) return null;
 
   return (
@@ -22,7 +23,7 @@ const BannerAdComponent: React.FC = () => {
           requestNonPersonalizedAdsOnly: true,
         }}
         onAdLoaded={() => console.log('Banner Ad Loaded')}
-        onAdFailedToLoad={(err) => console.log('Banner Ad Error:', err)}
+        onAdFailedToLoad={(error) => console.log('Banner Ad Load Error:', error)}
       />
     </View>
   );
@@ -33,13 +34,15 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    
-    // ⭐ Important: Avoid covering UI when keyboard opens
+
+    // ⭐ Prevent ads covering content
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 0 : 0,
+    bottom: 0,
     zIndex: 999,
     elevation: 10,
-    paddingBottom: Platform.OS === 'ios' ? 10 : 0,
+
+    // ⭐ Extra iOS spacing for safe area bottom
+    paddingBottom: Platform.OS === 'ios' ? 12 : 0,
   },
 });
 

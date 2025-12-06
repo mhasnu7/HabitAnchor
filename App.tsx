@@ -1,5 +1,5 @@
 /**
- * App.tsx – Clean, error-free version
+ * App.tsx – Final Clean + Stable Version with AdMob + Splash
  */
 
 import React, { useEffect, useState } from 'react';
@@ -26,7 +26,6 @@ import EditHabitsListScreen from './src/screens/EditHabitsListScreen';
 import EditHabitDetailScreen from './src/screens/EditHabitDetailScreen';
 
 import { AdsProvider } from './src/context/AdsContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useHabitStore } from './src/store/habits';
 
 import { ThemeProvider } from './src/context/ThemeContext';
@@ -60,72 +59,76 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function MainAppContent() {
   const { habits } = useHabitStore();
+
   const [isSplashVisible, setIsSplashVisible] = useState(true);
   const [adsReady, setAdsReady] = useState(false);
 
+  // Notifications
   useEffect(() => {
     configureNotifications();
   }, []);
 
+  // AdMob Init
   useEffect(() => {
     mobileAds()
       .initialize()
-      .then(() => setAdsReady(true))
-      .catch(() => setAdsReady(true));
+      .then(() => {
+        console.log('AdMob initialized');
+        setAdsReady(true);
+      })
+      .catch((err) => {
+        console.error('AdMob init error:', err);
+        setAdsReady(true); // Avoid blocking the app
+      });
 
-    // Debug habit storage
-    AsyncStorage.getItem('habit-storage').then(v =>
-      console.log('Stored Habit Data:', v),
-    );
+    console.log('Loaded habits:', habits);
   }, []);
 
   const handleSplashFinish = () => setIsSplashVisible(false);
 
   if (isSplashVisible || !adsReady) {
-    return (
-      <ThemeProvider>
-        <SplashScreen onAnimationFinish={handleSplashFinish} />
-      </ThemeProvider>
-    );
+    return <SplashScreen onAnimationFinish={handleSplashFinish} />;
   }
 
   return (
-    <ThemeProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Group>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
-            <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
-            <Stack.Screen name="Menu" component={MenuScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
-            <Stack.Screen name="GeneralSettings" component={GeneralSettingsScreen} />
-            <Stack.Screen name="DailyCheckInReminder" component={DailyCheckInReminderScreen} />
-            <Stack.Screen name="ThemeSelection" component={ThemeSelectionScreen} />
-            <Stack.Screen name="ArchivedHabits" component={ArchivedHabitsScreen} />
-            <Stack.Screen name="HabitInsights" component={HabitInsightsScreen} />
-            <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-            <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
-            <Stack.Screen name="EditHabitsList" component={EditHabitsListScreen} />
-            <Stack.Screen name="EditHabitDetail" component={EditHabitDetailScreen} />
-            <Stack.Screen name="HowToUse" component={HowToUseScreen} />
-          </Stack.Group>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/* MAIN SCREENS */}
+        <Stack.Group>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="HabitCalendar" component={HabitCalendarScreen} />
+          <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
+          <Stack.Screen name="Menu" component={MenuScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="GeneralSettings" component={GeneralSettingsScreen} />
+          <Stack.Screen name="DailyCheckInReminder" component={DailyCheckInReminderScreen} />
+          <Stack.Screen name="ThemeSelection" component={ThemeSelectionScreen} />
+          <Stack.Screen name="ArchivedHabits" component={ArchivedHabitsScreen} />
+          <Stack.Screen name="HabitInsights" component={HabitInsightsScreen} />
+          <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+          <Stack.Screen name="TermsOfUse" component={TermsOfUseScreen} />
+          <Stack.Screen name="EditHabitsList" component={EditHabitsListScreen} />
+          <Stack.Screen name="EditHabitDetail" component={EditHabitDetailScreen} />
+          <Stack.Screen name="HowToUse" component={HowToUseScreen} />
+        </Stack.Group>
 
-          <Stack.Group screenOptions={{ presentation: 'modal' }}>
-            <Stack.Screen name="AddHabit" component={AddHabitScreen} />
-            <Stack.Screen name="IconPicker" component={IconPickerScreen} />
-            <Stack.Screen name="ColorPicker" component={ColorPickerScreen} />
-          </Stack.Group>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </ThemeProvider>
+        {/* MODAL SCREENS */}
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="AddHabit" component={AddHabitScreen} />
+          <Stack.Screen name="IconPicker" component={IconPickerScreen} />
+          <Stack.Screen name="ColorPicker" component={ColorPickerScreen} />
+        </Stack.Group>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
 export default function App() {
   return (
     <AdsProvider>
-      <MainAppContent />
+      <ThemeProvider>
+        <MainAppContent />
+      </ThemeProvider>
     </AdsProvider>
   );
 }
